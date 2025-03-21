@@ -1,18 +1,38 @@
 import 'package:flutter/material.dart';
 
-const List<String> pantryTagOrder = [
-  'meat',
-  'grain',
-  'fruit',
-  'vegetable',
-  'dairy/eggs',
-  'frozen',
-  'can',
-  'snack',
-  'beverage',
-  'other',
-  '',
-];
+final Map<String, List<String>> itemTypeTagMapping = {
+  'pantry': [
+    'meat',
+    'grain',
+    'fruit',
+    'vegetable',
+    'dairy/eggs',
+    'frozen',
+    'can',
+    'snack',
+    'beverage',
+    'other',
+    '',
+  ],
+  'todo': [
+    'urgent',
+    'high priority',
+    'medium priority',
+    'low priority',
+    'completed',
+    '',
+  ],
+  'meals': [
+    'breakfast',
+    'lunch',
+    'dinner',
+    'snack',
+    'dessert',
+    '',
+  ],
+};
+
+final List<String> pantryTagOrder = itemTypeTagMapping['pantry']!;
 
 Color primaryColor = Color.fromARGB(255, 3, 78, 140);
 Color secondaryColor = Colors.grey[200]!;

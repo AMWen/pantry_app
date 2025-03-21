@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../data/classes/pantry_item.dart';
+import '../data/classes/list_item.dart';
 
 class AddItemScreen extends StatefulWidget {
-  final Function(PantryItem) onItemAdded;
+  final Function(ListItem) onItemAdded;
 
   const AddItemScreen({super.key, required this.onItemAdded});
 
@@ -72,8 +72,8 @@ class AddItemScreenState extends State<AddItemScreen> {
           name = parts.sublist(1).join(' '); // Join the remaining parts as the name
         }
 
-        // Create a PantryItem and add it
-        final item = PantryItem(name: name, count: count, dateAdded: DateTime.now());
+        // Create a ListItem and add it
+        final item = ListItem(name: name, count: count, dateAdded: DateTime.now());
 
         widget.onItemAdded(item); // Call the callback function to add the item
       }

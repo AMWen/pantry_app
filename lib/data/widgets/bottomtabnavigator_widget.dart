@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pantry_app/data/constants.dart';
 
 import '../../../screens/home_screen.dart';
 import '../classes/tab_item.dart';
@@ -12,10 +11,10 @@ class BottomTabNavigator extends StatefulWidget {
 }
 
 class BottomTabNavigatorState extends State<BottomTabNavigator> {
-  int _selectedIndex = 0; // To track the selected tab index
+  int _selectedIndex = 0;
 
   final List<TabItem> _tabs = [
-    TabItem(screen: HomeScreen(), icon: Icon(Icons.home), label: 'Home'),
+    TabItem(screen: HomeScreen(), icon: Icon(Icons.kitchen), label: 'Pantry'),
     TabItem(screen: HomeScreen(), icon: Icon(Icons.local_grocery_store), label: 'Shopping'),
     TabItem(screen: HomeScreen(), icon: Icon(Icons.dinner_dining), label: 'Meals'),
     TabItem(screen: HomeScreen(), icon: Icon(Icons.list), label: 'To Do'),

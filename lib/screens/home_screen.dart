@@ -7,7 +7,7 @@ import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:typed_data'; // Import for Uint8List
-import '../data/classes/pantry_item.dart';
+import '../data/classes/list_item.dart';
 import 'additem_screen.dart';
 import '../data/constants.dart';
 import '../utils/string_utils.dart';
@@ -20,7 +20,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  Box<PantryItem>? _pantryBox;
+  Box<ListItem>? _pantryBox;
   double updateQuantity = 0;
   String _sortCriteria = 'name'; // Default sorting by name
   Set<int> _selectedItemIds = {}; // Track selected item IDs
@@ -28,10 +28,10 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _pantryBox = Hive.box<PantryItem>('pantry');
+    _pantryBox = Hive.box<ListItem>('pantry');
   }
 
-  void _addItem(PantryItem item) {
+  void _addItem(ListItem item) {
     setState(() {
       _pantryBox?.add(item);
     });
@@ -109,7 +109,7 @@ class HomeScreenState extends State<HomeScreen> {
                 actions: [
                   FilledButton(
                     onPressed: () {
-                      for (PantryItem item in selectedItems) {
+                      for (ListItem item in selectedItems) {
                         item.tag = selectedTag;
                         item.save();
                       }
@@ -174,7 +174,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   // Method to handle sorting options
-  void _sortPantryItems(String criteria) {
+  void _sortListItems(String criteria) {
     setState(() {
       _sortCriteria = criteria;
     });
@@ -225,7 +225,7 @@ class HomeScreenState extends State<HomeScreen> {
 
       // Add each item to the pantry box
       for (var itemData in jsonList) {
-        final pantryItem = PantryItem.fromJson(itemData);
+        final pantryItem = ListItem.fromJson(itemData);
         if (mounted) {
           setState(() {
             _pantryBox?.add(pantryItem);
@@ -309,7 +309,7 @@ class HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.only(left: 0, right: 20, top: 20, bottom: 20),
         child: ValueListenableBuilder(
           valueListenable: _pantryBox!.listenable(),
-          builder: (context, Box<PantryItem> box, _) {
+          builder: (context, Box<ListItem> box, _) {
             if (box.values.isEmpty) {
               return Center(child: Text('No items in pantry.'));
             }
@@ -438,7 +438,7 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showItemDetails(BuildContext context, PantryItem item) {
+  void _showItemDetails(BuildContext context, ListItem item) {
     String displayName =
         item.name.endsWith('s')
             ? item.name.substring(0, item.name.length - 1) // Remove trailing 's'
@@ -446,7 +446,7 @@ class HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        updateQuantity = item.count.toDouble();
+        updateQuantity = item.count?.toDouble() ?? 0.0;
 
         return StatefulBuilder(
           builder: (context, setState) {
@@ -488,7 +488,7 @@ class HomeScreenState extends State<HomeScreen> {
                         Slider(
                           value: updateQuantity,
                           min: 0,
-                          max: max(item.count.toDouble(), updateQuantity),
+                          max: max(item.count?.toDouble() ?? 0.0, updateQuantity),
                           divisions: item.count,
                           label: '$updateQuantity',
                           onChanged: (double value) {
@@ -571,21 +571,21 @@ class HomeScreenState extends State<HomeScreen> {
                 title: Text('Name'),
                 onTap: () {
                   Navigator.of(context).pop();
-                  _sortPantryItems('name');
+                  _sortListItems('name');
                 },
               ),
               ListTile(
                 title: Text('Date Added'),
                 onTap: () {
                   Navigator.of(context).pop();
-                  _sortPantryItems('dateAdded');
+                  _sortListItems('dateAdded');
                 },
               ),
               ListTile(
                 title: Text('Tag'),
                 onTap: () {
                   Navigator.of(context).pop();
-                  _sortPantryItems('tag');
+                  _sortListItems('tag');
                 },
               ),
             ],

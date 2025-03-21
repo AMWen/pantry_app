@@ -1,33 +1,35 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'pantry_item.dart';
+part of 'list_item.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class PantryItemAdapter extends TypeAdapter<PantryItem> {
+class ListItemAdapter extends TypeAdapter<ListItem> {
   @override
   final int typeId = 0;
 
   @override
-  PantryItem read(BinaryReader reader) {
+  ListItem read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return PantryItem(
+    return ListItem(
       name: fields[0] as String,
-      count: fields[1] as int,
+      count: fields[1] as int?,
       dateAdded: fields[2] as DateTime,
       tag: fields[3] as String?,
+      completed: fields[4] as bool?,
+      itemType: fields[5] != null ? fields[5] as String : 'pantry',
     );
   }
 
   @override
-  void write(BinaryWriter writer, PantryItem obj) {
+  void write(BinaryWriter writer, ListItem obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -35,7 +37,11 @@ class PantryItemAdapter extends TypeAdapter<PantryItem> {
       ..writeByte(2)
       ..write(obj.dateAdded)
       ..writeByte(3)
-      ..write(obj.tag);
+      ..write(obj.tag)
+      ..writeByte(4)
+      ..write(obj.completed)
+      ..writeByte(5)
+      ..write(obj.itemType);
   }
 
   @override
@@ -44,7 +50,7 @@ class PantryItemAdapter extends TypeAdapter<PantryItem> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is PantryItemAdapter &&
+      other is ListItemAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

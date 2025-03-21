@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'data/classes/pantry_item.dart';
+import 'data/classes/list_item.dart';
 import 'data/constants.dart';
 import 'data/widgets/bottomtabnavigator_widget.dart';
 
 void main() async {
   await Hive.initFlutter();
-  Hive.registerAdapter(PantryItemAdapter());
-  await Hive.openBox<PantryItem>('pantry');
+  Hive.registerAdapter(ListItemAdapter());
+  await Hive.openBox<ListItem>('pantry');
   runApp(MyApp());
 }
 
