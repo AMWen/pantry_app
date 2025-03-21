@@ -7,7 +7,8 @@ import 'data/widgets/bottomtabnavigator_widget.dart';
 void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(ListItemAdapter());
-  await Hive.openBox<ListItem>('pantry');
+  // Open all Hive boxes
+  await Future.wait(boxNames.map((boxName) => Hive.openBox<ListItem>(boxName)).toList());
   runApp(MyApp());
 }
 

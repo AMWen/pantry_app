@@ -14,31 +14,17 @@ final Map<String, List<String>> itemTypeTagMapping = {
     'other',
     '',
   ],
-  'todo': [
-    'urgent',
-    'high priority',
-    'medium priority',
-    'low priority',
-    'completed',
-    '',
-  ],
-  'meals': [
-    'breakfast',
-    'lunch',
-    'dinner',
-    'snack',
-    'dessert',
-    '',
-  ],
+  'todo': ['urgent', 'high priority', 'low priority', 'completed', ''],
+  'meals': ['breakfast', 'lunch', 'dinner', 'snack', 'dessert', ''],
 };
 
-final List<String> pantryTagOrder = itemTypeTagMapping['pantry']!;
+  final List<String> boxNames = ['pantry', 'shopping', 'todo', 'meals'];
 
 Color primaryColor = Color.fromARGB(255, 3, 78, 140);
 Color secondaryColor = Colors.grey[200]!;
 
 class TextStyles {
-   static TextStyle titleText = TextStyle(
+  static TextStyle titleText = TextStyle(
     color: secondaryColor,
     fontSize: 20,
     fontWeight: FontWeight.w500,
