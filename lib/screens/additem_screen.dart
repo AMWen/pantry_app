@@ -6,7 +6,12 @@ class AddItemScreen extends StatefulWidget {
   final String itemType;
   final bool hasCount;
 
-  const AddItemScreen({super.key, required this.onItemAdded, required this.itemType, this.hasCount = true});
+  const AddItemScreen({
+    super.key,
+    required this.onItemAdded,
+    required this.itemType,
+    this.hasCount = true,
+  });
 
   @override
   AddItemScreenState createState() => AddItemScreenState();
@@ -36,7 +41,6 @@ class AddItemScreenState extends State<AddItemScreen> {
                   ),
                 ),
                 SizedBox(height: 20),
-                // The rest of your content can go here
               ],
             ),
           ),
@@ -70,7 +74,6 @@ class AddItemScreenState extends State<AddItemScreen> {
           name = parts.sublist(1).join(' '); // Join the remaining parts as the name
         }
 
-        // Create the ListItem, either with or without count
         final item = ListItem(
           name: name,
           count: widget.hasCount ? count : null, // Only assign count if hasCount is true
@@ -80,8 +83,7 @@ class AddItemScreenState extends State<AddItemScreen> {
 
         widget.onItemAdded(item); // Call the callback function to add the item
       }
-
-      Navigator.pop(context); // Go back to the previous screen after adding items
     }
+    Navigator.pop(context); // Go back to the previous screen after adding items
   }
 }

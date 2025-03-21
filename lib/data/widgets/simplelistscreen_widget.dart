@@ -301,7 +301,7 @@ class SimpleListScreenState extends State<SimpleListScreen> {
     );
   }
 
-  void _onTap(BuildContext context, ListItem item) {
+  void onItemTapped(BuildContext context, ListItem item) {
     item.completed = (item.completed ?? false) ? false : true;
     item.save();
   }
@@ -449,7 +449,7 @@ class SimpleListScreenState extends State<SimpleListScreen> {
                         ),
                       ],
                     ),
-                    onTap: () => _onTap(context, item),
+                    onTap: () => onItemTapped(context, item),
                   );
                 }
               },

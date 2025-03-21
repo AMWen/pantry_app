@@ -17,7 +17,7 @@ class BottomTabNavigatorState extends State<BottomTabNavigator> {
   int _selectedIndex = 0;
 
   final List<TabItem> _tabs = [
-    TabItem(screen: PantryScreen(), icon: Icon(Icons.kitchen), label: 'Pantry'),
+    TabItem(screen: PantryScreen(), icon: Icon(Icons.kitchen_rounded), label: 'Pantry'),
     TabItem(screen: ShoppingScreen(), icon: Icon(Icons.local_grocery_store), label: 'Shopping'),
     TabItem(screen: MealsScreen(), icon: Icon(Icons.dinner_dining), label: 'Meals'),
     TabItem(screen: ToDoScreen(), icon: Icon(Icons.list), label: 'To Do'),
