@@ -30,7 +30,7 @@ class BaseScreenState extends State<BaseScreen> {
   String _sortCriteria = 'name'; // Default sorting by name
   Set<int> _selectedItemIds = {};
 
-    @override
+  @override
   void initState() {
     super.initState();
     _itemBox = Hive.box<ListItem>(widget.boxName);
@@ -428,7 +428,9 @@ class BaseScreenState extends State<BaseScreen> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddItemScreen(onItemAdded: _addItem)),
+            MaterialPageRoute(
+              builder: (context) => AddItemScreen(onItemAdded: _addItem, itemType: widget.itemType),
+            ),
           );
         },
         foregroundColor: Colors.grey[100],

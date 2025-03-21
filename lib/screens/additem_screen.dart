@@ -3,8 +3,9 @@ import '../data/classes/list_item.dart';
 
 class AddItemScreen extends StatefulWidget {
   final Function(ListItem) onItemAdded;
+  final String itemType;
 
-  const AddItemScreen({super.key, required this.onItemAdded});
+  const AddItemScreen({super.key, required this.onItemAdded, required this.itemType});
 
   @override
   AddItemScreenState createState() => AddItemScreenState();
@@ -43,11 +44,7 @@ class AddItemScreenState extends State<AddItemScreen> {
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: FilledButton(
-                onPressed: _addItems,
-                
-                child: Text('Add Items'),
-              ),
+              child: FilledButton(onPressed: _addItems, child: Text('Add Items')),
             ),
           ),
         ],
@@ -73,7 +70,12 @@ class AddItemScreenState extends State<AddItemScreen> {
         }
 
         // Create a ListItem and add it
-        final item = ListItem(name: name, count: count, dateAdded: DateTime.now());
+        final item = ListItem(
+          name: name,
+          count: count,
+          dateAdded: DateTime.now(),
+          itemType: widget.itemType,
+        );
 
         widget.onItemAdded(item); // Call the callback function to add the item
       }

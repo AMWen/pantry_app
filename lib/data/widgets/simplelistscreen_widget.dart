@@ -454,7 +454,9 @@ class SimpleListScreenState extends State<SimpleListScreen> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddItemScreen(onItemAdded: _addItem)),
+            MaterialPageRoute(
+              builder: (context) => AddItemScreen(onItemAdded: _addItem, itemType: widget.itemType),
+            ),
           );
         },
         foregroundColor: Colors.grey[100],
