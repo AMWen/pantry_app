@@ -7,39 +7,45 @@ import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:typed_data'; // Import for Uint8List
-import '../data/classes/list_item.dart';
-import 'additem_screen.dart';
-import '../data/constants.dart';
-import '../utils/string_utils.dart';
+import '../classes/list_item.dart';
+import '../constants.dart';
+import '../../screens/additem_screen.dart';
+import '../../utils/string_utils.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class BaseScreen extends StatefulWidget {
+  final String itemType;
+  final String boxName; // Can be different (e.g. shopping box for pantry items)
+  final String title;
+
+  const BaseScreen({super.key, required this.itemType, required this.boxName, required this.title});
 
   @override
-  HomeScreenState createState() => HomeScreenState();
+  BaseScreenState createState() => BaseScreenState();
 }
 
-class HomeScreenState extends State<HomeScreen> {
-  Box<ListItem>? _pantryBox;
+class BaseScreenState extends State<BaseScreen> {
+  Box<ListItem>? _itemBox;
+  List<String>? _tagOrder;
   double updateQuantity = 0;
   String _sortCriteria = 'name'; // Default sorting by name
-  Set<int> _selectedItemIds = {}; // Track selected item IDs
+  Set<int> _selectedItemIds = {};
 
-  @override
+    @override
   void initState() {
     super.initState();
-    _pantryBox = Hive.box<ListItem>('pantry');
+    _itemBox = Hive.box<ListItem>(widget.boxName);
+    _tagOrder = itemTypeTagMapping[widget.itemType]!;
   }
 
   void _addItem(ListItem item) {
     setState(() {
-      _pantryBox?.add(item);
+      _itemBox?.add(item);
     });
   }
 
   void _deleteItem(int index) {
     setState(() {
-      _pantryBox?.deleteAt(index);
+      _itemBox?.deleteAt(index);
     });
   }
 
@@ -64,12 +70,12 @@ class HomeScreenState extends State<HomeScreen> {
               ElevatedButton(
                 onPressed: () {
                   final selectedItems =
-                      _pantryBox!.values
+                      _itemBox!.values
                           .where((item) => _selectedItemIds.contains(item.key)) // Use key to filter
                           .toList();
 
                   for (var item in selectedItems) {
-                    _deleteItem(_pantryBox!.values.toList().indexOf(item));
+                    _deleteItem(_itemBox!.values.toList().indexOf(item));
                   }
                   _selectedItemIds.clear();
 
@@ -94,7 +100,7 @@ class HomeScreenState extends State<HomeScreen> {
   void _showTaggingOptions(BuildContext context) {
     if (_selectedItemIds.isNotEmpty) {
       final selectedItems =
-          _pantryBox!.values
+          _itemBox!.values
               .where((item) => _selectedItemIds.contains(item.key)) // Use key to filter
               .toList();
 
@@ -126,7 +132,7 @@ class HomeScreenState extends State<HomeScreen> {
                     child: Wrap(
                       spacing: 4.0,
                       children:
-                          pantryTagOrder.map<Widget>((String tag) {
+                          _tagOrder!.map<Widget>((String tag) {
                             bool isSelected = tag == selectedTag;
 
                             return ChoiceChip(
@@ -163,7 +169,7 @@ class HomeScreenState extends State<HomeScreen> {
 
   void _updateItem(int index, int newCount) {
     setState(() {
-      final item = _pantryBox?.getAt(index);
+      final item = _itemBox?.getAt(index);
       if (newCount == 0) {
         _deleteItem(index);
       } else if (item != null) {
@@ -173,7 +179,6 @@ class HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // Method to handle sorting options
   void _sortListItems(String criteria) {
     setState(() {
       _sortCriteria = criteria;
@@ -218,17 +223,16 @@ class HomeScreenState extends State<HomeScreen> {
 
     final filePath = await FlutterFileDialog.pickFile(params: params);
     if (filePath != null) {
-      // Read the file and parse JSON
       final file = File(filePath);
       final jsonString = await file.readAsString();
       final List<dynamic> jsonList = json.decode(jsonString);
 
-      // Add each item to the pantry box
+      // Add each item to the item box
       for (var itemData in jsonList) {
-        final pantryItem = ListItem.fromJson(itemData);
+        final listItem = ListItem.fromJson(itemData);
         if (mounted) {
           setState(() {
-            _pantryBox?.add(pantryItem);
+            _itemBox?.add(listItem);
           });
         }
       }
@@ -243,14 +247,14 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _exportItems() async {
-    final pantryItems = _pantryBox?.values.toList() ?? [];
+    final listItems = _itemBox?.values.toList() ?? [];
 
-    if (pantryItems.isNotEmpty) {
-      final jsonList = pantryItems.map((item) => item.toJson()).toList();
+    if (listItems.isNotEmpty) {
+      final jsonList = listItems.map((item) => item.toJson()).toList();
       final jsonString = json.encode(jsonList);
 
       final params = SaveFileDialogParams(
-        fileName: 'pantry_items.json',
+        fileName: '${widget.boxName}_items.json',
         mimeTypesFilter: ['application/json'],
         data: Uint8List.fromList(jsonString.codeUnits),
       );
@@ -276,7 +280,7 @@ class HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pantry'),
+        title: Text(widget.title),
         actions: [
           IconButton(
             icon: Icon(Icons.swap_vert),
@@ -288,50 +292,45 @@ class HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: Icon(Icons.save),
             onPressed: () {
-              // Show a bottom sheet or alert to choose between import or export
               _showImportExportOptions();
             },
           ),
           IconButton(
             icon: Icon(Icons.label),
             onPressed: () {
-              // Show a bottom sheet or alert to choose between import or export
               _showTaggingOptions(context);
             },
           ),
-          IconButton(
-            icon: Icon(Icons.delete_forever),
-            onPressed: _deleteSelectedItems, // Handle the deletion of selected items
-          ),
+          IconButton(icon: Icon(Icons.delete_forever), onPressed: _deleteSelectedItems),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.only(left: 0, right: 20, top: 20, bottom: 20),
         child: ValueListenableBuilder(
-          valueListenable: _pantryBox!.listenable(),
+          valueListenable: _itemBox!.listenable(),
           builder: (context, Box<ListItem> box, _) {
             if (box.values.isEmpty) {
-              return Center(child: Text('No items in pantry.'));
+              return Center(child: Text('No items added yet.'));
             }
 
-            // Original pantry list
-            var pantryItems = box.values.toList();
+            // Original list
+            var listItems = box.values.toList();
 
-            // Sort the pantry items based on selected criteria
+            // Sort the items based on selected criteria
             if (_sortCriteria == 'name') {
-              pantryItems.sort((a, b) => a.name.compareTo(b.name));
+              listItems.sort((a, b) => a.name.compareTo(b.name));
             } else if (_sortCriteria == 'dateAdded') {
-              pantryItems.sort((a, b) => a.dateAdded.compareTo(b.dateAdded));
+              listItems.sort((a, b) => a.dateAdded.compareTo(b.dateAdded));
             } else if (_sortCriteria == 'tag') {
-              pantryItems.sort((a, b) {
-                int aIndex = pantryTagOrder.indexOf(a.tag ?? 'other');
-                int bIndex = pantryTagOrder.indexOf(b.tag ?? 'other');
+              listItems.sort((a, b) {
+                int aIndex = _tagOrder!.indexOf(a.tag ?? 'other');
+                int bIndex = _tagOrder!.indexOf(b.tag ?? 'other');
                 return aIndex.compareTo(bIndex);
               });
             }
 
             return ListView.builder(
-              itemCount: pantryItems.length + 1, // Add 1 for the "Select All" checkbox
+              itemCount: listItems.length + 1, // Add 1 for the "Select All" checkbox
               itemBuilder: (context, index) {
                 if (index == 0) {
                   // Select All Checkbox
@@ -342,14 +341,14 @@ class HomeScreenState extends State<HomeScreen> {
                         SizedBox(
                           height: 24, // Used to remove padding from Checkbox
                           child: Checkbox(
-                            value: pantryItems.every(
+                            value: listItems.every(
                               (item) => _selectedItemIds.contains(item.key),
                             ), // Check if all items are selected
                             onChanged: (bool? value) {
                               setState(() {
                                 if (value == true) {
                                   // Select all
-                                  _selectedItemIds = pantryItems.fold<Set<int>>({}, (
+                                  _selectedItemIds = listItems.fold<Set<int>>({}, (
                                     Set<int> selectedIds,
                                     item,
                                   ) {
@@ -369,7 +368,7 @@ class HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 } else {
-                  final item = pantryItems[index - 1]; // Subtract 1 to match pantry item index
+                  final item = listItems[index - 1]; // Subtract 1 to match item index
 
                   return ListTile(
                     minTileHeight: 10,
@@ -500,7 +499,6 @@ class HomeScreenState extends State<HomeScreen> {
                         SizedBox(
                           width: 20,
                           child: IconButton(
-                            padding: EdgeInsets.zero,
                             icon: Icon(Icons.add, size: 15),
                             onPressed: () {
                               setState(() {
@@ -522,7 +520,7 @@ class HomeScreenState extends State<HomeScreen> {
                       children: [
                         FilledButton(
                           onPressed: () {
-                            final index = _pantryBox?.values.toList().indexOf(item);
+                            final index = _itemBox?.values.toList().indexOf(item);
                             if (index != null && index >= 0) {
                               _updateItem(
                                 index,
@@ -537,7 +535,7 @@ class HomeScreenState extends State<HomeScreen> {
                         IconButton(
                           icon: Icon(Icons.delete, color: primaryColor),
                           onPressed: () {
-                            final index = _pantryBox?.values.toList().indexOf(item);
+                            final index = _itemBox?.values.toList().indexOf(item);
                             if (index != null && index >= 0) {
                               _deleteItem(index);
                             }
