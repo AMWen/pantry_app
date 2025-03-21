@@ -21,7 +21,7 @@ class SimpleListScreen extends StatefulWidget {
     required this.itemType,
     required this.boxName,
     required this.title,
-    this.hasCount = false
+    this.hasCount = false,
   });
 
   @override
@@ -306,6 +306,44 @@ class SimpleListScreenState extends State<SimpleListScreen> {
     item.save();
   }
 
+  void _showEditDialog(BuildContext context, ListItem item) {
+    final TextEditingController controller = TextEditingController(text: item.name);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit Item'),
+          content: SingleChildScrollView(
+            child: TextField(
+              controller: controller,
+              maxLines: null,
+              decoration: InputDecoration(labelText: 'Item', hintText: 'Enter the new item'),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                setState(() {
+                  item.name = controller.text;
+                  item.save();
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -450,6 +488,7 @@ class SimpleListScreenState extends State<SimpleListScreen> {
                       ],
                     ),
                     onTap: () => onItemTapped(context, item),
+                    onLongPress: () => _showEditDialog(context, item),
                   );
                 }
               },
@@ -462,7 +501,12 @@ class SimpleListScreenState extends State<SimpleListScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddItemScreen(onItemAdded: _addItem, itemType: widget.itemType, hasCount: widget.hasCount),
+              builder:
+                  (context) => AddItemScreen(
+                    onItemAdded: _addItem,
+                    itemType: widget.itemType,
+                    hasCount: widget.hasCount,
+                  ),
             ),
           );
         },
