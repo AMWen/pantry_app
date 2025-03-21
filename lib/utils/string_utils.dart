@@ -15,9 +15,9 @@ bool isPlural(String word) {
 Color getTagColor(String? tag) {
   if (tag == null || tag.isEmpty) return Colors.grey;
   
-  int index = tagOrder.indexOf(tag);
-  double hue = index >= 0 ? (index / tagOrder.length) * 360 : 0;
-  double saturation = index >= 0 ? (index + tagOrder.length) / (tagOrder.length * 2) : 1;
+  int index = pantryTagOrder.indexOf(tag);
+  double hue = index >= 0 ? (index / pantryTagOrder.length) * 360 : 0;
+  double saturation = index >= 0 ? (index + pantryTagOrder.length) / (pantryTagOrder.length * 2) : 1;
   double lightness = 0.75;
 
   return HSVColor.fromAHSV(1.0, hue, saturation, lightness).toColor();

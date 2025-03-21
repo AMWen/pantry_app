@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const List<String> tagOrder = [
+const List<String> pantryTagOrder = [
   'meat',
   'grain',
   'fruit',

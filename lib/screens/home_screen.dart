@@ -126,7 +126,7 @@ class HomeScreenState extends State<HomeScreen> {
                     child: Wrap(
                       spacing: 4.0,
                       children:
-                          tagOrder.map<Widget>((String tag) {
+                          pantryTagOrder.map<Widget>((String tag) {
                             bool isSelected = tag == selectedTag;
 
                             return ChoiceChip(
@@ -324,8 +324,8 @@ class HomeScreenState extends State<HomeScreen> {
               pantryItems.sort((a, b) => a.dateAdded.compareTo(b.dateAdded));
             } else if (_sortCriteria == 'tag') {
               pantryItems.sort((a, b) {
-                int aIndex = tagOrder.indexOf(a.tag ?? 'other');
-                int bIndex = tagOrder.indexOf(b.tag ?? 'other');
+                int aIndex = pantryTagOrder.indexOf(a.tag ?? 'other');
+                int bIndex = pantryTagOrder.indexOf(b.tag ?? 'other');
                 return aIndex.compareTo(bIndex);
               });
             }
