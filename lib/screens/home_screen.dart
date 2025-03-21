@@ -337,28 +337,35 @@ class HomeScreenState extends State<HomeScreen> {
                   // Select All Checkbox
                   return ListTile(
                     minTileHeight: 10,
-                    title: Text('Select All', style: TextStyle(fontWeight: FontWeight.w600)),
-                    leading: Checkbox(
-                      value: pantryItems.every(
-                        (item) => _selectedItemIds.contains(item.key),
-                      ), // Check if all items are selected
-                      onChanged: (bool? value) {
-                        setState(() {
-                          if (value == true) {
-                            // Select all
-                            _selectedItemIds = pantryItems.fold<Set<int>>({}, (
-                              Set<int> selectedIds,
-                              item,
-                            ) {
-                              selectedIds.add(item.key);
-                              return selectedIds;
-                            });
-                          } else {
-                            // Deselect all
-                            _selectedItemIds.clear();
-                          }
-                        });
-                      },
+                    title: Row(
+                      children: [
+                        SizedBox(
+                          height: 24, // Used to remove padding from Checkbox
+                          child: Checkbox(
+                            value: pantryItems.every(
+                              (item) => _selectedItemIds.contains(item.key),
+                            ), // Check if all items are selected
+                            onChanged: (bool? value) {
+                              setState(() {
+                                if (value == true) {
+                                  // Select all
+                                  _selectedItemIds = pantryItems.fold<Set<int>>({}, (
+                                    Set<int> selectedIds,
+                                    item,
+                                  ) {
+                                    selectedIds.add(item.key);
+                                    return selectedIds;
+                                  });
+                                } else {
+                                  // Deselect all
+                                  _selectedItemIds.clear();
+                                }
+                              });
+                            },
+                          ),
+                        ),
+                        Text('Select All', style: TextStyle(fontWeight: FontWeight.w600)),
+                      ],
                     ),
                   );
                 } else {
@@ -366,24 +373,34 @@ class HomeScreenState extends State<HomeScreen> {
 
                   return ListTile(
                     minTileHeight: 10,
-                    leading: Checkbox(
-                      value: _selectedItemIds.contains(
-                        item.key,
-                      ), // Use item key for selection state
-                      onChanged: (bool? value) {
-                        setState(() {
-                          if (value == true) {
-                            _selectedItemIds.add(item.key);
-                          } else {
-                            _selectedItemIds.remove(item.key);
-                          }
-                        });
-                      },
-                    ),
                     title: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('${item.count} ${item.name}'),
+                        SizedBox(
+                          height: 24, // Used to remove padding from Checkbox
+                          child: Checkbox(
+                            value: _selectedItemIds.contains(
+                              item.key,
+                            ), // Use item key for selection state
+                            onChanged: (bool? value) {
+                              setState(() {
+                                if (value == true) {
+                                  _selectedItemIds.add(item.key);
+                                } else {
+                                  _selectedItemIds.remove(item.key);
+                                }
+                              });
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            '${item.count} ${item.name}',
+                            softWrap: true, // Ensure text wraps to the next line if it's too long
+                          ),
+                        ),
+                        SizedBox(width: 8),
                         if (item.tag != null && item.tag!.isNotEmpty)
                           Container(
                             padding: EdgeInsets.all(4),
@@ -393,6 +410,7 @@ class HomeScreenState extends State<HomeScreen> {
                             ),
                             child: Text(item.tag!, style: TextStyles.tagText),
                           ),
+                        SizedBox(width: 8),
                         Text(
                           DateFormat('M/d/yy').format(item.dateAdded), // Format the date
                           style: TextStyle(
@@ -450,88 +468,90 @@ class HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              content: Column(
-                crossAxisAlignment: CrossAxisAlignment.center, // Center the content
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 20,
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          icon: Icon(Icons.remove, size: 15), // Icon size
-                          onPressed: () {
+              content: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center, // Center the content
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 20,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: Icon(Icons.remove, size: 15), // Icon size
+                            onPressed: () {
+                              setState(() {
+                                updateQuantity = (updateQuantity - 1).clamp(0.0, double.infinity);
+                              });
+                            },
+                          ),
+                        ),
+                        Slider(
+                          value: updateQuantity,
+                          min: 0,
+                          max: max(item.count.toDouble(), updateQuantity),
+                          divisions: item.count,
+                          label: '$updateQuantity',
+                          onChanged: (double value) {
                             setState(() {
-                              updateQuantity = (updateQuantity - 1).clamp(0.0, double.infinity);
+                              updateQuantity = value;
                             });
                           },
                         ),
-                      ),
-                      Slider(
-                        value: updateQuantity,
-                        min: 0,
-                        max: max(item.count.toDouble(), updateQuantity),
-                        divisions: item.count,
-                        label: '$updateQuantity',
-                        onChanged: (double value) {
-                          setState(() {
-                            updateQuantity = value;
-                          });
-                        },
-                      ),
-                      SizedBox(
-                        width: 20,
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          icon: Icon(Icons.add, size: 15),
+                        SizedBox(
+                          width: 20,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: Icon(Icons.add, size: 15),
+                            onPressed: () {
+                              setState(() {
+                                updateQuantity = (updateQuantity + 1).clamp(0.0, double.infinity);
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'New Quantity: ${updateQuantity.toInt()} $displayName(s)',
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        FilledButton(
                           onPressed: () {
-                            setState(() {
-                              updateQuantity = (updateQuantity + 1).clamp(0.0, double.infinity);
-                            });
+                            final index = _pantryBox?.values.toList().indexOf(item);
+                            if (index != null && index >= 0) {
+                              _updateItem(
+                                index,
+                                updateQuantity.toInt(),
+                              ); // Update the item count with the selected quantity
+                            }
+                            updateQuantity = 0;
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                          child: Text('Update Quantity'),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete, color: primaryColor),
+                          onPressed: () {
+                            final index = _pantryBox?.values.toList().indexOf(item);
+                            if (index != null && index >= 0) {
+                              _deleteItem(index);
+                            }
+                            updateQuantity = 0;
+                            Navigator.of(context).pop();
                           },
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'New Quantity: ${updateQuantity.toInt()} $displayName(s)',
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      FilledButton(
-                        onPressed: () {
-                          final index = _pantryBox?.values.toList().indexOf(item);
-                          if (index != null && index >= 0) {
-                            _updateItem(
-                              index,
-                              updateQuantity.toInt(),
-                            ); // Update the item count with the selected quantity
-                          }
-                          updateQuantity = 0;
-                          Navigator.of(context).pop(); // Close the dialog
-                        },
-                        child: Text('Update Quantity'),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete, color: primaryColor),
-                        onPressed: () {
-                          final index = _pantryBox?.values.toList().indexOf(item);
-                          if (index != null && index >= 0) {
-                            _deleteItem(index);
-                          }
-                          updateQuantity = 0;
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             );
           },

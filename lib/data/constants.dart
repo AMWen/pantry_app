@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 
 const List<String> tagOrder = [
   'meat',
-  'dairy/eggs',
+  'grain',
   'fruit',
   'vegetable',
+  'dairy/eggs',
   'frozen',
   'can',
   'snack',
