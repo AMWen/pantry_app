@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../screens/pantry_screen.dart';
 import '../../screens/shopping_screen.dart';
+import '../../screens/todo_screen.dart';
 import '../classes/tab_item.dart';
 
 class BottomTabNavigator extends StatefulWidget {
@@ -18,7 +19,7 @@ class BottomTabNavigatorState extends State<BottomTabNavigator> {
     TabItem(screen: PantryScreen(), icon: Icon(Icons.kitchen), label: 'Pantry'),
     TabItem(screen: ShoppingScreen(), icon: Icon(Icons.local_grocery_store), label: 'Shopping'),
     TabItem(screen: PantryScreen(), icon: Icon(Icons.dinner_dining), label: 'Meals'),
-    TabItem(screen: PantryScreen(), icon: Icon(Icons.list), label: 'To Do'),
+    TabItem(screen: ToDoScreen(), icon: Icon(Icons.list), label: 'To Do'),
   ];
 
   void _onItemTapped(int index) {

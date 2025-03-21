@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart'; // Import for date formatting
@@ -12,25 +10,29 @@ import '../constants.dart';
 import '../../screens/additem_screen.dart';
 import '../../utils/string_utils.dart';
 
-class BaseScreen extends StatefulWidget {
+class SimpleListScreen extends StatefulWidget {
   final String itemType;
   final String boxName; // Can be different (e.g. shopping box for pantry items)
   final String title;
 
-  const BaseScreen({super.key, required this.itemType, required this.boxName, required this.title});
+  const SimpleListScreen({
+    super.key,
+    required this.itemType,
+    required this.boxName,
+    required this.title,
+  });
 
   @override
-  BaseScreenState createState() => BaseScreenState();
+  SimpleListScreenState createState() => SimpleListScreenState();
 }
 
-class BaseScreenState extends State<BaseScreen> {
+class SimpleListScreenState extends State<SimpleListScreen> {
   Box<ListItem>? _itemBox;
   List<String>? _tagOrder;
-  double updateQuantity = 0;
   String _sortCriteria = 'name'; // Default sorting by name
   Set<int> _selectedItemIds = {};
 
-    @override
+  @override
   void initState() {
     super.initState();
     _itemBox = Hive.box<ListItem>(widget.boxName);
@@ -167,18 +169,6 @@ class BaseScreenState extends State<BaseScreen> {
     }
   }
 
-  void _updateItem(int index, int newCount) {
-    setState(() {
-      final item = _itemBox?.getAt(index);
-      if (newCount == 0) {
-        _deleteItem(index);
-      } else if (item != null) {
-        item.count = newCount;
-        item.save(); // Save the updated item back to the box
-      }
-    });
-  }
-
   void _sortListItems(String criteria) {
     setState(() {
       _sortCriteria = criteria;
@@ -276,6 +266,43 @@ class BaseScreenState extends State<BaseScreen> {
     }
   }
 
+  void _showSortingOptions(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Sort By'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text('Name'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _sortListItems('name');
+                },
+              ),
+              ListTile(
+                title: Text('Date Added'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _sortListItems('dateAdded');
+                },
+              ),
+              ListTile(
+                title: Text('Tag'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _sortListItems('tag');
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -313,8 +340,7 @@ class BaseScreenState extends State<BaseScreen> {
               return Center(child: Text('No items added yet.'));
             }
 
-            // Original list
-            var listItems = box.values.toList();
+            var listItems = box.values.toList(); // Original list
 
             // Sort the items based on selected criteria
             if (_sortCriteria == 'name') {
@@ -416,7 +442,7 @@ class BaseScreenState extends State<BaseScreen> {
                         ),
                       ],
                     ),
-                    onTap: () => _showItemDetails(context, item),
+                    onTap: () {}, // TODO: cross out or not
                   );
                 }
               },
@@ -434,162 +460,6 @@ class BaseScreenState extends State<BaseScreen> {
         foregroundColor: Colors.grey[100],
         child: Icon(Icons.add),
       ),
-    );
-  }
-
-  void _showItemDetails(BuildContext context, ListItem item) {
-    String displayName =
-        item.name.endsWith('s')
-            ? item.name.substring(0, item.name.length - 1) // Remove trailing 's'
-            : item.name;
-    showDialog(
-      context: context,
-      builder: (context) {
-        updateQuantity = item.count?.toDouble() ?? 0.0;
-
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.center, // Center the content
-                children: [
-                  Text('${item.count} ${item.name}', style: TextStyles.dialogTitle),
-                  Text(
-                    'Date Added: ${DateFormat('M/d/yy').format(item.dateAdded)}', // Format the date
-                    style: TextStyle(
-                      color: Colors.grey, // Lighter font color
-                      fontWeight: FontWeight.w300, // Lighter weight
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-              content: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center, // Center the content
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 20,
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            icon: Icon(Icons.remove, size: 15), // Icon size
-                            onPressed: () {
-                              setState(() {
-                                updateQuantity = (updateQuantity - 1).clamp(0.0, double.infinity);
-                              });
-                            },
-                          ),
-                        ),
-                        Slider(
-                          value: updateQuantity,
-                          min: 0,
-                          max: max(item.count?.toDouble() ?? 0.0, updateQuantity),
-                          divisions: item.count,
-                          label: '$updateQuantity',
-                          onChanged: (double value) {
-                            setState(() {
-                              updateQuantity = value;
-                            });
-                          },
-                        ),
-                        SizedBox(
-                          width: 20,
-                          child: IconButton(
-                            icon: Icon(Icons.add, size: 15),
-                            onPressed: () {
-                              setState(() {
-                                updateQuantity = (updateQuantity + 1).clamp(0.0, double.infinity);
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'New Quantity: ${updateQuantity.toInt()} $displayName(s)',
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        FilledButton(
-                          onPressed: () {
-                            final index = _itemBox?.values.toList().indexOf(item);
-                            if (index != null && index >= 0) {
-                              _updateItem(
-                                index,
-                                updateQuantity.toInt(),
-                              ); // Update the item count with the selected quantity
-                            }
-                            updateQuantity = 0;
-                            Navigator.of(context).pop(); // Close the dialog
-                          },
-                          child: Text('Update Quantity'),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.delete, color: primaryColor),
-                          onPressed: () {
-                            final index = _itemBox?.values.toList().indexOf(item);
-                            if (index != null && index >= 0) {
-                              _deleteItem(index);
-                            }
-                            updateQuantity = 0;
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  // Function to show sorting options in a dialog
-  void _showSortingOptions(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Sort By'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text('Name'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _sortListItems('name');
-                },
-              ),
-              ListTile(
-                title: Text('Date Added'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _sortListItems('dateAdded');
-                },
-              ),
-              ListTile(
-                title: Text('Tag'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _sortListItems('tag');
-                },
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }
