@@ -14,7 +14,7 @@ final Map<String, List<String>> itemTypeTagMapping = {
     'other',
     '',
   ],
-  'todo': ['urgent', 'high priority', 'low priority', 'completed', ''],
+  'todo': ['urgent', 'high priority', 'low priority', ''],
   'meals': ['breakfast', 'lunch', 'dinner', 'snack', 'dessert', ''],
 };
 

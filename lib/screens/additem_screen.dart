@@ -4,8 +4,9 @@ import '../data/classes/list_item.dart';
 class AddItemScreen extends StatefulWidget {
   final Function(ListItem) onItemAdded;
   final String itemType;
+  final bool hasCount;
 
-  const AddItemScreen({super.key, required this.onItemAdded, required this.itemType});
+  const AddItemScreen({super.key, required this.onItemAdded, required this.itemType, this.hasCount = true});
 
   @override
   AddItemScreenState createState() => AddItemScreenState();
@@ -60,27 +61,27 @@ class AddItemScreenState extends State<AddItemScreen> {
       if (line.isNotEmpty) {
         final parts = line.split(' ');
 
-        int count = 1; // Default count to 1
+        int count = widget.hasCount ? 1 : 0; // Default count to 1 if hasCount is true, otherwise 0
         String name = line;
 
-        // Check if the first part is a number (indicating count)
-        if (parts.length > 1 && int.tryParse(parts[0]) != null) {
+        // If hasCount is true and the first part is a number, adjust count and name
+        if (widget.hasCount && parts.length > 1 && int.tryParse(parts[0]) != null) {
           count = int.parse(parts[0]);
           name = parts.sublist(1).join(' '); // Join the remaining parts as the name
         }
 
-        // Create a ListItem and add it
+        // Create the ListItem, either with or without count
         final item = ListItem(
           name: name,
-          count: count,
+          count: widget.hasCount ? count : null, // Only assign count if hasCount is true
           dateAdded: DateTime.now(),
           itemType: widget.itemType,
         );
 
         widget.onItemAdded(item); // Call the callback function to add the item
       }
-    }
 
-    Navigator.pop(context); // Go back to the previous screen after adding items
+      Navigator.pop(context); // Go back to the previous screen after adding items
+    }
   }
 }

@@ -14,12 +14,14 @@ class SimpleListScreen extends StatefulWidget {
   final String itemType;
   final String boxName; // Can be different (e.g. shopping box for pantry items)
   final String title;
+  final bool hasCount;
 
   const SimpleListScreen({
     super.key,
     required this.itemType,
     required this.boxName,
     required this.title,
+    this.hasCount = false
   });
 
   @override
@@ -29,7 +31,7 @@ class SimpleListScreen extends StatefulWidget {
 class SimpleListScreenState extends State<SimpleListScreen> {
   Box<ListItem>? _itemBox;
   List<String>? _tagOrder;
-  String _sortCriteria = 'name'; // Default sorting by name
+  String _sortCriteria = 'dateAdded';
   Set<int> _selectedItemIds = {};
 
   @override
@@ -40,7 +42,6 @@ class SimpleListScreenState extends State<SimpleListScreen> {
       _tagOrder = itemTypeTagMapping[widget.itemType];
     } else {
       _tagOrder = [''];
-      _showErrorSnackbar('Item type "${widget.itemType}" not found.');
     }
   }
 
@@ -300,6 +301,11 @@ class SimpleListScreenState extends State<SimpleListScreen> {
     );
   }
 
+  void _onTap(BuildContext context, ListItem item) {
+    item.completed = (item.completed ?? false) ? false : true;
+    item.save();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -418,8 +424,12 @@ class SimpleListScreenState extends State<SimpleListScreen> {
                         ),
                         Expanded(
                           child: Text(
-                            '${item.count} ${item.name}',
+                            widget.hasCount ? '${item.count} ${item.name}' : item.name,
                             softWrap: true, // Ensure text wraps to the next line if it's too long
+                            style: TextStyle(
+                              decoration:
+                                  item.completed == true ? TextDecoration.lineThrough : null,
+                            ),
                           ),
                         ),
                         SizedBox(width: 8),
@@ -439,7 +449,7 @@ class SimpleListScreenState extends State<SimpleListScreen> {
                         ),
                       ],
                     ),
-                    onTap: () {}, // TODO: cross out or not
+                    onTap: () => _onTap(context, item),
                   );
                 }
               },
@@ -452,7 +462,7 @@ class SimpleListScreenState extends State<SimpleListScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddItemScreen(onItemAdded: _addItem, itemType: widget.itemType),
+              builder: (context) => AddItemScreen(onItemAdded: _addItem, itemType: widget.itemType, hasCount: widget.hasCount),
             ),
           );
         },

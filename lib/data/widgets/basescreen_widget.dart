@@ -16,8 +16,15 @@ class BaseScreen extends StatefulWidget {
   final String itemType;
   final String boxName; // Can be different (e.g. shopping box for pantry items)
   final String title;
+  final bool hasCount;
 
-  const BaseScreen({super.key, required this.itemType, required this.boxName, required this.title});
+  const BaseScreen({
+    super.key,
+    required this.itemType,
+    required this.boxName,
+    required this.title,
+    this.hasCount = true,
+  });
 
   @override
   BaseScreenState createState() => BaseScreenState();
