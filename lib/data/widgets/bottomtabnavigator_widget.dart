@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../screens/meals_screen.dart';
 import '../../screens/pantry_screen.dart';
 import '../../screens/shopping_screen.dart';
 import '../../screens/todo_screen.dart';
@@ -18,7 +19,7 @@ class BottomTabNavigatorState extends State<BottomTabNavigator> {
   final List<TabItem> _tabs = [
     TabItem(screen: PantryScreen(), icon: Icon(Icons.kitchen), label: 'Pantry'),
     TabItem(screen: ShoppingScreen(), icon: Icon(Icons.local_grocery_store), label: 'Shopping'),
-    TabItem(screen: PantryScreen(), icon: Icon(Icons.dinner_dining), label: 'Meals'),
+    TabItem(screen: MealsScreen(), icon: Icon(Icons.dinner_dining), label: 'Meals'),
     TabItem(screen: ToDoScreen(), icon: Icon(Icons.list), label: 'To Do'),
   ];
 

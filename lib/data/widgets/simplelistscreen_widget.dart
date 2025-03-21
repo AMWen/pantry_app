@@ -36,7 +36,18 @@ class SimpleListScreenState extends State<SimpleListScreen> {
   void initState() {
     super.initState();
     _itemBox = Hive.box<ListItem>(widget.boxName);
-    _tagOrder = itemTypeTagMapping[widget.itemType]!;
+    if (itemTypeTagMapping.containsKey(widget.itemType)) {
+      _tagOrder = itemTypeTagMapping[widget.itemType];
+    } else {
+      _tagOrder = [''];
+      _showErrorSnackbar('Item type "${widget.itemType}" not found.');
+    }
+  }
+
+  void _showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), duration: Duration(milliseconds: 700)));
   }
 
   void _addItem(ListItem item) {
@@ -90,12 +101,7 @@ class SimpleListScreenState extends State<SimpleListScreen> {
         },
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: Duration(milliseconds: 700),
-          content: Text('No items selected for deletion!'),
-        ),
-      );
+      _showErrorSnackbar('No items selected for deletion!');
     }
   }
 
@@ -160,12 +166,7 @@ class SimpleListScreenState extends State<SimpleListScreen> {
         },
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: Duration(milliseconds: 700),
-          content: Text('No items selected for tagging!'),
-        ),
-      );
+      _showErrorSnackbar('No items selected for tagging!');
     }
   }
 
@@ -229,9 +230,7 @@ class SimpleListScreenState extends State<SimpleListScreen> {
 
       // Only show the snackbar if the widget is still mounted
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Items imported successfully!')));
+        _showErrorSnackbar('Items imported successfully!');
       }
     }
   }
@@ -254,14 +253,12 @@ class SimpleListScreenState extends State<SimpleListScreen> {
         final file = File(filePath);
         await file.writeAsString(jsonString);
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Items exported successfully!')));
+          _showErrorSnackbar('Items exported successfully!');
         }
       }
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('No items to export!')));
+        _showErrorSnackbar('No items to export!');
       }
     }
   }
