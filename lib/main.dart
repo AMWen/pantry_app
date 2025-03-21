@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'data/classes/pantry_item.dart';
 import 'data/constants.dart';
-import 'screens/home_screen.dart';
+import 'data/widgets/bottomtabnavigator_widget.dart';
 
 void main() async {
   await Hive.initFlutter();
@@ -22,18 +22,15 @@ class MyApp extends StatelessWidget {
         colorSchemeSeed: primaryColor,
         appBarTheme: AppBarTheme(
           backgroundColor: primaryColor,
-          titleTextStyle: TextStyle(
-            color: Colors.grey[100],
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-          ),
-          iconTheme: IconThemeData(color: Colors.grey[100]),
+          titleTextStyle: TextStyles.titleText,
+          iconTheme: IconThemeData(color: secondaryColor),
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
           backgroundColor: primaryColor,
+          foregroundColor: secondaryColor,
         ),
       ),
-      home: HomeScreen(),
+      home: BottomTabNavigator(),
       debugShowCheckedModeBanner: false,
     );
   }

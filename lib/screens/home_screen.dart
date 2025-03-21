@@ -413,10 +413,7 @@ class HomeScreenState extends State<HomeScreen> {
                         SizedBox(width: 8),
                         Text(
                           DateFormat('M/d/yy').format(item.dateAdded), // Format the date
-                          style: TextStyle(
-                            color: Colors.grey, // Lighter font color
-                            fontWeight: FontWeight.w300, // Lighter weight
-                          ),
+                          style: TextStyles.lightText,
                         ),
                       ],
                     ),

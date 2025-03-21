@@ -15,29 +15,40 @@ const List<String> pantryTagOrder = [
 ];
 
 Color primaryColor = Color.fromARGB(255, 3, 78, 140);
+Color secondaryColor = Colors.grey[200]!;
 
 class TextStyles {
-  // Dialog title style
+   static TextStyle titleText = TextStyle(
+    color: secondaryColor,
+    fontSize: 20,
+    fontWeight: FontWeight.w500,
+  );
+
   static const TextStyle dialogTitle = TextStyle(
     fontWeight: FontWeight.bold,
     fontSize: 20,
     color: Colors.black,
   );
 
-  // Button text style
-  static const TextStyle buttonText = TextStyle(
+  static TextStyle buttonText = TextStyle(
     fontWeight: FontWeight.normal,
     fontSize: 16,
-    color: Colors.white,
+    color: secondaryColor,
   );
 
-  static const TextStyle tagText = TextStyle(
-    fontWeight: FontWeight.w600,
-    fontSize: 12,
-    color: Colors.white,
+  static TextStyle tagText = TextStyle(
+    fontWeight: FontWeight.w500,
+    fontSize: 10,
+    color: secondaryColor,
   );
 
-  // Normal text style
+  static const TextStyle lightText = TextStyle(
+    color: Colors.grey,
+    fontSize: 10,
+    fontWeight: FontWeight.w300,
+    height: 2.2,
+  );
+
   static const TextStyle normalText = TextStyle(
     fontWeight: FontWeight.normal,
     fontSize: 14,
