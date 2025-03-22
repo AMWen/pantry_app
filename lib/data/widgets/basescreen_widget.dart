@@ -15,6 +15,7 @@ class BaseScreen extends SimpleListScreen {
     required super.boxName,
     required super.title,
     super.hasCount = true,
+    super.moveTo
   });
 
   @override

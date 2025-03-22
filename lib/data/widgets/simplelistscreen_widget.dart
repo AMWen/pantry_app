@@ -8,12 +8,14 @@ import '../classes/list_item.dart';
 import '../constants.dart';
 import '../../screens/additem_screen.dart';
 import '../../utils/string_utils.dart';
+import 'basic_widgets.dart';
 
 class SimpleListScreen extends StatefulWidget {
   final String itemType;
   final String boxName; // Can be different (e.g. shopping box for pantry items)
   final String title;
   final bool hasCount;
+  final String? moveTo;
 
   const SimpleListScreen({
     super.key,
@@ -21,6 +23,7 @@ class SimpleListScreen extends StatefulWidget {
     required this.boxName,
     required this.title,
     this.hasCount = false,
+    this.moveTo,
   });
 
   @override
@@ -29,6 +32,7 @@ class SimpleListScreen extends StatefulWidget {
 
 class SimpleListScreenState extends State<SimpleListScreen> {
   Box<ListItem>? _itemBox;
+  Box<ListItem>? _newItemBox;
   List<String>? _tagOrder;
   String _sortCriteria = '';
   Set<int> _selectedItemIds = {};
@@ -41,6 +45,9 @@ class SimpleListScreenState extends State<SimpleListScreen> {
   void initState() {
     super.initState();
     _itemBox = Hive.box<ListItem>(widget.boxName);
+    if (widget.moveTo != null) {
+      _newItemBox = Hive.box<ListItem>(widget.moveTo!);
+    }
     if (itemTypeTagMapping.containsKey(widget.itemType)) {
       _tagOrder = itemTypeTagMapping[widget.itemType];
     } else {
@@ -60,6 +67,51 @@ class SimpleListScreenState extends State<SimpleListScreen> {
     });
   }
 
+  void _moveItem(ListItem item) {
+    setState(() {
+      _deleteItem(_itemBox!.values.toList().indexOf(item));
+      _newItemBox?.add(item);
+    });
+  }
+
+  void _moveSelectedItems() {
+    if (_selectedItemIds.isNotEmpty) {
+      print('hello');
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: AlertTitle(
+              'Are you sure you want to move all selected items to ${widget.moveTo}?',
+            ),
+            content: Text('This action cannot be undone.'),
+            actions: [
+              CancelButton(),
+              ElevatedButton(
+                onPressed: () {
+                  final selectedItems =
+                      _itemBox!.values
+                          .where((item) => _selectedItemIds.contains(item.key)) // Use key to filter
+                          .toList();
+
+                  for (var item in selectedItems) {
+                    _moveItem(item);
+                  }
+                  _selectedItemIds.clear();
+
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      _showErrorSnackbar('No items selected for migration!');
+    }
+  }
+
   void _deleteItem(int index) {
     setState(() {
       _itemBox?.deleteAt(index);
@@ -72,18 +124,10 @@ class SimpleListScreenState extends State<SimpleListScreen> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text('Are you sure you want to delete all selected items?'),
+            title: AlertTitle('Are you sure you want to delete all selected items?'),
             content: Text('This action cannot be undone.'),
             actions: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red, // More prominent color for the "Cancel" button
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-                child: Text('Cancel'),
-              ),
+              CancelButton(),
               ElevatedButton(
                 onPressed: () {
                   final selectedItems =
@@ -327,12 +371,7 @@ class SimpleListScreenState extends State<SimpleListScreen> {
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
+            CancelButton(),
             FilledButton(
               onPressed: () {
                 setState(() {
@@ -388,14 +427,15 @@ class SimpleListScreenState extends State<SimpleListScreen> {
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> actionList = [
+      if (widget.moveTo != null) {'icon': Icons.move_to_inbox, 'onPressed': _moveSelectedItems},
       if (!widget.hasCount) // Only add this action if hasCount is false
         {
           'icon':
               _selectAllCompleted
-                  ? Icons.check_box
+                  ? Icons.visibility_off
                   : _showCompleted
-                  ? Icons.visibility
-                  : Icons.visibility_off,
+                  ? Icons.check_box
+                  : Icons.visibility,
           'onPressed': () {
             setState(() {
               if (_selectAllCompleted) {

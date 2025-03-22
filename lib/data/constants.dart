@@ -47,7 +47,7 @@ class TextStyles {
   );
 
   static TextStyle buttonText = TextStyle(
-    fontWeight: FontWeight.normal,
+    fontWeight: FontWeight.w500,
     fontSize: 16,
     color: secondaryColor,
   );
