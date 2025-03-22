@@ -31,6 +31,22 @@ class MyApp extends StatelessWidget {
           foregroundColor: secondaryColor,
         ),
       ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.dark(
+          primary: primaryColor,
+          secondary: secondaryColor,
+        ),
+        appBarTheme: AppBarTheme(
+          backgroundColor: primaryColor,
+          titleTextStyle: TextStyles.titleText,
+          iconTheme: IconThemeData(color: secondaryColor),
+        ),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: primaryColor,
+          foregroundColor: secondaryColor,
+        ),
+      ),
       home: BottomTabNavigator(),
       debugShowCheckedModeBanner: false,
     );

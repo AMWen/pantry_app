@@ -30,12 +30,13 @@ final List<Map<String, String>> sortOptions = [
 
 Color primaryColor = Color.fromARGB(255, 3, 78, 140);
 Color secondaryColor = Colors.grey[200]!;
+Color dullColor = Colors.grey[600]!;
 
 DateFormat dateFormat = DateFormat('M/d/yy');
 
 class TextStyles {
   static TextStyle titleText = TextStyle(
-    color: secondaryColor,
+    // color: secondaryColor,
     fontSize: 20,
     fontWeight: FontWeight.w500,
   );
@@ -43,13 +44,13 @@ class TextStyles {
   static const TextStyle dialogTitle = TextStyle(
     fontWeight: FontWeight.bold,
     fontSize: 20,
-    color: Colors.black,
+    // color: Colors.black,
   );
 
   static TextStyle buttonText = TextStyle(
     fontWeight: FontWeight.w500,
     fontSize: 16,
-    color: secondaryColor,
+    // color: secondaryColor,
   );
 
   static TextStyle tagText = TextStyle(

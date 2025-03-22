@@ -247,6 +247,13 @@ class SimpleListScreenState extends State<SimpleListScreen> {
                   _exportItems();
                 },
               ),
+              ListTile(
+                title: Text('Save Selected'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _exportItems(selectedOnly: true);
+                },
+              ),
             ],
           ),
         );
@@ -283,8 +290,11 @@ class SimpleListScreenState extends State<SimpleListScreen> {
     }
   }
 
-  Future<void> _exportItems() async {
-    final listItems = _itemBox?.values.toList() ?? [];
+  Future<void> _exportItems({bool selectedOnly = false}) async {
+    final listItems =
+        selectedOnly
+            ? _itemBox?.values.where((item) => _selectedItemIds.contains(item.key)).toList() ?? []
+            : _itemBox?.values.toList() ?? [];
 
     if (listItems.isNotEmpty) {
       final jsonList = listItems.map((item) => item.toJson()).toList();
@@ -493,13 +503,11 @@ class SimpleListScreenState extends State<SimpleListScreen> {
               child: IconButton(icon: Icon(action['icon']), onPressed: action['onPressed']),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 5),
-          ),
+          Padding(padding: const EdgeInsets.only(right: 5)),
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.only(left: 0, right: 0, top: 20, bottom: 20),
+        padding: const EdgeInsets.only(left: 0, right: 0, top: 20, bottom: 0),
         child: ValueListenableBuilder(
           valueListenable: _itemBox!.listenable(),
           builder: (context, Box<ListItem> box, _) {
@@ -642,22 +650,28 @@ class SimpleListScreenState extends State<SimpleListScreen> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder:
-                  (context) => AddItemScreen(
-                    onItemAdded: _addItem,
-                    itemType: widget.itemType,
-                    hasCount: widget.hasCount,
-                  ),
-            ),
-          );
-        },
-        foregroundColor: Colors.grey[100],
-        child: Icon(Icons.add),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: Transform.translate(
+        offset: Offset(0, 28),
+        child: FloatingActionButton(
+          heroTag: 'screen_fab',
+          shape: CircleBorder(),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => AddItemScreen(
+                      onItemAdded: _addItem,
+                      itemType: widget.itemType,
+                      hasCount: widget.hasCount,
+                    ),
+              ),
+            );
+          },
+          foregroundColor: Colors.grey[100],
+          child: Icon(Icons.add),
+        ),
       ),
     );
   }
