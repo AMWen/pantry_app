@@ -1,6 +1,8 @@
 # Pantry App
 
-A simple and intuitive mobile app built with Flutter that helps you track your grocery items. The app allows you to input multiple items at once, modify quantities, delete items, and organize them using tags. It also includes options for importing and exporting data, and sorting pantry items by different criteria.
+A simple and intuitive mobile app built with Flutter that helps you track your grocery items. The app allows you to input multiple items at once, modify quantities, delete items, and organize them using tags. It also includes options for importing and exporting data, and sorting items by different criteria.
+
+In addition to groceries management, the app has expanded to support tracking to-do lists and meal planning, providing an all-in-one solution for managing your daily tasks and food-related needs.
 
 ## Features
 
@@ -10,14 +12,20 @@ A simple and intuitive mobile app built with Flutter that helps you track your g
 - **Tagging items**: Assign tags to items for better organization
 - **Import/Export**: Import and export pantry data using JSON files.
 - **Sorting**: Sort pantry items by name, date added, or tag.
+- **Move items**: Move selected items from shopping list to pantry directly.
+- **Reordering items**: Rearrange the order of items in the list via drag and drop.
+- **Mark items as completed**: Mark to-do items as completed or incomplete.
 
 ## Key Features in Detail
 
-- **Sorting**: Items can be sorted by `Name`, `Date Added`, or `Tag`. You can choose the sorting option using the app's toolbar.
-- **Tagging**: Tagging functionality allows users to categorize pantry items and find them easily.
+- **Sorting**: Items can be sorted by `Name`, `Date Added`, `Tag`, or your own manual order. You can choose the sorting option using the app's toolbar.
+- **Tagging**: Tagging functionality allows users to categorize items and find them easily.
 - **Import and Export**: The app supports importing and exporting to a JSON file, which is useful for backup and sharing.
-- **Manage Items**: Users can adjust item quantities through a simple UI with increment/decrement buttons or a slider.
+- **Manage Items**: If applicable, users can adjust item quantities by tapping the item and using a simple UI with increment/decrement buttons or a slider. Otherwise, tapping the item marks the item as complete or incomplete. Users can also rename the item or change the date added but long pressing on the item.
 - **Multi-select deletion**: Allows you to delete multiple selected items at once.
+- **Reordering Items**: Users can reorder items with a drag-and-drop interface.
+- **Completed Items**: Users can toggle the visibility of completed items in the list.
+- **Move Items**: Users can move selected items between the shopping list to the pantry.
 
 ## Getting Started
 
@@ -81,13 +89,48 @@ If you encounter the "No valid code signing certificates were found" error when 
 - Certificates: Ensure you have valid certificates for signing in your Apple Developer account.
 
 ## Usage
-### Import/Export Data
-- To import pantry data, click the "Save" icon in the app's toolbar and select "Load Items". This will allow you to pick a .json file containing previously saved pantry items.
-- To export your pantry data, select "Save Items" to generate a .json file that you can store or share for backup.
+### Edit Items
+
+The app allows you to easily edit pantry items. Depending on the field you'd like to update, you can use different gestures.
+
+- **Tap to Edit Quantity or Completion Status**: 
+  - Simply tap on a grocery item to modify the quantity. You can adjust the amount based on your needs (e.g., increase the quantity if you have more of the item).
+  - Tap on a non-grocery item to toggle the completion status.
+  
+- **Long Press to Edit Name and Date**: 
+  - If you want to update the name of a pantry item or the date it was added, long press on the item. This will bring up an editor where you can modify the name and the date associated with the item.
+
+### Save/Load Data
+- **Save Pantry Data**: To import pantry data into the app, click the "Save" icon in the app's toolbar. This will show the save/load options where you can choose to load previously saved pantry data.
+- **Load Pantry Data**: To back up or share your pantry data, click the "Save" icon in the app's toolbar and select the save option. This will allow you to generate a file containing your pantry data that you can save or share.
+
+### Multi-Select and Actions
+- **Multi-Select Items**: You can select multiple items by interacting with the pantry list. Once multiple items are selected, you can perform bulk actions:
+  - Move items (only available in Shopping Cart)
+  - Toggle visibility of completed items (only available in non-grocery lists)
+  - Tag items
+  - Delete items
+
+### Quick Actions
+- **Move Items**: The "Move" icon allows you to easily move selected items from your shopping cart to your pantry.
+
+- **Delete Items**: The "Delete" icon allows you to permanently remove selected items. Use this option when you want to clean up or remove unnecessary entries from your list.
 
 ### Tagging and Sorting
-- The app supports tagging, which allows you to categorize items. You can select and assign tags to multiple items at once.
-- You can sort your pantry items by name, date added, or tag by using the sorting options available in the app's toolbar.
+- **Tagging Items**: Click the "Label" icon in the app’s toolbar to open tagging options. You can assign, modify, or remove tags for items to help categorize them. This makes it easier to search and organize your list by specific tags like "Vegetarian", "Frozen", etc.
+
+- **Sorting Items**: Click the "Swap" icon in the toolbar to open sorting options. You can sort pantry items by:
+  - **None**: Defaults to order of addition unless manually reordered using the drag and drop functionality.
+  - **Name**: Sort items alphabetically by their name.
+  - **Date Added**: Sort by the date the items were added to your pantry.
+  - **Tag**: Sort by the item tag.
+
+### Managing Completed Items
+- **Show/Hide Completed Items**: The app allows you to toggle the visibility of completed items. Clicking the "Check" or "Eye" icon in the app’s toolbar will toggle between showing, hiding, or selecting items marked as completed. 
+  - If completed items are hidden, you can quickly review your pantry without the clutter of items that are already marked as done.
+  - If completed items are shown, you can also select all completed items at once, making it easier to manage them.
+
+These features are designed to give you full control over your list organization and management, making it easier to track, sort, and act on your inventory and to-do lists.
 
 ## Tech Stack
 
