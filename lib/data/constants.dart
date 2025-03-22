@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Import for date formatting
 
 final Map<String, List<String>> itemTypeTagMapping = {
   'pantry': [
@@ -18,10 +19,19 @@ final Map<String, List<String>> itemTypeTagMapping = {
   'meals': ['breakfast', 'lunch', 'dinner', 'snack', 'dessert', ''],
 };
 
-  final List<String> boxNames = ['pantry', 'shopping', 'todo', 'meals'];
+final List<String> boxNames = ['pantry', 'shopping', 'todo', 'meals'];
+
+final List<Map<String, String>> sortOptions = [
+  {'title': 'None', 'value': ''},
+  {'title': 'Name', 'value': 'name'},
+  {'title': 'Date Added', 'value': 'dateAdded'},
+  {'title': 'Tag', 'value': 'tag'},
+];
 
 Color primaryColor = Color.fromARGB(255, 3, 78, 140);
 Color secondaryColor = Colors.grey[200]!;
+
+DateFormat dateFormat = DateFormat('M/d/yy');
 
 class TextStyles {
   static TextStyle titleText = TextStyle(

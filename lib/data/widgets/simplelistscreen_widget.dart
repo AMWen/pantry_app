@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart'; // Import for date formatting
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'dart:io';
 import 'dart:convert';
@@ -31,8 +30,12 @@ class SimpleListScreen extends StatefulWidget {
 class SimpleListScreenState extends State<SimpleListScreen> {
   Box<ListItem>? _itemBox;
   List<String>? _tagOrder;
-  String _sortCriteria = 'dateAdded';
+  String _sortCriteria = '';
   Set<int> _selectedItemIds = {};
+  bool _showCompleted = true;
+  bool _selectAllCompleted = false;
+  List<ListItem> listItems = [];
+  List<ListItem> completedItems = [];
 
   @override
   void initState() {
@@ -272,29 +275,16 @@ class SimpleListScreenState extends State<SimpleListScreen> {
           title: Text('Sort By'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text('Name'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _sortListItems('name');
-                },
-              ),
-              ListTile(
-                title: Text('Date Added'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _sortListItems('dateAdded');
-                },
-              ),
-              ListTile(
-                title: Text('Tag'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _sortListItems('tag');
-                },
-              ),
-            ],
+            children:
+                sortOptions.map((option) {
+                  return ListTile(
+                    title: Text(option['title']!),
+                    onTap: () {
+                      _sortListItems(option['value']!);
+                      Navigator.of(context).pop();
+                    },
+                  );
+                }).toList(),
           ),
         );
       },
@@ -307,7 +297,10 @@ class SimpleListScreenState extends State<SimpleListScreen> {
   }
 
   void _showEditDialog(BuildContext context, ListItem item) {
-    final TextEditingController controller = TextEditingController(text: item.name);
+    final TextEditingController nameController = TextEditingController(text: item.name);
+    final TextEditingController dateController = TextEditingController(
+      text: dateFormat.format(item.dateAdded),
+    );
 
     showDialog(
       context: context,
@@ -315,10 +308,22 @@ class SimpleListScreenState extends State<SimpleListScreen> {
         return AlertDialog(
           title: Text('Edit Item'),
           content: SingleChildScrollView(
-            child: TextField(
-              controller: controller,
-              maxLines: null,
-              decoration: InputDecoration(labelText: 'Item', hintText: 'Enter the new item'),
+            child: Column(
+              children: [
+                TextField(
+                  controller: nameController,
+                  maxLines: null,
+                  decoration: InputDecoration(labelText: 'Item', hintText: 'Enter the new item'),
+                ),
+                TextField(
+                  controller: dateController,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                    labelText: 'Date Added',
+                    hintText: 'Enter the new date',
+                  ),
+                ),
+              ],
             ),
           ),
           actions: [
@@ -331,7 +336,13 @@ class SimpleListScreenState extends State<SimpleListScreen> {
             FilledButton(
               onPressed: () {
                 setState(() {
-                  item.name = controller.text;
+                  item.name = nameController.text;
+                  try {
+                    DateTime dateTime = dateFormat.parse(dateController.text);
+                    item.dateAdded = dateTime;
+                  } catch (e) {
+                    _showErrorSnackbar('Invalid date, not updating');
+                  }
                   item.save();
                 });
                 Navigator.of(context).pop();
@@ -344,36 +355,107 @@ class SimpleListScreenState extends State<SimpleListScreen> {
     );
   }
 
+  void _onReorder(int oldIndex, int newIndex) {
+    int dropIndex = newIndex;
+    if (oldIndex < newIndex) {
+      dropIndex = newIndex - 1; // strange, but 0 <-> 1 gives 0,2 vs 1,0 depending on drag direction
+    }
+    final moveItem = listItems.removeAt(oldIndex);
+    listItems.insert(dropIndex, moveItem);
+    if (!_showCompleted) {
+      listItems = [...listItems, ...completedItems];
+    }
+
+    // _itemBox!.clear();
+    for (int i = 0; i < listItems.length; i++) {
+      // Create a new instance of ListItem to avoid same instance error
+      final newItem = ListItem(
+        name: listItems[i].name,
+        dateAdded: listItems[i].dateAdded,
+        count: listItems[i].count,
+        tag: listItems[i].tag,
+        completed: listItems[i].completed,
+        itemType: listItems[i].itemType,
+      );
+      _itemBox!.putAt(i, newItem);
+    }
+
+    setState(() {
+      _sortCriteria = '';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<Map<String, dynamic>> actionList = [
+      if (!widget.hasCount) // Only add this action if hasCount is false
+        {
+          'icon':
+              _selectAllCompleted
+                  ? Icons.check_box
+                  : _showCompleted
+                  ? Icons.visibility
+                  : Icons.visibility_off,
+          'onPressed': () {
+            setState(() {
+              if (_selectAllCompleted) {
+                _showCompleted = false;
+                _selectAllCompleted = false;
+                _selectedItemIds.clear();
+              } else if (_showCompleted) {
+                _showCompleted = true;
+                _selectAllCompleted = true;
+                _selectedItemIds = _itemBox!.values.fold<Set<int>>({}, (
+                  Set<int> selectedIds,
+                  item,
+                ) {
+                  if (item.completed == true) {
+                    selectedIds.add(item.key);
+                  }
+                  return selectedIds;
+                });
+              } else {
+                _showCompleted = true;
+                _selectAllCompleted = false;
+                _selectedItemIds.clear();
+              }
+            });
+          },
+        },
+      {
+        'icon': Icons.swap_vert,
+        'onPressed': () {
+          _showSortingOptions(context);
+        },
+      },
+      {
+        'icon': Icons.save,
+        'onPressed': () {
+          _showImportExportOptions();
+        },
+      },
+      {
+        'icon': Icons.label,
+        'onPressed': () {
+          _showTaggingOptions(context);
+        },
+      },
+      {'icon': Icons.delete_forever, 'onPressed': _deleteSelectedItems},
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.swap_vert),
-            onPressed: () {
-              // Show sorting options using AlertDialog
-              _showSortingOptions(context);
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.save),
-            onPressed: () {
-              _showImportExportOptions();
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.label),
-            onPressed: () {
-              _showTaggingOptions(context);
-            },
-          ),
-          IconButton(icon: Icon(Icons.delete_forever), onPressed: _deleteSelectedItems),
-        ],
+        actions:
+            actionList
+                .map(
+                  (action) =>
+                      IconButton(icon: Icon(action['icon']), onPressed: action['onPressed']),
+                )
+                .toList(),
       ),
       body: Padding(
-        padding: const EdgeInsets.only(left: 0, right: 20, top: 20, bottom: 20),
+        padding: const EdgeInsets.only(left: 0, right: 0, top: 20, bottom: 20),
         child: ValueListenableBuilder(
           valueListenable: _itemBox!.listenable(),
           builder: (context, Box<ListItem> box, _) {
@@ -381,7 +463,16 @@ class SimpleListScreenState extends State<SimpleListScreen> {
               return Center(child: Text('No items added yet.'));
             }
 
-            var listItems = box.values.toList(); // Original list
+            listItems = box.values.toList(); // Original list
+            completedItems = listItems.where((item) => item.completed == true).toList();
+
+            // Filter out completed items
+            if (!_showCompleted) {
+              listItems =
+                  listItems
+                      .where((item) => item.completed == false || item.completed == null)
+                      .toList();
+            }
 
             // Sort the items based on selected criteria
             if (_sortCriteria == 'name') {
@@ -396,102 +487,113 @@ class SimpleListScreenState extends State<SimpleListScreen> {
               });
             }
 
-            return ListView.builder(
-              itemCount: listItems.length + 1, // Add 1 for the "Select All" checkbox
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  // Select All Checkbox
-                  return ListTile(
-                    minTileHeight: 10,
-                    title: Row(
-                      children: [
-                        SizedBox(
-                          height: 24, // Used to remove padding from Checkbox
-                          child: Checkbox(
-                            value: listItems.every(
-                              (item) => _selectedItemIds.contains(item.key),
-                            ), // Check if all items are selected
-                            onChanged: (bool? value) {
-                              setState(() {
-                                if (value == true) {
-                                  // Select all
-                                  _selectedItemIds = listItems.fold<Set<int>>({}, (
-                                    Set<int> selectedIds,
-                                    item,
-                                  ) {
-                                    selectedIds.add(item.key);
-                                    return selectedIds;
-                                  });
-                                } else {
-                                  // Deselect all
-                                  _selectedItemIds.clear();
-                                }
-                              });
-                            },
-                          ),
+            return Column(
+              children: [
+                // "Select All" checkbox row
+                ListTile(
+                  key: ValueKey('selectAll'),
+                  minTileHeight: 10,
+                  title: Row(
+                    children: [
+                      SizedBox(
+                        height: 24, // Used to remove padding from Checkbox
+                        child: Checkbox(
+                          value: _itemBox!.values.every(
+                            (item) => _selectedItemIds.contains(item.key),
+                          ), // Check if all items are selected
+                          onChanged: (bool? value) {
+                            setState(() {
+                              if (value == true) {
+                                _selectedItemIds = _itemBox!.values.fold<Set<int>>({}, (
+                                  Set<int> selectedIds,
+                                  item,
+                                ) {
+                                  selectedIds.add(item.key);
+                                  return selectedIds;
+                                });
+                              } else {
+                                _selectedItemIds.clear();
+                              }
+                            });
+                          },
                         ),
-                        Text('Select All', style: TextStyle(fontWeight: FontWeight.w600)),
-                      ],
-                    ),
-                  );
-                } else {
-                  final item = listItems[index - 1]; // Subtract 1 to match item index
+                      ),
+                      Text('Select All', style: TextStyle(fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
 
-                  return ListTile(
-                    minTileHeight: 10,
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 24, // Used to remove padding from Checkbox
-                          child: Checkbox(
-                            value: _selectedItemIds.contains(
-                              item.key,
-                            ), // Use item key for selection state
-                            onChanged: (bool? value) {
-                              setState(() {
-                                if (value == true) {
-                                  _selectedItemIds.add(item.key);
-                                } else {
-                                  _selectedItemIds.remove(item.key);
-                                }
-                              });
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            widget.hasCount ? '${item.count} ${item.name}' : item.name,
-                            softWrap: true, // Ensure text wraps to the next line if it's too long
-                            style: TextStyle(
-                              decoration:
-                                  item.completed == true ? TextDecoration.lineThrough : null,
+                // ReorderableListView for items
+                Expanded(
+                  child: ReorderableListView.builder(
+                    onReorder: _onReorder,
+                    itemCount: listItems.length,
+                    itemBuilder: (context, index) {
+                      final item = listItems[index];
+
+                      if (widget.hasCount && item.name.endsWith('s') && item.count == 1) {
+                        item.name = item.name.substring(0, item.name.length - 1);
+                        item.save();
+                      }
+
+                      return ListTile(
+                        key: ValueKey(item.key),
+                        minTileHeight: 10,
+                        title: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: 24, // Used to remove padding from Checkbox
+                              child: Checkbox(
+                                value: _selectedItemIds.contains(item.key),
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    if (value == true) {
+                                      _selectedItemIds.add(item.key);
+                                    } else {
+                                      _selectedItemIds.remove(item.key);
+                                    }
+                                  });
+                                },
+                              ),
                             ),
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        if (item.tag != null && item.tag!.isNotEmpty)
-                          Container(
-                            padding: EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: item.itemTagColor(),
-                              borderRadius: BorderRadius.circular(12),
+                            Expanded(
+                              child: Text(
+                                widget.hasCount ? '${item.count} ${item.name}' : item.name,
+                                softWrap:
+                                    true, // Ensure text wraps to the next line if it's too long
+                                style: TextStyle(
+                                  decoration:
+                                      item.completed == true ? TextDecoration.lineThrough : null,
+                                ),
+                              ),
                             ),
-                            child: Text(item.tag!, style: TextStyles.tagText),
-                          ),
-                        SizedBox(width: 8),
-                        Text(
-                          DateFormat('M/d/yy').format(item.dateAdded), // Format the date
-                          style: TextStyles.lightText,
+                            SizedBox(width: 8),
+                            if (item.tag != null && item.tag!.isNotEmpty)
+                              Container(
+                                padding: EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: item.itemTagColor(),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(item.tag!, style: TextStyles.tagText),
+                              ),
+                            SizedBox(width: 8),
+                            Text(dateFormat.format(item.dateAdded), style: TextStyles.lightText),
+                          ],
                         ),
-                      ],
-                    ),
-                    onTap: () => onItemTapped(context, item),
-                    onLongPress: () => _showEditDialog(context, item),
-                  );
-                }
-              },
+                        onTap: () => onItemTapped(context, item),
+                        onLongPress: () => _showEditDialog(context, item),
+                        trailing: ReorderableDragStartListener(
+                          index: index,
+                          child: const Icon(Icons.drag_indicator),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             );
           },
         ),
