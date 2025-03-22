@@ -486,13 +486,17 @@ class SimpleListScreenState extends State<SimpleListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        actions:
-            actionList
-                .map(
-                  (action) =>
-                      IconButton(icon: Icon(action['icon']), onPressed: action['onPressed']),
-                )
-                .toList(),
+        actions: [
+          ...actionList.map(
+            (action) => SizedBox(
+              width: 40,
+              child: IconButton(icon: Icon(action['icon']), onPressed: action['onPressed']),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 5),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.only(left: 0, right: 0, top: 20, bottom: 20),
