@@ -427,7 +427,7 @@ class SimpleListScreenState extends State<SimpleListScreen> {
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> actionList = [
-      if (widget.moveTo != null) {'icon': Icons.move_to_inbox, 'onPressed': _moveSelectedItems},
+      if (widget.moveTo != null) {'icon': Icons.local_shipping, 'onPressed': _moveSelectedItems},
       if (!widget.hasCount) // Only add this action if hasCount is false
         {
           'icon':
