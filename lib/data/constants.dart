@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Import for date formatting
 import '../screens/additem_screen.dart';
-import '../screens/base_screen.dart';
+import '../screens/inventorylist_screen.dart';
 import '../screens/simplelist_screen.dart';
 import 'classes/list_item.dart';
 import 'classes/tab_item.dart';
@@ -36,7 +36,7 @@ final List<Map<String, dynamic>> tabConfigurations = [
     'title': 'Pantry',
     'icon': Icons.kitchen_rounded,
     'screen':
-        (title) => BaseScreen(
+        (title) => InventoryListScreen(
           itemType: lowercaseAndRemoveSpaces(title),
           boxName: lowercaseAndRemoveSpaces(title),
           title: title,
@@ -52,7 +52,7 @@ final List<Map<String, dynamic>> tabConfigurations = [
     'title': 'Shopping',
     'icon': Icons.local_grocery_store,
     'screen':
-        (title) => BaseScreen(
+        (title) => InventoryListScreen(
           itemType: 'pantry', // Special case
           boxName: lowercaseAndRemoveSpaces(title),
           title: title,
@@ -102,7 +102,7 @@ final List<Map<String, dynamic>> tabConfigurations = [
     'icon': Icons.local_dining,
     'screen':
         (title) => SimpleListScreen(
-          itemType: lowercaseAndRemoveSpaces(title),
+          itemType: 'meals', // Special case
           boxName: lowercaseAndRemoveSpaces(title),
           title: title,
         ),

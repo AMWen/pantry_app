@@ -8,8 +8,8 @@ import '../data/classes/list_item.dart';
 import '../data/constants.dart';
 import 'simplelist_screen.dart';
 
-class BaseScreen extends SimpleListScreen {
-  const BaseScreen({
+class InventoryListScreen extends SimpleListScreen {
+  const InventoryListScreen({
     super.key,
     required super.itemType,
     required super.boxName,
@@ -19,10 +19,10 @@ class BaseScreen extends SimpleListScreen {
   });
 
   @override
-  BaseScreenState createState() => BaseScreenState();
+  InventoryListScreenState createState() => InventoryListScreenState();
 }
 
-class BaseScreenState extends SimpleListScreenState {
+class InventoryListScreenState extends SimpleListScreenState {
   Box<ListItem>? _itemBox;
   double updateQuantity = 0;
 
