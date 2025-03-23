@@ -24,7 +24,6 @@ final Map<String, List<String>> itemTypeTagMapping = {
   'meals': ['breakfast', 'lunch', 'dinner', 'snack', 'dessert', ''],
 };
 
-// final List<String> boxNames = ['pantry', 'shopping', 'todo', 'meals'];
 final List<String> boxNames = tabItems.keys.toList();
 
 String lowercaseAndRemoveSpaces(String input) {
@@ -79,7 +78,7 @@ final List<Map<String, dynamic>> tabConfigurations = [
         (title) => AddItemScreen(
           onItemAdded: (ListItem dummy) => [],
           itemType: lowercaseAndRemoveSpaces(title),
-          hasCount: true,
+          hasCount: false,
         ),
   },
   {
@@ -95,7 +94,23 @@ final List<Map<String, dynamic>> tabConfigurations = [
         (title) => AddItemScreen(
           onItemAdded: (ListItem dummy) => [],
           itemType: lowercaseAndRemoveSpaces(title),
-          hasCount: true,
+          hasCount: false,
+        ),
+  },
+  {
+    'title': 'To Eat',
+    'icon': Icons.local_dining,
+    'screen':
+        (title) => SimpleListScreen(
+          itemType: lowercaseAndRemoveSpaces(title),
+          boxName: lowercaseAndRemoveSpaces(title),
+          title: title,
+        ),
+    'onFabPressed':
+        (title) => AddItemScreen(
+          onItemAdded: (ListItem dummy) => [],
+          itemType: 'meals', // Special case
+          hasCount: false,
         ),
   },
 ];
