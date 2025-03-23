@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Import for date formatting
-import '../screens/additem_screen.dart';
 import '../screens/inventorylist_screen.dart';
 import '../screens/simplelist_screen.dart';
-import 'classes/list_item.dart';
 import 'classes/tab_item.dart';
 
 final Map<String, List<String>> itemTypeTagMapping = {
@@ -34,98 +32,77 @@ String lowercaseAndRemoveSpaces(String input) {
 final List<Map<String, dynamic>> tabConfigurations = [
   {
     'title': 'Pantry',
+    'boxName': (title) => lowercaseAndRemoveSpaces(title),
+    'itemType': (boxName) => boxName,
     'icon': Icons.kitchen_rounded,
     'screen':
-        (title) => InventoryListScreen(
-          itemType: lowercaseAndRemoveSpaces(title),
-          boxName: lowercaseAndRemoveSpaces(title),
-          title: title,
-        ),
-    'onFabPressed':
-        (title) => AddItemScreen(
-          onItemAdded: (ListItem dummy) => [],
-          itemType: lowercaseAndRemoveSpaces(title),
-          hasCount: true,
-        ),
+        (title, itemType, boxName) =>
+            InventoryListScreen(itemType: itemType, boxName: boxName, title: title),
   },
   {
     'title': 'Shopping',
+    'boxName': (title) => lowercaseAndRemoveSpaces(title),
+    'itemType': 'pantry', // Special case
     'icon': Icons.local_grocery_store,
     'screen':
-        (title) => InventoryListScreen(
-          itemType: 'pantry', // Special case
-          boxName: lowercaseAndRemoveSpaces(title),
+        (title, itemType, boxName) => InventoryListScreen(
+          itemType: itemType,
+          boxName: boxName,
           title: title,
           moveTo: 'pantry', // Special case
-        ),
-    'onFabPressed':
-        (title) => AddItemScreen(
-          onItemAdded: (ListItem dummy) => [],
-          itemType: lowercaseAndRemoveSpaces(title),
-          hasCount: true,
         ),
   },
   {
     'title': 'Meals',
+    'boxName': (title) => lowercaseAndRemoveSpaces(title),
+    'itemType': (boxName) => boxName,
     'icon': Icons.dinner_dining,
     'screen':
-        (title) => SimpleListScreen(
-          itemType: lowercaseAndRemoveSpaces(title),
-          boxName: lowercaseAndRemoveSpaces(title),
-          title: title,
-        ),
-    'onFabPressed':
-        (title) => AddItemScreen(
-          onItemAdded: (ListItem dummy) => [],
-          itemType: lowercaseAndRemoveSpaces(title),
-          hasCount: false,
-        ),
+        (title, itemType, boxName) =>
+            SimpleListScreen(itemType: itemType, boxName: boxName, title: title),
   },
   {
     'title': 'To Do',
+    'boxName': (title) => lowercaseAndRemoveSpaces(title),
+    'itemType': (boxName) => boxName,
     'icon': Icons.list,
     'screen':
-        (title) => SimpleListScreen(
-          itemType: lowercaseAndRemoveSpaces(title),
-          boxName: lowercaseAndRemoveSpaces(title),
-          title: title,
-        ),
-    'onFabPressed':
-        (title) => AddItemScreen(
-          onItemAdded: (ListItem dummy) => [],
-          itemType: lowercaseAndRemoveSpaces(title),
-          hasCount: false,
-        ),
+        (title, itemType, boxName) =>
+            SimpleListScreen(itemType: itemType, boxName: boxName, title: title),
   },
   {
     'title': 'To Eat',
+    'boxName': (title) => lowercaseAndRemoveSpaces(title),
+    'itemType': 'meals', // Special case
     'icon': Icons.local_dining,
     'screen':
-        (title) => SimpleListScreen(
-          itemType: 'meals', // Special case
-          boxName: lowercaseAndRemoveSpaces(title),
-          title: title,
-        ),
-    'onFabPressed':
-        (title) => AddItemScreen(
-          onItemAdded: (ListItem dummy) => [],
-          itemType: 'meals', // Special case
-          hasCount: false,
-        ),
+        (title, itemType, boxName) =>
+            SimpleListScreen(itemType: itemType, boxName: boxName, title: title),
   },
 ];
 
 Map<String, TabItem> tabItems = Map.fromEntries(
-  tabConfigurations.map(
-    (config) => MapEntry(
-      lowercaseAndRemoveSpaces(config['title']),
+  tabConfigurations.map((config) {
+    final boxName = config['boxName'](config['title']);
+    final itemType =
+        config['itemType'] is Function ? config['itemType'](boxName) : config['itemType'];
+    final screen = config['screen'](
+      config['title'],
+      itemType,
+      boxName,
+    );
+
+    return MapEntry(
+      boxName, // boxName as the key
       TabItem(
-        screen: config['screen'](config['title']),
+        screen: screen,
         icon: Icon(config['icon']),
-        label: config['title'],
+        label: config['title'], // Use title as the label
+        itemType: itemType, // Set the itemType
+        boxName: boxName, // Set the boxName
       ),
-    ),
-  ),
+    );
+  }),
 );
 
 final List<Map<String, String>> sortOptions = [

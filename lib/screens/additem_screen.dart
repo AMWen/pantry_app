@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../data/classes/list_item.dart';
 
 class AddItemScreen extends StatefulWidget {
-  final Function(ListItem) onItemAdded;
   final String itemType;
+  final String boxName;
   final bool hasCount;
 
   const AddItemScreen({
     super.key,
-    required this.onItemAdded,
     required this.itemType,
+    required this.boxName,
     this.hasCount = true,
   });
 
@@ -36,7 +37,8 @@ class AddItemScreenState extends State<AddItemScreen> {
                   controller: _controller,
                   maxLines: null, // Allow multiline input
                   decoration: InputDecoration(
-                    hintText: 'Enter items (one per line)',
+                    hintText:
+                        'Enter items (one per line).${widget.hasCount ? ' Qty of 1 is optional.' : ''}',
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -58,6 +60,7 @@ class AddItemScreenState extends State<AddItemScreen> {
   }
 
   void _addItems() {
+    final itemBox = Hive.box<ListItem>(widget.boxName);
     final inputText = _controller.text.trim();
     final lines = inputText.split('\n').map((line) => line.trim()).toList();
 
@@ -80,8 +83,7 @@ class AddItemScreenState extends State<AddItemScreen> {
           dateAdded: DateTime.now(),
           itemType: widget.itemType,
         );
-
-        widget.onItemAdded(item); // Call the callback function to add the item
+        itemBox.add(item);
       }
     }
     Navigator.pop(context); // Go back to the previous screen after adding items

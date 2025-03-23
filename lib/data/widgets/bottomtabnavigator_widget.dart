@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pantry_app/screens/inventorylist_screen.dart';
 import '../../data/constants.dart';
+import '../../screens/additem_screen.dart';
 import '../classes/tab_item.dart';
 
 class BottomTabNavigator extends StatefulWidget {
@@ -13,7 +15,7 @@ class BottomTabNavigatorState extends State<BottomTabNavigator> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController(); // PageView sync navigator
   final List<TabItem> _tabs = tabItems.values.toList();
-  
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -37,11 +39,13 @@ class BottomTabNavigatorState extends State<BottomTabNavigator> {
       ),
       bottomNavigationBar: BottomAppBar(
         height: 64,
+        padding: EdgeInsets.all(2),
         color: primaryColor,
-        notchMargin: 1.5,
+        notchMargin: 2,
         shape: CircularNotchedRectangle(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children:
               _tabs.map((tab) {
                 int index = _tabs.indexOf(tab);
@@ -54,17 +58,28 @@ class BottomTabNavigatorState extends State<BottomTabNavigator> {
               }).toList(),
         ),
       ),
-      floatingActionButton: IgnorePointer(
-        child: Opacity(
-          opacity: 0,
+      floatingActionButton: SizedBox(
+        height: 45,
+        width: 45,
+        child: FittedBox(
           child: FloatingActionButton(
             shape: CircleBorder(),
-            autofocus: false,
-            onPressed: null,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            focusNode: FocusNode(),
-            child: Container(),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => AddItemScreen(
+                        itemType: _tabs[_selectedIndex].itemType,
+                        boxName: _tabs[_selectedIndex].boxName,
+                        hasCount: _tabs[_selectedIndex].screen is InventoryListScreen,
+                      ),
+                ),
+              );
+            },
+            elevation: 3,
+            foregroundColor: secondaryColor,
+            child: Icon(Icons.add),
           ),
         ),
       ),

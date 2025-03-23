@@ -10,7 +10,6 @@ import '../data/widgets/basic_widgets.dart';
 import '../data/widgets/editdialog_widget.dart';
 import '../data/widgets/settingsdialog_widget.dart';
 import '../utils/string_utils.dart';
-import 'additem_screen.dart';
 
 class SimpleListScreen extends StatefulWidget {
   final String itemType;
@@ -64,12 +63,6 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message), duration: Duration(milliseconds: 700)));
-  }
-
-  void _addItem(ListItem item) {
-    setState(() {
-      _itemBox?.add(item);
-    });
   }
 
   void _moveItem(ListItem item) {
@@ -628,30 +621,6 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
           },
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: //Transform.translate(
-      // offset: Offset(0, 28),
-      //child:
-      FloatingActionButton(
-        heroTag: 'screen_fab',
-        shape: CircleBorder(),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder:
-                  (context) => AddItemScreen(
-                    onItemAdded: _addItem,
-                    itemType: widget.itemType,
-                    hasCount: widget.hasCount,
-                  ),
-            ),
-          );
-        },
-        foregroundColor: Colors.grey[100],
-        child: Icon(Icons.add),
-      ),
-      // ),
     );
   }
 }
