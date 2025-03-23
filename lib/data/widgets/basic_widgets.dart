@@ -22,18 +22,20 @@ class CancelButton extends StatelessWidget {
 class AlertTitle extends StatelessWidget {
   final String message;
   final double fontSize;
+  final FontWeight fontWeight;
 
   const AlertTitle(
     this.message, {
     super.key,
-    this.fontSize = 16.0,
+    this.fontSize = 18.0,
+    this.fontWeight = FontWeight.w700,
   });
 
   @override
   Widget build(BuildContext context) {
     return Text(
       message,
-      style: TextStyle(fontSize: fontSize),
+      style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
     );
   }
 }

@@ -197,7 +197,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
                             return ChoiceChip(
                               label: Text(tag),
                               labelStyle: TextStyle(
-                                color: isSelected ? Colors.white : Colors.black,
+                                color: isSelected ? Colors.white : dullColor,
                               ),
                               selected: isSelected,
                               selectedColor: getTagColor(tag, widget.itemType),
@@ -232,7 +232,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Save or Load'),
+          title: AlertTitle('Save or Load'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -329,7 +329,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Sort By'),
+          title: AlertTitle('Sort By'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children:
@@ -363,7 +363,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Edit Item'),
+          title: AlertTitle('Edit Item'),
           content: SingleChildScrollView(
             child: Column(
               children: [

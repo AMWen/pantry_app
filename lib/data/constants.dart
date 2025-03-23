@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Import for date formatting
+import '../screens/additem_screen.dart';
+import '../screens/base_screen.dart';
+import '../screens/simplelist_screen.dart';
+import 'classes/list_item.dart';
 import 'classes/tab_item.dart';
-import '../../screens/base_screen.dart';
-import '../../screens/simplelist_screen.dart';
 
 final Map<String, List<String>> itemTypeTagMapping = {
   'pantry': [
@@ -29,6 +31,7 @@ String lowercaseAndRemoveSpaces(String input) {
   return input.replaceAll(' ', '').toLowerCase();
 }
 
+// Primary determinant of what tabs are available
 final List<Map<String, dynamic>> tabConfigurations = [
   {
     'title': 'Pantry',
@@ -38,6 +41,12 @@ final List<Map<String, dynamic>> tabConfigurations = [
           itemType: lowercaseAndRemoveSpaces(title),
           boxName: lowercaseAndRemoveSpaces(title),
           title: title,
+        ),
+    'onFabPressed':
+        (title) => AddItemScreen(
+          onItemAdded: (ListItem dummy) => [],
+          itemType: lowercaseAndRemoveSpaces(title),
+          hasCount: true,
         ),
   },
   {
@@ -50,6 +59,12 @@ final List<Map<String, dynamic>> tabConfigurations = [
           title: title,
           moveTo: 'pantry', // Special case
         ),
+    'onFabPressed':
+        (title) => AddItemScreen(
+          onItemAdded: (ListItem dummy) => [],
+          itemType: lowercaseAndRemoveSpaces(title),
+          hasCount: true,
+        ),
   },
   {
     'title': 'Meals',
@@ -60,6 +75,12 @@ final List<Map<String, dynamic>> tabConfigurations = [
           boxName: lowercaseAndRemoveSpaces(title),
           title: title,
         ),
+    'onFabPressed':
+        (title) => AddItemScreen(
+          onItemAdded: (ListItem dummy) => [],
+          itemType: lowercaseAndRemoveSpaces(title),
+          hasCount: true,
+        ),
   },
   {
     'title': 'To Do',
@@ -69,6 +90,12 @@ final List<Map<String, dynamic>> tabConfigurations = [
           itemType: lowercaseAndRemoveSpaces(title),
           boxName: lowercaseAndRemoveSpaces(title),
           title: title,
+        ),
+    'onFabPressed':
+        (title) => AddItemScreen(
+          onItemAdded: (ListItem dummy) => [],
+          itemType: lowercaseAndRemoveSpaces(title),
+          hasCount: true,
         ),
   },
 ];
@@ -107,8 +134,8 @@ class TextStyles {
   );
 
   static const TextStyle dialogTitle = TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 20,
+    fontWeight: FontWeight.w700,
+    fontSize: 18,
     // color: Colors.black,
   );
 
