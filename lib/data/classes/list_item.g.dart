@@ -23,13 +23,14 @@ class ListItemAdapter extends TypeAdapter<ListItem> {
       tag: fields[3] as String?,
       completed: fields[4] as bool?,
       itemType: fields[5] != null ? fields[5] as String : 'pantry',
+      url: fields[6] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ListItem obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -41,7 +42,9 @@ class ListItemAdapter extends TypeAdapter<ListItem> {
       ..writeByte(4)
       ..write(obj.completed)
       ..writeByte(5)
-      ..write(obj.itemType);
+      ..write(obj.itemType)
+      ..writeByte(6)
+      ..write(obj.url);
   }
 
   @override

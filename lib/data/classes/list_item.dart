@@ -25,6 +25,9 @@ class ListItem<T> extends HiveObject {
   @HiveField(5)
   String itemType;
 
+  @HiveField(6)
+  String? url;
+
   ListItem({
     required this.name,
     this.count,
@@ -32,6 +35,7 @@ class ListItem<T> extends HiveObject {
     this.tag,
     this.completed = false,
     this.itemType = 'pantry',
+    this.url,
   });
 
   factory ListItem.fromJson(Map<String, dynamic> json) {
@@ -42,6 +46,7 @@ class ListItem<T> extends HiveObject {
       tag: json['tag'],
       completed: json['completed'] ?? false,
       itemType: json['itemType'] ?? 'pantry',
+      url: json['url'],
     );
   }
 
@@ -53,6 +58,7 @@ class ListItem<T> extends HiveObject {
       'tag': tag,
       'completed': completed,
       'itemType': itemType,
+      'url': url,
     };
   }
 
