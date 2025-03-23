@@ -7,6 +7,7 @@ import 'dart:typed_data'; // Import for Uint8List
 import '../data/classes/list_item.dart';
 import '../data/constants.dart';
 import '../data/widgets/basic_widgets.dart';
+import '../data/widgets/editdialog_widget.dart';
 import '../data/widgets/settingsdialog_widget.dart';
 import '../utils/string_utils.dart';
 import 'additem_screen.dart';
@@ -59,7 +60,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     }
   }
 
-  void _showErrorSnackbar(String message) {
+  void showErrorSnackbar(String message) {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message), duration: Duration(milliseconds: 700)));
@@ -80,7 +81,6 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
 
   void _moveSelectedItems() {
     if (_selectedItemIds.isNotEmpty) {
-      print('hello');
       showDialog(
         context: context,
         builder: (context) {
@@ -112,7 +112,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
         },
       );
     } else {
-      _showErrorSnackbar('No items selected for migration!');
+      showErrorSnackbar('No items selected for migration!');
     }
   }
 
@@ -153,7 +153,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
         },
       );
     } else {
-      _showErrorSnackbar('No items selected for deletion!');
+      showErrorSnackbar('No items selected for deletion!');
     }
   }
 
@@ -216,7 +216,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
         },
       );
     } else {
-      _showErrorSnackbar('No items selected for tagging!');
+      showErrorSnackbar('No items selected for tagging!');
     }
   }
 
@@ -236,7 +236,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: Text('Load Items'),
+                title: Text('Load Items (add to list)'),
                 onTap: () {
                   Navigator.of(context).pop();
                   _importItems();
@@ -287,7 +287,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
 
       // Only show the snackbar if the widget is still mounted
       if (mounted) {
-        _showErrorSnackbar('Items imported successfully!');
+        showErrorSnackbar('Items imported successfully!');
       }
     }
   }
@@ -313,12 +313,12 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
         final file = File(filePath);
         await file.writeAsString(jsonString);
         if (mounted) {
-          _showErrorSnackbar('Items exported successfully!');
+          showErrorSnackbar('Items exported successfully!');
         }
       }
     } else {
       if (mounted) {
-        _showErrorSnackbar('No items to export!');
+        showErrorSnackbar('No items to export!');
       }
     }
   }
@@ -368,55 +368,10 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   }
 
   void _showEditDialog(BuildContext context, ListItem item) {
-    final TextEditingController nameController = TextEditingController(text: item.name);
-    final TextEditingController dateController = TextEditingController(
-      text: dateFormat.format(item.dateAdded),
-    );
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: AlertTitle('Edit Item'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextField(
-                  controller: nameController,
-                  maxLines: null,
-                  decoration: InputDecoration(labelText: 'Item', hintText: 'Enter the new item'),
-                ),
-                TextField(
-                  controller: dateController,
-                  maxLines: null,
-                  decoration: InputDecoration(
-                    labelText: 'Date Added',
-                    hintText: 'Enter the new date',
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            CancelButton(),
-            FilledButton(
-              onPressed: () {
-                setState(() {
-                  item.name = nameController.text;
-                  try {
-                    DateTime dateTime = dateFormat.parse(dateController.text);
-                    item.dateAdded = dateTime;
-                  } catch (e) {
-                    _showErrorSnackbar('Invalid date, not updating');
-                  }
-                  item.save();
-                });
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
+        return EditDialog(item: item, hasCount: widget.hasCount);
       },
     );
   }
@@ -674,28 +629,29 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Transform.translate(
-        offset: Offset(0, 28),
-        child: FloatingActionButton(
-          heroTag: 'screen_fab',
-          shape: CircleBorder(),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) => AddItemScreen(
-                      onItemAdded: _addItem,
-                      itemType: widget.itemType,
-                      hasCount: widget.hasCount,
-                    ),
-              ),
-            );
-          },
-          foregroundColor: Colors.grey[100],
-          child: Icon(Icons.add),
-        ),
+      floatingActionButton: //Transform.translate(
+      // offset: Offset(0, 28),
+      //child:
+      FloatingActionButton(
+        heroTag: 'screen_fab',
+        shape: CircleBorder(),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => AddItemScreen(
+                    onItemAdded: _addItem,
+                    itemType: widget.itemType,
+                    hasCount: widget.hasCount,
+                  ),
+            ),
+          );
+        },
+        foregroundColor: Colors.grey[100],
+        child: Icon(Icons.add),
       ),
+      // ),
     );
   }
 }
