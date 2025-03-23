@@ -10,12 +10,21 @@ class Settings extends HiveObject {
   @HiveField(1)
   String? _fileLocation;
 
-  Settings({required this.boxName, String? fileLocation}) : _fileLocation = fileLocation;
+  @HiveField(2)
+  DateTime? lastUpdated;
+
+  Settings({required this.boxName, String? fileLocation, this.lastUpdated})
+      : _fileLocation = fileLocation;
 
   String? get fileLocation => _fileLocation;
 
   set fileLocation(String? location) {
     _fileLocation = location;
-    save(); // Automatically save after setting the file location
+    save();
+  }
+
+  void updateLastUpdated() {
+    lastUpdated = DateTime.now();
+    save();
   }
 }

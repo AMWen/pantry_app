@@ -18,17 +18,20 @@ class SettingsAdapter extends TypeAdapter<Settings> {
     };
     return Settings(
       boxName: fields[0] as String,
+      lastUpdated: fields[2] as DateTime?,
     ).._fileLocation = fields[1] as String?;
   }
 
   @override
   void write(BinaryWriter writer, Settings obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.boxName)
       ..writeByte(1)
-      ..write(obj._fileLocation);
+      ..write(obj._fileLocation)
+      ..writeByte(2)
+      ..write(obj.lastUpdated);
   }
 
   @override

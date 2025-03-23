@@ -22,7 +22,7 @@ class ListItemAdapter extends TypeAdapter<ListItem> {
       dateAdded: fields[2] as DateTime,
       tag: fields[3] as String?,
       completed: fields[4] as bool?,
-      itemType: fields[5] != null ? fields[5] as String : 'pantry',
+      itemType: fields[5] as String,
       url: fields[6] as String?,
     );
   }
