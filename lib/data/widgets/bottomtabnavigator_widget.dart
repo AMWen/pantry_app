@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pantry_app/data/constants.dart';
-
-import '../../screens/meals_screen.dart';
-import '../../screens/pantry_screen.dart';
-import '../../screens/shopping_screen.dart';
-import '../../screens/todo_screen.dart';
+import '../../data/constants.dart';
 import '../classes/tab_item.dart';
 
 class BottomTabNavigator extends StatefulWidget {
@@ -17,14 +12,8 @@ class BottomTabNavigator extends StatefulWidget {
 class BottomTabNavigatorState extends State<BottomTabNavigator> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController(); // PageView sync navigator
-
-  final List<TabItem> _tabs = [
-    TabItem(screen: PantryScreen(), icon: Icon(Icons.kitchen_rounded), label: 'Pantry'),
-    TabItem(screen: ShoppingScreen(), icon: Icon(Icons.local_grocery_store), label: 'Shopping'),
-    TabItem(screen: MealsScreen(), icon: Icon(Icons.dinner_dining), label: 'Meals'),
-    TabItem(screen: ToDoScreen(), icon: Icon(Icons.list), label: 'To Do'),
-  ];
-
+  final List<TabItem> _tabs = tabItems.values.toList();
+  
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -47,6 +36,7 @@ class BottomTabNavigatorState extends State<BottomTabNavigator> {
         children: _tabs.map((tab) => tab.screen).toList(),
       ),
       bottomNavigationBar: BottomAppBar(
+        height: 64,
         color: primaryColor,
         notchMargin: 1.5,
         shape: CircularNotchedRectangle(),

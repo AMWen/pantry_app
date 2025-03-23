@@ -4,11 +4,11 @@ import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:typed_data'; // Import for Uint8List
-import '../classes/list_item.dart';
-import '../constants.dart';
-import '../../screens/additem_screen.dart';
-import '../../utils/string_utils.dart';
-import 'basic_widgets.dart';
+import '../data/classes/list_item.dart';
+import '../data/constants.dart';
+import 'additem_screen.dart';
+import '../utils/string_utils.dart';
+import '../data/widgets/basic_widgets.dart';
 
 class SimpleListScreen extends StatefulWidget {
   final String itemType;

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Import for date formatting
+import 'classes/tab_item.dart';
+import '../../screens/base_screen.dart';
+import '../../screens/simplelist_screen.dart';
 
 final Map<String, List<String>> itemTypeTagMapping = {
   'pantry': [
@@ -19,7 +22,69 @@ final Map<String, List<String>> itemTypeTagMapping = {
   'meals': ['breakfast', 'lunch', 'dinner', 'snack', 'dessert', ''],
 };
 
-final List<String> boxNames = ['pantry', 'shopping', 'todo', 'meals'];
+// final List<String> boxNames = ['pantry', 'shopping', 'todo', 'meals'];
+final List<String> boxNames = tabItems.keys.toList();
+
+String lowercaseAndRemoveSpaces(String input) {
+  return input.replaceAll(' ', '').toLowerCase();
+}
+
+final List<Map<String, dynamic>> tabConfigurations = [
+  {
+    'title': 'Pantry',
+    'icon': Icons.kitchen_rounded,
+    'screen':
+        (title) => BaseScreen(
+          itemType: lowercaseAndRemoveSpaces(title),
+          boxName: lowercaseAndRemoveSpaces(title),
+          title: title,
+        ),
+  },
+  {
+    'title': 'Shopping',
+    'icon': Icons.local_grocery_store,
+    'screen':
+        (title) => BaseScreen(
+          itemType: 'pantry', // Special case
+          boxName: lowercaseAndRemoveSpaces(title),
+          title: title,
+          moveTo: 'pantry', // Special case
+        ),
+  },
+  {
+    'title': 'Meals',
+    'icon': Icons.dinner_dining,
+    'screen':
+        (title) => SimpleListScreen(
+          itemType: lowercaseAndRemoveSpaces(title),
+          boxName: lowercaseAndRemoveSpaces(title),
+          title: title,
+        ),
+  },
+  {
+    'title': 'To Do',
+    'icon': Icons.list,
+    'screen':
+        (title) => SimpleListScreen(
+          itemType: lowercaseAndRemoveSpaces(title),
+          boxName: lowercaseAndRemoveSpaces(title),
+          title: title,
+        ),
+  },
+];
+
+Map<String, TabItem> tabItems = Map.fromEntries(
+  tabConfigurations.map(
+    (config) => MapEntry(
+      lowercaseAndRemoveSpaces(config['title']),
+      TabItem(
+        screen: config['screen'](config['title']),
+        icon: Icon(config['icon']),
+        label: config['title'],
+      ),
+    ),
+  ),
+);
 
 final List<Map<String, String>> sortOptions = [
   {'title': 'None', 'value': ''},

@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 
-import '../classes/list_item.dart';
-import '../constants.dart';
-import 'simplelistscreen_widget.dart';
+import '../data/classes/list_item.dart';
+import '../data/constants.dart';
+import 'simplelist_screen.dart';
 
 class BaseScreen extends SimpleListScreen {
   const BaseScreen({
