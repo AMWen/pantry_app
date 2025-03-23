@@ -30,7 +30,10 @@ class SimpleListScreen extends StatefulWidget {
   SimpleListScreenState createState() => SimpleListScreenState();
 }
 
-class SimpleListScreenState extends State<SimpleListScreen> {
+class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   Box<ListItem>? _itemBox;
   Box<ListItem>? _newItemBox;
   List<String>? _tagOrder;
