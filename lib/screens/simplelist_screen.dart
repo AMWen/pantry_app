@@ -470,11 +470,11 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
         actions: [
           ...actionList.map(
             (action) => SizedBox(
-              width: 40,
+              width: 36,
               child: IconButton(icon: Icon(action['icon']), onPressed: action['onPressed']),
             ),
           ),
-          Padding(padding: const EdgeInsets.only(right: 5)),
+          Padding(padding: const EdgeInsets.only(right: 4)),
         ],
       ),
       body: Padding(
