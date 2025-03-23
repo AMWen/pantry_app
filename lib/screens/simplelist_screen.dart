@@ -6,9 +6,10 @@ import 'dart:convert';
 import 'dart:typed_data'; // Import for Uint8List
 import '../data/classes/list_item.dart';
 import '../data/constants.dart';
-import 'additem_screen.dart';
-import '../utils/string_utils.dart';
 import '../data/widgets/basic_widgets.dart';
+import '../data/widgets/settingsdialog_widget.dart';
+import '../utils/string_utils.dart';
+import 'additem_screen.dart';
 
 class SimpleListScreen extends StatefulWidget {
   final String itemType;
@@ -196,9 +197,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
 
                             return ChoiceChip(
                               label: Text(tag),
-                              labelStyle: TextStyle(
-                                color: isSelected ? Colors.white : dullColor,
-                              ),
+                              labelStyle: TextStyle(color: isSelected ? Colors.white : dullColor),
                               selected: isSelected,
                               selectedColor: getTagColor(tag, widget.itemType),
                               onSelected: (bool selected) {
@@ -322,6 +321,21 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
         _showErrorSnackbar('No items to export!');
       }
     }
+  }
+
+  // Future<String?> getFileLocation(String boxName) async {
+  //   var settingsBox = Hive.box<Settings>('settings');
+  //   var settings = settingsBox.get(boxName);
+  //   return settings?.fileLocation;
+  // }
+
+  void _showSettings() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return SettingsDialog();
+      },
+    );
   }
 
   void _showSortingOptions(BuildContext context) {
@@ -494,6 +508,12 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
         },
       },
       {'icon': Icons.delete_forever, 'onPressed': _deleteSelectedItems},
+      {
+        'icon': Icons.settings,
+        'onPressed': () {
+          _showSettings();
+        },
+      },
     ];
 
     return Scaffold(
