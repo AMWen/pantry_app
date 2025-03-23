@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../data/classes/list_item.dart';
+import '../data/constants.dart';
 
 class AddItemScreen extends StatefulWidget {
   final String itemType;
@@ -38,7 +39,8 @@ class AddItemScreenState extends State<AddItemScreen> {
                   maxLines: null, // Allow multiline input
                   decoration: InputDecoration(
                     hintText:
-                        'Enter items (one per line).${widget.hasCount ? ' Qty of 1 is optional.' : ''}',
+                        'Enter items (one per line)${widget.hasCount ? '. Qty of 1 is optional.' : ''}',
+                    hintStyle: TextStyles.lightText,
                     border: OutlineInputBorder(),
                   ),
                 ),
