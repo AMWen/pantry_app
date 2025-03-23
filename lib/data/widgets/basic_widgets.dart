@@ -9,9 +9,9 @@ class CancelButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.redAccent, // Red color for Cancel button
+    return FilledButton(
+      style: FilledButton.styleFrom(
+        backgroundColor: Colors.red.shade400, // Red color for Cancel button
       ),
       onPressed: onPressed ?? () => Navigator.of(context).pop(), // Default behavior is to pop
       child: Text('Cancel', style: TextStyles.buttonText),
