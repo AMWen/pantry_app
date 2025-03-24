@@ -5,7 +5,7 @@ import '../../utils/file_utils.dart';
 import '../classes/list_item.dart';
 import '../constants.dart';
 import 'basic_widgets.dart';
-import 'snackbar_widget.dart';
+import '../../utils/snackbar_util.dart';
 
 class EditDialog extends StatefulWidget {
   final ListItem item;

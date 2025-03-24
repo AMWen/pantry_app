@@ -11,7 +11,8 @@ In addition to groceries management, the app has expanded to support tracking to
 - **Add links**: Add a link, with ability to launch the URL.
 - **Modify item quantities**: Quickly change the quantity of any item.
 - **Delete items**: Remove items from your list, including support for deleting multiple selected items at once.
-- **Tagging items**: Assign tags to items for better organization
+- **Copy items**: Copy items to clipboard for sharing.
+- **Tag items**: Assign tags to items for better organization.
 - **Import/Export**: Import and export data using JSON files.
 - **Sorting**: Sort items by name, date added, or tag.
 - **Move items**: Move selected items between shopping list and pantry directly.
@@ -31,6 +32,7 @@ In addition to groceries management, the app has expanded to support tracking to
 - **Toolbar Features**
   - **🚚 Move Items**: Easily move selected items between the shopping list and the pantry.
   - **👁️ Select and view completed items**: Select as well as toggle the visibility of completed items in the list.
+  - **📋 Copy**: Copy selected items to clipboard.
   - **↕️ Sorting**: Sort items by `Name`, `Date Added`, `Tag`, or your own manual order (from using the drag-and-drop interface).
   - **💾 Saving and loading**: Load from and save to a JSON file, useful for backup and sharing. When you load, you can choose to add to the list or to completely replace the current list. You can also save the whole list or selected items.
   - **🏷️ Multi-select tagging**: Categorize items using tags, and select one or more items to tag using the checkboxes.
@@ -91,16 +93,32 @@ flutter build ios --release
 #### Troubleshooting iOS Code Signing Issues
 If you encounter the "No valid code signing certificates were found" error when building for iOS, follow these steps to fix it:
 
-- Open Xcode: Open your iOS project in Xcode (ios/Runner.xcworkspace).
-- Configure Code Signing: Ensure you have the correct signing settings:
-    - Set the Team under the Signing & Capabilities tab.
-    - Make sure Automatically manage signing is checked.
-    - Set the correct Bundle Identifier.
-- Certificates: Ensure you have valid certificates for signing in your Apple Developer account.
+- Enroll with the Apple Developer app on your iPhone, iPad, or Mac if not done already
+  - Download the Apple Developer app from App Store
+  - Select the Account tab and sign in to continue
+  - Click Enroll Now (costs ~$100/year)
+- Add device to Developer Portal
+  - Go to the Apple Developer Portal
+  - Log in with your Apple Developer account credentials
+  - Under the Certificates, Identifiers & Profiles section, go to Devices
+  - Click on the "+" (Add Device) button
+  - Enter a name for your device and device ID (UDID)
+      - To find your device’s UDID, connect the device to your Mac, open Xcode > Devices and Simulators window, select your device, and copy the Identifier
+  - Click Continue to add the device
+- Set up code signing certificates
+  - Open Xcode: Open your iOS project in Xcode (ios/Runner.xcworkspace)
+    ```bash
+    open ios/Runner.xcworkspace
+    ```
+  - Configure Code Signing: Ensure you have the correct signing settings:
+      - Select the 'Runner' project in the navigator then the 'Runner' target in the project settings
+      - Under the Signing & Capabilities tab, set the Team and Bundle Identifier (needs to be unique)
+      - Register your device with your Apple Developer Account
+      - Let Xcode automatically provision a profile for your app (Automatically manage signing is checked).
+  - Certificates: Ensure you have valid certificates for signing in your Apple Developer account.
+      - Trust your newly created Development Certificate on your iOS device via BoxSettings > General > Device Management > [your new certificate] > Trust
 
 ## Tech Stack
 
 - **Flutter**: The app is built using Flutter for a cross-platform mobile experience, targeting both Android and iOS devices.
 - **Hive**: A lightweight, fast key-value database used for local storage, storing pantry items offline.
-- **Flutter File Dialog**: Used to open and save files (for importing and exporting data).
-

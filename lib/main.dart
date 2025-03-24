@@ -1,35 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'data/classes/completion_settings.dart';
 import 'data/classes/list_item.dart';
-import 'data/classes/settings.dart';
+import 'data/classes/box_settings.dart';
 import 'data/constants.dart';
 import 'data/widgets/bottomtabnavigator_widget.dart';
 
 void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(ListItemAdapter());
-  Hive.registerAdapter(SettingsAdapter());
-  Hive.registerAdapter(CompletionSettingsAdapter());
+  Hive.registerAdapter(BoxSettingsAdapter());
 
   // Open all Hive boxes
   await Future.wait(boxNames.map((boxName) => Hive.openBox<ListItem>(boxName)).toList());
-  await Hive.openBox<Settings>(settings);
-  await Hive.openBox<CompletionSettings>(completionSettings);
+  await Hive.openBox<BoxSettings>(boxSettings);
 
   // Initialize if needed
-  var settingsBox = Hive.box<Settings>(settings);
+  var settingsBox = Hive.box<BoxSettings>(boxSettings);
   for (String boxName in boxNames) {
     if (!settingsBox.containsKey(boxName)) {
-      settingsBox.put(boxName, Settings(boxName: boxName, fileLocation: null));
+      settingsBox.put(boxName, BoxSettings(boxName: boxName));
     }
   }
-  var completionSettingsBox = Hive.box<CompletionSettings>(completionSettings);
-  for (String boxName in boxNames) {
-    if (!completionSettingsBox.containsKey(boxName)) {
-      completionSettingsBox.put(boxName, CompletionSettings(boxName: boxName));
-    }
-  }
+
   runApp(MyApp());
 }
 

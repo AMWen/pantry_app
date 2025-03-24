@@ -1,37 +1,44 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'settings.dart';
+part of 'box_settings.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class SettingsAdapter extends TypeAdapter<Settings> {
+class BoxSettingsAdapter extends TypeAdapter<BoxSettings> {
   @override
   final int typeId = 1;
 
   @override
-  Settings read(BinaryReader reader) {
+  BoxSettings read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Settings(
+    return BoxSettings(
       boxName: fields[0] as String,
       lastUpdated: fields[2] as DateTime?,
-    ).._fileLocation = fields[1] as String?;
+    )
+      .._syncLocation = fields[1] as String?
+      .._showCompleted = fields[3] as bool
+      .._selectAllCompleted = fields[4] as bool;
   }
 
   @override
-  void write(BinaryWriter writer, Settings obj) {
+  void write(BinaryWriter writer, BoxSettings obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.boxName)
       ..writeByte(1)
-      ..write(obj._fileLocation)
+      ..write(obj._syncLocation)
       ..writeByte(2)
-      ..write(obj.lastUpdated);
+      ..write(obj.lastUpdated)
+      ..writeByte(3)
+      ..write(obj._showCompleted)
+      ..writeByte(4)
+      ..write(obj._selectAllCompleted);
   }
 
   @override
@@ -40,7 +47,7 @@ class SettingsAdapter extends TypeAdapter<Settings> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SettingsAdapter &&
+      other is BoxSettingsAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

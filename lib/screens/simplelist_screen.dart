@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../data/classes/completion_settings.dart';
+import '../data/classes/box_settings.dart';
 import '../data/classes/list_item.dart';
 import '../data/constants.dart';
-// import '../data/widgets/autoloadservice_widget.dart';
+// import '../data/classes/autoloadservice.dart';
 import '../data/widgets/basic_widgets.dart';
 import '../data/widgets/editdialog_widget.dart';
 // import '../data/widgets/syncdialog_widget.dart';
 import '../data/widgets/saveloaddialog_widget.dart';
-import '../data/widgets/snackbar_widget.dart';
 import '../utils/file_utils.dart';
+import '../utils/snackbar_util.dart';
 import '../utils/string_utils.dart';
 
 class SimpleListScreen extends StatefulWidget {
@@ -44,7 +45,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   late List<String> _tagOrder;
   String _sortCriteria = '';
   Set<int> _selectedItemIds = {};
-  late CompletionSettings boxCompletionSettings;
+  late BoxSettings currentBoxSettings;
   List<ListItem> listItems = [];
   List<ListItem> completedItems = [];
 
@@ -53,10 +54,8 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     super.initState();
 
     // Set comletion settings
-    Box<CompletionSettings> completionSettingsBox = Hive.box<CompletionSettings>(
-      completionSettings,
-    );
-    boxCompletionSettings = completionSettingsBox.get(widget.boxName)!;
+    Box<BoxSettings> boxSettingsBox = Hive.box<BoxSettings>(boxSettings);
+    currentBoxSettings = boxSettingsBox.get(widget.boxName)!;
 
     // _autoLoadService = AutoLoadService();
     // Future.delayed(Duration.zero, () {
@@ -105,6 +104,27 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       if (mounted) {
         showErrorSnackbar(context, 'Could not launch $url');
       }
+    }
+  }
+
+  void copySelectedItems() {
+    if (_selectedItemIds.isNotEmpty) {
+      final selectedItems =
+          _itemBox.values
+              .where((item) => _selectedItemIds.contains(item.key)) // Use key to filter
+              .toList();
+
+      final itemNames = selectedItems
+          .map((item) => widget.hasCount ? '${item.count} ${item.name}' : item.name)
+          .join('\n');
+
+      Clipboard.setData(ClipboardData(text: itemNames)).then((_) {
+        if (mounted) {
+          showErrorSnackbar(context, 'Copied selected items to clipboard');
+        }
+      });
+    } else {
+      showErrorSnackbar(context, 'No items selected to copy!');
     }
   }
 
@@ -238,8 +258,10 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
                   ),
                 ],
                 title: Center(child: Text('Select Tag', style: TextStyles.dialogTitle)),
-                content: SizedBox(
-                  height: 200,
+                content: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: 200, // Set the max height to 200
+                  ),
                   child: SingleChildScrollView(
                     child: Wrap(
                       spacing: 4.0,
@@ -248,8 +270,12 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
                             bool isSelected = tag == selectedTag;
 
                             return ChoiceChip(
+                              showCheckmark: false,
                               label: Text(tag),
-                              labelStyle: TextStyle(fontSize: 12, color: isSelected ? Colors.white : dullColor),
+                              labelStyle: TextStyle(
+                                fontSize: 12,
+                                color: isSelected ? Colors.white : dullColor,
+                              ),
                               selected: isSelected,
                               selectedColor: getTagColor(tag, widget.itemType),
                               onSelected: (bool selected) {
@@ -346,7 +372,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     }
     final moveItem = listItems.removeAt(oldIndex);
     listItems.insert(dropIndex, moveItem);
-    if (!boxCompletionSettings.showCompleted) {
+    if (!currentBoxSettings.showCompleted) {
       listItems = [...listItems, ...completedItems];
     }
 
@@ -370,20 +396,20 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       if (!widget.hasCount) // Only add this action if hasCount is false
         {
           'icon':
-              boxCompletionSettings.selectAllCompleted
+              currentBoxSettings.selectAllCompleted
                   ? Icons.visibility_off
-                  : boxCompletionSettings.showCompleted
+                  : currentBoxSettings.showCompleted
                   ? Icons.check_box
                   : Icons.visibility,
           'onPressed': () {
             setState(() {
-              if (boxCompletionSettings.selectAllCompleted) {
-                boxCompletionSettings.showCompleted = false;
-                boxCompletionSettings.selectAllCompleted = false;
+              if (currentBoxSettings.selectAllCompleted) {
+                currentBoxSettings.showCompleted = false;
+                currentBoxSettings.selectAllCompleted = false;
                 _selectedItemIds.clear();
-              } else if (boxCompletionSettings.showCompleted) {
-                boxCompletionSettings.showCompleted = true;
-                boxCompletionSettings.selectAllCompleted = true;
+              } else if (currentBoxSettings.showCompleted) {
+                currentBoxSettings.showCompleted = true;
+                currentBoxSettings.selectAllCompleted = true;
                 _selectedItemIds = _itemBox.values.fold<Set<int>>({}, (Set<int> selectedIds, item) {
                   if (item.completed == true) {
                     selectedIds.add(item.key);
@@ -391,13 +417,19 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
                   return selectedIds;
                 });
               } else {
-                boxCompletionSettings.showCompleted = true;
-                boxCompletionSettings.selectAllCompleted = false;
+                currentBoxSettings.showCompleted = true;
+                currentBoxSettings.selectAllCompleted = false;
                 _selectedItemIds.clear();
               }
             });
           },
         },
+      {
+        'icon': Icons.copy,
+        'onPressed': () {
+          copySelectedItems();
+        },
+      },
       {
         'icon': Icons.swap_vert,
         'onPressed': () {
@@ -439,7 +471,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
         actions: [
           ...actionList.map(
             (action) => SizedBox(
-              width: 36,
+              width: 34,
               child: IconButton(icon: Icon(action['icon']), onPressed: action['onPressed']),
             ),
           ),
@@ -459,7 +491,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
             completedItems = listItems.where((item) => item.completed == true).toList();
 
             // Filter out completed items
-            if (!boxCompletionSettings.showCompleted) {
+            if (!currentBoxSettings.showCompleted) {
               listItems =
                   listItems
                       .where((item) => item.completed == false || item.completed == null)

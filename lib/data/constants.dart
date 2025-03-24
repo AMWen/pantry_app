@@ -4,8 +4,7 @@ import '../screens/inventorylist_screen.dart';
 import '../screens/simplelist_screen.dart';
 import 'classes/tab_item.dart';
 
-final String settings = 'settings';
-final String completionSettings = 'completionSettings';
+final String boxSettings = 'boxSettings';
 
 final Map<String, List<String>> itemTypeTagMapping = {
   'pantry': [
@@ -23,6 +22,7 @@ final Map<String, List<String>> itemTypeTagMapping = {
   ],
   'todo': ['urgent', 'high priority', 'low priority', ''],
   'meals': ['breakfast', 'lunch', 'dinner', 'snack', 'dessert', ''],
+  'ideas': ['easy', 'moderate', 'difficult', 'useful', 'fun', ''],
 };
 
 final List<String> boxNames = tabItems.keys.toList();
@@ -69,6 +69,15 @@ final List<Map<String, dynamic>> tabConfigurations = [
             SimpleListScreen(itemType: itemType, boxName: boxName, title: title),
   },
   {
+    'title': 'To Eat',
+    'boxName': (title) => lowercaseAndRemoveSpaces(title),
+    'itemType': 'meals', // Special case
+    'icon': Icons.local_dining,
+    'screen':
+        (title, itemType, boxName) =>
+            SimpleListScreen(itemType: itemType, boxName: boxName, title: title),
+  },
+  {
     'title': 'To Do',
     'boxName': (title) => lowercaseAndRemoveSpaces(title),
     'itemType': (boxName) => boxName,
@@ -78,10 +87,10 @@ final List<Map<String, dynamic>> tabConfigurations = [
             SimpleListScreen(itemType: itemType, boxName: boxName, title: title),
   },
   {
-    'title': 'To Eat',
+    'title': 'Ideas',
     'boxName': (title) => lowercaseAndRemoveSpaces(title),
-    'itemType': 'meals', // Special case
-    'icon': Icons.local_dining,
+    'itemType': 'ideas',
+    'icon': Icons.lightbulb,
     'screen':
         (title, itemType, boxName) =>
             SimpleListScreen(itemType: itemType, boxName: boxName, title: title),
@@ -136,7 +145,6 @@ class TextStyles {
 
   static TextStyle buttonText = TextStyle(
     fontWeight: FontWeight.w500,
-    fontSize: 16,
     // color: secondaryColor,
   );
 
@@ -159,7 +167,7 @@ class TextStyles {
     fontWeight: FontWeight.w300,
   );
 
-  static const TextStyle mediumText = TextStyle(fontSize: 12);
+  static const TextStyle mediumText = TextStyle(fontSize: 13);
 
   static const TextStyle normalText = TextStyle(fontWeight: FontWeight.normal, fontSize: 14);
 

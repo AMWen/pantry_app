@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hive/hive.dart';
-import 'package:pantry_app/data/widgets/snackbar_widget.dart';
+import 'package:pantry_app/utils/snackbar_util.dart';
 
 import '../../utils/file_utils.dart';
 import '../classes/list_item.dart';
-import '../classes/settings.dart';
+import '../classes/box_settings.dart';
 import '../constants.dart';
 import 'basic_widgets.dart';
-import 'filelocation_widget.dart';
+import 'synclocation_widget.dart';
 
 class SyncDialog extends StatefulWidget {
   const SyncDialog({super.key});
@@ -19,16 +19,16 @@ class SyncDialog extends StatefulWidget {
 
 class SyncDialogState extends State<SyncDialog> {
   Map<String, String?> currentLocations = {};
-  late Box<Settings> _settingsBox;
+  late Box<BoxSettings> _settingsBox;
   bool _showHelpText = false;
 
   @override
   void initState() {
     super.initState();
-    _settingsBox = Hive.box<Settings>(settings);
+    _settingsBox = Hive.box<BoxSettings>(boxSettings);
     for (String boxName in boxNames) {
-      final boxSettings = _settingsBox.get(boxName);
-      currentLocations[boxName] = boxSettings?.fileLocation ?? 'Not set';
+      final boxBoxSettings = _settingsBox.get(boxName);
+      currentLocations[boxName] = boxBoxSettings?.syncLocation ?? 'Not set';
     }
   }
 
@@ -66,7 +66,7 @@ class SyncDialogState extends State<SyncDialog> {
       setState(() {
         currentLocations[boxName] = selectedLocation;
       });
-      await setFileLocation(boxName, selectedLocation);
+      await setSyncLocation(boxName, selectedLocation);
 
       // Decision: how to sync?
       bool? shouldOverwrite = await _showOverwriteDialog(context);
@@ -87,25 +87,25 @@ class SyncDialogState extends State<SyncDialog> {
     setState(() {
       currentLocations[boxName] = null;
     });
-    await setFileLocation(boxName, null);
+    await setSyncLocation(boxName, null);
   }
 
-  Future<void> setFileLocation(String boxName, String? fileLocation) async {
-    var boxSettings = _settingsBox.get(boxName);
+  Future<void> setSyncLocation(String boxName, String? syncLocation) async {
+    var boxBoxSettings = _settingsBox.get(boxName);
 
-    if (boxSettings == null) {
-      // If settings are not found, create a new Settings object
-      boxSettings = Settings(boxName: boxName, fileLocation: fileLocation);
-      await _settingsBox.add(boxSettings);
+    if (boxBoxSettings == null) {
+      // If settings are not found, create a new BoxSettings object
+      boxBoxSettings = BoxSettings(boxName: boxName, syncLocation: syncLocation);
+      await _settingsBox.add(boxBoxSettings);
     } else {
-      boxSettings.fileLocation = fileLocation;
+      boxBoxSettings.syncLocation = syncLocation;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: AlertTitle('Sync Settings'),
+      title: AlertTitle('Sync BoxSettings'),
       content:
           currentLocations.isEmpty
               ? Center(
@@ -146,13 +146,13 @@ class SyncDialogState extends State<SyncDialog> {
                       ),
                     ...currentLocations.entries.map((entry) {
                       final boxName = entry.key;
-                      final fileLocation = entry.value ?? 'Not set';
+                      final syncLocation = entry.value ?? 'Not set';
 
                       return Row(
                         children: [
                           SizedBox(width: 6),
                           Expanded(
-                            child: FileLocationWidget(boxName: boxName, fileLocation: fileLocation),
+                            child: SyncLocationWidget(boxName: boxName, syncLocation: syncLocation),
                           ),
                           SizedBox(
                             width: 36,

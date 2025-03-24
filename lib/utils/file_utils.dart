@@ -5,16 +5,16 @@ import 'package:file_picker/file_picker.dart';
 import 'package:hive/hive.dart';
 
 import '../data/classes/list_item.dart';
-import '../data/classes/settings.dart';
+import '../data/classes/box_settings.dart';
 import '../data/constants.dart';
 
 String importSuccess = 'Items imported successfully!';
 String exportSuccess = 'Items exported successfully!';
 
 void setLastUpdated(String boxName) {
-  Box<Settings> settingsBox = Hive.box<Settings>(settings);
-  final Settings boxSettings = settingsBox.get(boxName)!;
-  boxSettings.lastUpdated = DateTime.now();
+  Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(boxSettings);
+  final BoxSettings boxBoxSettings = settingsBox.get(boxName)!;
+  boxBoxSettings.lastUpdated = DateTime.now();
 }
 
 Future<String> saveItemsWithSaveDialog(String fileName, List<ListItem> listItems) async {
@@ -93,24 +93,24 @@ Future<String> saveItemsToFile(String? filePath, List<ListItem> listItems) async
 }
 
 Future<String?> autoLoad(String boxName, {Function(String)? showErrorSnackbar}) async {
-  Box<Settings> settingsBox = Hive.box<Settings>(settings);
-  final Settings? boxSettings = settingsBox.get(boxName);
-  final String? filePath = boxSettings?.fileLocation;
+  Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(boxSettings);
+  final BoxSettings? boxBoxSettings = settingsBox.get(boxName);
+  final String? filePath = boxBoxSettings?.syncLocation;
 
-  if (filePath != null && boxSettings != null) {
+  if (filePath != null && boxBoxSettings != null) {
     try {
       final file = File(filePath);
       bool fileExists = await file.exists();
 
       if (fileExists) {
         final lastModified = await file.lastModified();
-        final lastUpdated = boxSettings.lastUpdated;
+        final lastUpdated = boxBoxSettings.lastUpdated;
 
         if (lastUpdated != null && lastUpdated.isBefore(lastModified)) {
           String message = await loadItemsFromFile(filePath, boxName, add: false);
 
           if (message == importSuccess) {
-            boxSettings.lastUpdated = lastModified;
+            boxBoxSettings.lastUpdated = lastModified;
             if (showErrorSnackbar != null) {
               showErrorSnackbar(message);
             }
@@ -132,25 +132,25 @@ Future<String?> autoLoad(String boxName, {Function(String)? showErrorSnackbar}) 
 }
 
 Future<String?> autoSave(String boxName) async {
-  Box<Settings> settingsBox = Hive.box<Settings>(settings);
+  Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(boxSettings);
   Box<ListItem> itemBox = Hive.box<ListItem>(boxName);
-  final Settings? boxSettings = settingsBox.get(boxName);
-  final String? filePath = boxSettings?.fileLocation;
+  final BoxSettings? boxBoxSettings = settingsBox.get(boxName);
+  final String? filePath = boxBoxSettings?.syncLocation;
 
-  if (filePath != null && boxSettings != null) {
+  if (filePath != null && boxBoxSettings != null) {
     try {
       final file = File(filePath);
       bool fileExists = await file.exists();
       if (fileExists) {
         final lastModified = await file.lastModified();
-        final lastUpdated = boxSettings.lastUpdated;
+        final lastUpdated = boxBoxSettings.lastUpdated;
 
         if (lastUpdated != null && lastUpdated.isAfter(lastModified)) {
           String message = await saveItemsToFile(filePath, itemBox.values.toList());
 
           if (message == exportSuccess) {
             final newLastModified = await file.lastModified();
-            boxSettings.lastUpdated = newLastModified;
+            boxBoxSettings.lastUpdated = newLastModified;
           }
 
           return message;
@@ -167,5 +167,78 @@ Future<String?> autoSave(String boxName) async {
     }
   } else {
     return null;
+  }
+}
+
+Future<String> saveAllToFile(String fileName) async {
+  try {
+    List<Map<String, dynamic>> allData = [];
+
+    // All lists (one for each boxName)
+    for (var boxName in boxNames) {
+      Box<ListItem> box = Hive.box<ListItem>(boxName);
+      List<Map<String, dynamic>> boxData = box.values.map((item) => item.toJson()).toList();
+      allData.add({'boxName': boxName, 'items': boxData});
+    }
+
+    // Settings (single one containing each boxName as a key)
+    Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(boxSettings);
+    List<Map<String, dynamic>> settingsBoxData =
+        settingsBox.values.map((item) => item.toJson()).toList();
+    allData.add({'boxName': boxSettings, 'settings': settingsBoxData});
+
+    await FilePicker.platform.saveFile(
+      dialogTitle: 'Please select an output file:',
+      fileName: fileName,
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+      bytes: Uint8List.fromList(json.encode(allData).codeUnits),
+    );
+
+    return 'Data exported successfully';
+  } catch (e) {
+    return 'Error exporting data: $e';
+  }
+}
+
+Future<String> loadAllFromFile(String? filePath) async {
+  try {
+    if (filePath != null) {
+      final file = File(filePath);
+      final jsonString = await file.readAsString();
+      final List<dynamic> allData = json.decode(jsonString);
+
+      // Process each box's data and load it into the corresponding box
+      for (var boxData in allData) {
+        final boxName = boxData['boxName'];
+
+        if (boxNames.contains(boxName)) {
+          Box<ListItem> box = Hive.box<ListItem>(boxName);
+          final List<dynamic> items = boxData['items'];
+
+          final keys = box.keys.toList();
+          await box.deleteAll(keys);
+
+          for (var itemData in items) {
+            final listItem = ListItem.fromJson(itemData);
+            await box.add(listItem);
+          }
+        } else if (boxName == boxSettings) {
+          Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(boxSettings);
+          final List<dynamic> settings = boxData['settings'];
+
+          for (var settingsData in settings) {
+            final currentBoxSettings = BoxSettings.fromJson(settingsData);
+            await settingsBox.put(boxName, currentBoxSettings);
+          }
+        }
+      }
+
+      return 'Data imported successfully';
+    } else {
+      return 'No file path provided';
+    }
+  } catch (e) {
+    return 'Error importing data: $e';
   }
 }

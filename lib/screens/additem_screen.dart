@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../data/classes/list_item.dart';
 import '../data/constants.dart';
-import '../data/widgets/snackbar_widget.dart';
 import '../utils/file_utils.dart';
+import '../utils/snackbar_util.dart';
 
 class AddItemScreen extends StatefulWidget {
   final String itemType;

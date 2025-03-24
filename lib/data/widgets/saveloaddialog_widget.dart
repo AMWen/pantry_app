@@ -5,7 +5,7 @@ import '../../utils/file_utils.dart';
 import '../classes/list_item.dart';
 import '../constants.dart';
 import 'basic_widgets.dart';
-import 'snackbar_widget.dart';
+import '../../utils/snackbar_util.dart';
 
 class SaveLoadDialog extends StatefulWidget {
   final String boxName;
@@ -54,6 +54,23 @@ class SaveLoadDialogState extends State<SaveLoadDialog> {
     }
   }
 
+  Future<void> _importAll() async {
+    final filePath = await pickLocation();
+    String message = await loadAllFromFile(filePath);
+
+    if (mounted) {
+      showErrorSnackbar(context, message);
+    }
+  }
+
+  Future<void> _exportAll() async {
+    String message = await saveAllToFile('export_all_items.json');
+
+    if (mounted) {
+      showErrorSnackbar(context, message);
+    }
+  }
+
   List<Widget> generateListTiles(BuildContext context, List<Map<String, dynamic>> actions) {
     return actions.map((action) {
       return ListTile(
@@ -78,8 +95,11 @@ class SaveLoadDialogState extends State<SaveLoadDialog> {
           {'title': 'Load Items (replace list)', 'action': () => _loadItems(add: false)},
           {'title': 'Save Items', 'action': () => _saveItems()},
           {'title': 'Save Selected', 'action': () => _saveItems(selectedOnly: true)},
+          {'title': 'Import All (overwrites!)', 'action': () => _importAll()},
+          {'title': 'Export All', 'action': () => _exportAll()},
         ]),
       ),
+      actions: [CancelButton()],
     );
   }
 }
