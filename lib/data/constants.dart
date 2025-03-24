@@ -5,6 +5,7 @@ import '../screens/simplelist_screen.dart';
 import 'classes/tab_item.dart';
 
 final String settings = 'settings';
+final String completionSettings = 'completionSettings';
 
 final Map<String, List<String>> itemTypeTagMapping = {
   'pantry': [

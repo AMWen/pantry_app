@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../data/classes/completion_settings.dart';
 import '../data/classes/list_item.dart';
 import '../data/constants.dart';
-import '../data/widgets/autoloadservice_widget.dart';
+// import '../data/widgets/autoloadservice_widget.dart';
 import '../data/widgets/basic_widgets.dart';
 import '../data/widgets/editdialog_widget.dart';
-import '../data/widgets/syncdialog_widget.dart';
+// import '../data/widgets/syncdialog_widget.dart';
 import '../data/widgets/snackbar_widget.dart';
 import '../utils/file_utils.dart';
 import '../utils/string_utils.dart';
@@ -35,42 +36,46 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   @override
   bool get wantKeepAlive => true;
 
-  late AutoLoadService _autoLoadService;
-  late AutoLoadService _newAutoLoadService;
+  // late AutoLoadService _autoLoadService;
+  // late AutoLoadService _newAutoLoadService;
   late Box<ListItem> _itemBox;
   late Box<ListItem> _newItemBox;
   late List<String> _tagOrder;
   String _sortCriteria = '';
   Set<int> _selectedItemIds = {};
-  bool _showCompleted = true;
-  bool _selectAllCompleted = false;
+  late CompletionSettings boxCompletionSettings;
   List<ListItem> listItems = [];
   List<ListItem> completedItems = [];
 
   @override
   void initState() {
     super.initState();
-    _autoLoadService = AutoLoadService();
-    Future.delayed(Duration.zero, () {
-      if (mounted) {
-        _autoLoadService.startAutoLoad(
-          widget.boxName,
-          showErrorSnackbar: (message) => showErrorSnackbar(context, message),
-        );
-      }
-    });
+
+    // Set comletion settings
+    Box<CompletionSettings> completionSettingsBox = Hive.box<CompletionSettings>(completionSettings);
+    boxCompletionSettings = completionSettingsBox.get(widget.boxName)!;
+
+    // _autoLoadService = AutoLoadService();
+    // Future.delayed(Duration.zero, () {
+    //   if (mounted) {
+    //     _autoLoadService.startAutoLoad(
+    //       widget.boxName,
+    //       showErrorSnackbar: (message) => showErrorSnackbar(context, message),
+    //     );
+    //   }
+    // });
     _itemBox = Hive.box<ListItem>(widget.boxName);
     if (widget.moveTo != null) {
       _newItemBox = Hive.box<ListItem>(widget.moveTo!);
-      _newAutoLoadService = AutoLoadService();
-      Future.delayed(Duration.zero, () {
-        if (mounted) {
-          _newAutoLoadService.startAutoLoad(
-            widget.moveTo!,
-            showErrorSnackbar: (message) => showErrorSnackbar(context, message),
-          );
-        }
-      });
+      // _newAutoLoadService = AutoLoadService();
+      // Future.delayed(Duration.zero, () {
+      //   if (mounted) {
+      //     _newAutoLoadService.startAutoLoad(
+      //       widget.moveTo!,
+      //       showErrorSnackbar: (message) => showErrorSnackbar(context, message),
+      //     );
+      //   }
+      // });
     }
     if (itemTypeTagMapping.containsKey(widget.itemType)) {
       _tagOrder = itemTypeTagMapping[widget.itemType]!;
@@ -81,7 +86,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
 
   @override
   void dispose() {
-    _autoLoadService.stopAutoLoad();
+    // _autoLoadService.stopAutoLoad();
     super.dispose();
   }
 
@@ -336,14 +341,14 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     }
   }
 
-  void _showSettings() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return SyncDialog();
-      },
-    );
-  }
+  // void _showSync() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return SyncDialog();
+  //     },
+  //   );
+  // }
 
   void _showSortingOptions(BuildContext context) {
     showDialog(
@@ -391,7 +396,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     }
     final moveItem = listItems.removeAt(oldIndex);
     listItems.insert(dropIndex, moveItem);
-    if (!_showCompleted) {
+    if (!boxCompletionSettings.showCompleted) {
       listItems = [...listItems, ...completedItems];
     }
 
@@ -415,20 +420,20 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       if (!widget.hasCount) // Only add this action if hasCount is false
         {
           'icon':
-              _selectAllCompleted
+              boxCompletionSettings.selectAllCompleted
                   ? Icons.visibility_off
-                  : _showCompleted
+                  : boxCompletionSettings.showCompleted
                   ? Icons.check_box
                   : Icons.visibility,
           'onPressed': () {
             setState(() {
-              if (_selectAllCompleted) {
-                _showCompleted = false;
-                _selectAllCompleted = false;
+              if (boxCompletionSettings.selectAllCompleted) {
+                boxCompletionSettings.showCompleted = false;
+                boxCompletionSettings.selectAllCompleted = false;
                 _selectedItemIds.clear();
-              } else if (_showCompleted) {
-                _showCompleted = true;
-                _selectAllCompleted = true;
+              } else if (boxCompletionSettings.showCompleted) {
+                boxCompletionSettings.showCompleted = true;
+                boxCompletionSettings.selectAllCompleted = true;
                 _selectedItemIds = _itemBox.values.fold<Set<int>>({}, (Set<int> selectedIds, item) {
                   if (item.completed == true) {
                     selectedIds.add(item.key);
@@ -436,8 +441,8 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
                   return selectedIds;
                 });
               } else {
-                _showCompleted = true;
-                _selectAllCompleted = false;
+                boxCompletionSettings.showCompleted = true;
+                boxCompletionSettings.selectAllCompleted = false;
                 _selectedItemIds.clear();
               }
             });
@@ -465,13 +470,15 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       {
         'icon': Icons.info,
         'onPressed': () {
-          _launchUrl('https://github.com/AMWen/pantry_app?tab=readme-ov-file#key-features-in-detail');
+          _launchUrl(
+            'https://github.com/AMWen/pantry_app?tab=readme-ov-file#key-features-in-detail',
+          );
         },
       },
       // {
       //   'icon': Icons.sync,
       //   'onPressed': () {
-      //     _showSettings();
+      //     _showSync();
       //   },
       // },
     ];
@@ -502,7 +509,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
             completedItems = listItems.where((item) => item.completed == true).toList();
 
             // Filter out completed items
-            if (!_showCompleted) {
+            if (!boxCompletionSettings.showCompleted) {
               listItems =
                   listItems
                       .where((item) => item.completed == false || item.completed == null)
