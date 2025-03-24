@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../data/classes/list_item.dart';
 import '../data/constants.dart';
+import '../data/widgets/autoloadservice_widget.dart';
 import '../data/widgets/basic_widgets.dart';
 import '../data/widgets/editdialog_widget.dart';
 import '../data/widgets/syncdialog_widget.dart';
@@ -33,6 +34,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   @override
   bool get wantKeepAlive => true;
 
+  late AutoLoadService _autoLoadService;
   late Box<ListItem> _itemBox;
   late Box<ListItem> _newItemBox;
   late List<String> _tagOrder;
@@ -46,7 +48,12 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   @override
   void initState() {
     super.initState();
-    autoLoad(widget.boxName);
+    _autoLoadService = AutoLoadService();
+    Future.delayed(Duration.zero, () {
+      if (mounted) {
+        _autoLoadService.startAutoLoad(widget.boxName, showErrorSnackbar: (message) => showErrorSnackbar(context, message));
+      }
+    });
     _itemBox = Hive.box<ListItem>(widget.boxName);
     if (widget.moveTo != null) {
       _newItemBox = Hive.box<ListItem>(widget.moveTo!);
@@ -57,6 +64,12 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     } else {
       _tagOrder = [''];
     }
+  }
+
+  @override
+  void dispose() {
+    _autoLoadService.stopAutoLoad();
+    super.dispose();
   }
 
   void _setLastUpdatedAndSave(String boxName) async {

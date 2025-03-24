@@ -83,7 +83,7 @@ Future<String> exportItemsToFile(String? filePath, List<ListItem> listItems) asy
   }
 }
 
-Future<String?> autoLoad(String boxName) async {
+Future<String?> autoLoad(String boxName, {Function(String)? showErrorSnackbar}) async {
   Box<Settings> settingsBox = Hive.box<Settings>(settings);
   final Settings? boxSettings = settingsBox.get(boxName);
   final String? filePath = boxSettings?.fileLocation;
@@ -102,6 +102,9 @@ Future<String?> autoLoad(String boxName) async {
 
           if (message == importSuccess) {
             boxSettings.lastUpdated = lastModified;
+            if (showErrorSnackbar != null) {
+              showErrorSnackbar(message);
+            }
           }
 
           return message;
