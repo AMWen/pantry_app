@@ -1,3 +1,5 @@
+// Displays filepath in condensed and expanded forms
+
 import 'package:flutter/material.dart';
 
 class FileLocationWidget extends StatefulWidget {

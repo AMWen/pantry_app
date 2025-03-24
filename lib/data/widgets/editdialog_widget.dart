@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../utils/file_utils.dart';
 import '../classes/list_item.dart';
 import '../constants.dart';
 import 'basic_widgets.dart';
@@ -9,8 +10,9 @@ import 'snackbar_widget.dart';
 class EditDialog extends StatefulWidget {
   final ListItem item;
   final bool hasCount;
+  final String boxName;
 
-  const EditDialog({super.key, required this.item, this.hasCount = false});
+  const EditDialog({super.key, required this.item, required this.boxName, this.hasCount = false});
 
   @override
   EditDialogState createState() => EditDialogState();
@@ -157,6 +159,7 @@ class EditDialogState extends State<EditDialog> {
               }
             }
             widget.item.save();
+            autoSave(widget.boxName);
             Navigator.of(context).pop();
           },
           child: Text('OK'),

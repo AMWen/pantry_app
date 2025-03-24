@@ -26,8 +26,8 @@ class SettingsDialogState extends State<SettingsDialog> {
     super.initState();
     _settingsBox = Hive.box<Settings>(settings);
     for (String boxName in boxNames) {
-      final settings = _settingsBox.get(boxName);
-      currentLocations[boxName] = settings?.fileLocation ?? 'Not set';
+      final boxSettings = _settingsBox.get(boxName);
+      currentLocations[boxName] = boxSettings?.fileLocation ?? 'Not set';
     }
   }
 
@@ -126,7 +126,8 @@ class SettingsDialogState extends State<SettingsDialog> {
                           '- Filepaths need to be an existing file.\n'
                           '- If no file exists yet, save the current list first.\n'
                           '- New changes will get automatically saved.\n'
-                          '- Likewise, any updates to the file will overwrite current list.',
+                          '- Not intended for real-time collaboration.\n'
+                          '- File changes will be checked every 5 minutes and may overwrite the list.',
                           style: TextStyles.tagText,
                         ),
                       ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../data/classes/list_item.dart';
 import '../data/constants.dart';
+import '../data/widgets/snackbar_widget.dart';
+import '../utils/file_utils.dart';
 
 class AddItemScreen extends StatefulWidget {
   final String itemType;
@@ -61,7 +63,7 @@ class AddItemScreenState extends State<AddItemScreen> {
     );
   }
 
-  void _addItems() {
+  void _addItems() async {
     final itemBox = Hive.box<ListItem>(widget.boxName);
     final inputText = _controller.text.trim();
     final lines = inputText.split('\n').map((line) => line.trim()).toList();
@@ -86,6 +88,15 @@ class AddItemScreenState extends State<AddItemScreen> {
           itemType: widget.itemType,
         );
         itemBox.add(item);
+      }
+    }
+    if (inputText.isNotEmpty) {
+      setLastUpdated(widget.boxName);
+      String? message = await autoSave(widget.boxName);
+      if (message != null) {
+        if (mounted) {
+          showErrorSnackbar(context, message);
+        }
       }
     }
     Navigator.pop(context); // Go back to the previous screen after adding items

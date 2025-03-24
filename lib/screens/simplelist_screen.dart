@@ -46,14 +46,26 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   @override
   void initState() {
     super.initState();
+    autoLoad(widget.boxName);
     _itemBox = Hive.box<ListItem>(widget.boxName);
     if (widget.moveTo != null) {
       _newItemBox = Hive.box<ListItem>(widget.moveTo!);
+      autoLoad(widget.moveTo!);
     }
     if (itemTypeTagMapping.containsKey(widget.itemType)) {
       _tagOrder = itemTypeTagMapping[widget.itemType]!;
     } else {
       _tagOrder = [''];
+    }
+  }
+
+  void _setLastUpdatedAndSave(String boxName) async {
+    setLastUpdated(boxName);
+    String? message = await autoSave(boxName);
+    if (message != null) {
+      if (mounted) {
+        showErrorSnackbar(context, message);
+      }
     }
   }
 
@@ -87,6 +99,8 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
                     _moveItem(item);
                   }
                   _selectedItemIds.clear();
+                  _setLastUpdatedAndSave(widget.boxName);
+                  _setLastUpdatedAndSave(widget.moveTo!);
 
                   Navigator.of(context).pop(); // Close the dialog
                 },
@@ -128,6 +142,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
                     _deleteItem(_itemBox.values.toList().indexOf(item));
                   }
                   _selectedItemIds.clear();
+                  _setLastUpdatedAndSave(widget.boxName);
 
                   Navigator.of(context).pop(); // Close the dialog
                 },
@@ -165,6 +180,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
                         item.save();
                       }
                       _selectedItemIds.clear();
+                      _setLastUpdatedAndSave(widget.boxName);
                       Navigator.of(context).pop(); // Close the dialog after selection
                     },
                     child: Text('Confirm'),
@@ -255,6 +271,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     if (mounted) {
       showErrorSnackbar(context, message);
     }
+    _setLastUpdatedAndSave(widget.boxName);
   }
 
   Future<void> _exportItems({bool selectedOnly = false}) async {
@@ -313,13 +330,14 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   void onItemTapped(BuildContext context, ListItem item) {
     item.completed = (item.completed ?? false) ? false : true;
     item.save();
+    _setLastUpdatedAndSave(widget.boxName);
   }
 
   void _showEditDialog(BuildContext context, ListItem item) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return EditDialog(item: item, hasCount: widget.hasCount);
+        return EditDialog(item: item, boxName: widget.boxName, hasCount: widget.hasCount);
       },
     );
   }
@@ -345,6 +363,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     setState(() {
       _sortCriteria = '';
     });
+    _setLastUpdatedAndSave(widget.boxName);
   }
 
   @override
