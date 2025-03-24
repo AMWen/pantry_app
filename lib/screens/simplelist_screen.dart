@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_file_dialog/flutter_file_dialog.dart';
-import 'dart:io';
-import 'dart:convert';
-import 'dart:typed_data'; // Import for Uint8List
 import '../data/classes/list_item.dart';
 import '../data/constants.dart';
 import '../data/widgets/basic_widgets.dart';
 import '../data/widgets/editdialog_widget.dart';
 import '../data/widgets/settingsdialog_widget.dart';
+import '../data/widgets/snackbar_widget.dart';
+import '../utils/file_utils.dart';
 import '../utils/string_utils.dart';
 
 class SimpleListScreen extends StatefulWidget {
@@ -35,9 +33,9 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   @override
   bool get wantKeepAlive => true;
 
-  Box<ListItem>? _itemBox;
-  Box<ListItem>? _newItemBox;
-  List<String>? _tagOrder;
+  late Box<ListItem> _itemBox;
+  late Box<ListItem> _newItemBox;
+  late List<String> _tagOrder;
   String _sortCriteria = '';
   Set<int> _selectedItemIds = {};
   bool _showCompleted = true;
@@ -53,22 +51,16 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       _newItemBox = Hive.box<ListItem>(widget.moveTo!);
     }
     if (itemTypeTagMapping.containsKey(widget.itemType)) {
-      _tagOrder = itemTypeTagMapping[widget.itemType];
+      _tagOrder = itemTypeTagMapping[widget.itemType]!;
     } else {
       _tagOrder = [''];
     }
   }
 
-  void showErrorSnackbar(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message), duration: Duration(milliseconds: 700)));
-  }
-
   void _moveItem(ListItem item) {
     setState(() {
-      _deleteItem(_itemBox!.values.toList().indexOf(item));
-      _newItemBox?.add(item);
+      _deleteItem(_itemBox.values.toList().indexOf(item));
+      _newItemBox.add(item);
     });
   }
 
@@ -87,7 +79,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
               FilledButton(
                 onPressed: () {
                   final selectedItems =
-                      _itemBox!.values
+                      _itemBox.values
                           .where((item) => _selectedItemIds.contains(item.key)) // Use key to filter
                           .toList();
 
@@ -105,13 +97,13 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
         },
       );
     } else {
-      showErrorSnackbar('No items selected for migration!');
+      showErrorSnackbar(context, 'No items selected for migration!');
     }
   }
 
   void _deleteItem(int index) {
     setState(() {
-      _itemBox?.deleteAt(index);
+      _itemBox.deleteAt(index);
     });
   }
 
@@ -128,12 +120,12 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
               FilledButton(
                 onPressed: () {
                   final selectedItems =
-                      _itemBox!.values
+                      _itemBox.values
                           .where((item) => _selectedItemIds.contains(item.key)) // Use key to filter
                           .toList();
 
                   for (var item in selectedItems) {
-                    _deleteItem(_itemBox!.values.toList().indexOf(item));
+                    _deleteItem(_itemBox.values.toList().indexOf(item));
                   }
                   _selectedItemIds.clear();
 
@@ -146,14 +138,14 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
         },
       );
     } else {
-      showErrorSnackbar('No items selected for deletion!');
+      showErrorSnackbar(context, 'No items selected for deletion!');
     }
   }
 
   void _showTaggingOptions(BuildContext context) {
     if (_selectedItemIds.isNotEmpty) {
       final selectedItems =
-          _itemBox!.values
+          _itemBox.values
               .where((item) => _selectedItemIds.contains(item.key)) // Use key to filter
               .toList();
 
@@ -185,7 +177,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
                     child: Wrap(
                       spacing: 4.0,
                       children:
-                          _tagOrder!.map<Widget>((String tag) {
+                          _tagOrder.map<Widget>((String tag) {
                             bool isSelected = tag == selectedTag;
 
                             return ChoiceChip(
@@ -209,7 +201,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
         },
       );
     } else {
-      showErrorSnackbar('No items selected for tagging!');
+      showErrorSnackbar(context, 'No items selected for tagging!');
     }
   }
 
@@ -257,70 +249,33 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   }
 
   Future<void> _importItems() async {
-    final params = OpenFileDialogParams(
-      dialogType: OpenFileDialogType.document,
-      fileExtensionsFilter: ['json'], // Only allow JSON files
-    );
+    final filePath = await pickDirectory();
+    String message = await importItemsFromFile(filePath, widget.boxName);
 
-    final filePath = await FlutterFileDialog.pickFile(params: params);
-    if (filePath != null) {
-      final file = File(filePath);
-      final jsonString = await file.readAsString();
-      final List<dynamic> jsonList = json.decode(jsonString);
-
-      // Add each item to the item box
-      for (var itemData in jsonList) {
-        final listItem = ListItem.fromJson(itemData);
-        if (mounted) {
-          setState(() {
-            _itemBox?.add(listItem);
-          });
-        }
-      }
-
-      // Only show the snackbar if the widget is still mounted
-      if (mounted) {
-        showErrorSnackbar('Items imported successfully!');
-      }
+    if (mounted) {
+      showErrorSnackbar(context, message);
     }
   }
 
   Future<void> _exportItems({bool selectedOnly = false}) async {
     final listItems =
         selectedOnly
-            ? _itemBox?.values.where((item) => _selectedItemIds.contains(item.key)).toList() ?? []
-            : _itemBox?.values.toList() ?? [];
+            ? _itemBox.values.where((item) => _selectedItemIds.contains(item.key)).toList()
+            : _itemBox.values.toList();
 
-    if (listItems.isNotEmpty) {
-      final jsonList = listItems.map((item) => item.toJson()).toList();
-      final jsonString = json.encode(jsonList);
-
-      final params = SaveFileDialogParams(
-        fileName: '${widget.boxName}_items.json',
-        mimeTypesFilter: ['application/json'],
-        data: Uint8List.fromList(jsonString.codeUnits),
-      );
-
-      final filePath = await FlutterFileDialog.saveFile(params: params);
-      if (filePath != null) {
-        final file = File(filePath);
-        await file.writeAsString(jsonString);
-        if (mounted) {
-          showErrorSnackbar('Items exported successfully!');
-        }
+    if (listItems.isEmpty) {
+      if (mounted) {
+        showErrorSnackbar(context, 'No items to export!');
       }
     } else {
+      final filePath = await getSaveDirectory('${widget.boxName}_items.json');
+      String message = await exportItemsToFile(filePath, listItems);
+
       if (mounted) {
-        showErrorSnackbar('No items to export!');
+        showErrorSnackbar(context, message);
       }
     }
   }
-
-  // Future<String?> getFileLocation(String boxName) async {
-  //   var settingsBox = Hive.box<Settings>('settings');
-  //   var settings = settingsBox.get(boxName);
-  //   return settings?.fileLocation;
-  // }
 
   void _showSettings() {
     showDialog(
@@ -380,18 +335,11 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       listItems = [...listItems, ...completedItems];
     }
 
-    // _itemBox!.clear();
     for (int i = 0; i < listItems.length; i++) {
       // Create a new instance of ListItem to avoid same instance error
-      final newItem = ListItem(
-        name: listItems[i].name,
-        dateAdded: listItems[i].dateAdded,
-        count: listItems[i].count,
-        tag: listItems[i].tag,
-        completed: listItems[i].completed,
-        itemType: listItems[i].itemType,
-      );
-      _itemBox!.putAt(i, newItem);
+      // Note: putAt index different from key, but key in index gets reused, effectively replacing old object
+      final newItem = ListItem.fromJson(listItems[i].toJson());
+      _itemBox.putAt(i, newItem);
     }
 
     setState(() {
@@ -420,10 +368,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
               } else if (_showCompleted) {
                 _showCompleted = true;
                 _selectAllCompleted = true;
-                _selectedItemIds = _itemBox!.values.fold<Set<int>>({}, (
-                  Set<int> selectedIds,
-                  item,
-                ) {
+                _selectedItemIds = _itemBox.values.fold<Set<int>>({}, (Set<int> selectedIds, item) {
                   if (item.completed == true) {
                     selectedIds.add(item.key);
                   }
@@ -480,7 +425,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       body: Padding(
         padding: const EdgeInsets.only(left: 0, right: 0, top: 20, bottom: 0),
         child: ValueListenableBuilder(
-          valueListenable: _itemBox!.listenable(),
+          valueListenable: _itemBox.listenable(),
           builder: (context, Box<ListItem> box, _) {
             if (box.values.isEmpty) {
               return Center(child: Text('No items added yet.'));
@@ -504,8 +449,8 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
               listItems.sort((a, b) => a.dateAdded.compareTo(b.dateAdded));
             } else if (_sortCriteria == 'tag') {
               listItems.sort((a, b) {
-                int aIndex = _tagOrder!.indexOf(a.tag ?? 'other');
-                int bIndex = _tagOrder!.indexOf(b.tag ?? 'other');
+                int aIndex = _tagOrder.indexOf(a.tag ?? 'other');
+                int bIndex = _tagOrder.indexOf(b.tag ?? 'other');
                 return aIndex.compareTo(bIndex);
               });
             }
@@ -521,13 +466,13 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
                       SizedBox(
                         height: 24, // Used to remove padding from Checkbox
                         child: Checkbox(
-                          value: _itemBox!.values.every(
+                          value: _itemBox.values.every(
                             (item) => _selectedItemIds.contains(item.key),
                           ), // Check if all items are selected
                           onChanged: (bool? value) {
                             setState(() {
                               if (value == true) {
-                                _selectedItemIds = _itemBox!.values.fold<Set<int>>({}, (
+                                _selectedItemIds = _itemBox.values.fold<Set<int>>({}, (
                                   Set<int> selectedIds,
                                   item,
                                 ) {

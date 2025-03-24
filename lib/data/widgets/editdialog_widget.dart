@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../classes/list_item.dart';
 import '../constants.dart';
 import 'basic_widgets.dart';
+import 'snackbar_widget.dart';
 
 class EditDialog extends StatefulWidget {
   final ListItem item;
@@ -39,12 +40,6 @@ class EditDialogState extends State<EditDialog> {
     super.dispose();
   }
 
-  void showErrorSnackbar(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message), duration: Duration(milliseconds: 700)));
-  }
-
   Future<void> _launchUrl(String url) async {
     // Prepend "http://" if no protocol is provided
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -54,7 +49,9 @@ class EditDialogState extends State<EditDialog> {
     final Uri parsedUrl = Uri.parse(url);
 
     if (!await launchUrl(parsedUrl)) {
-      showErrorSnackbar("Could not launch $url");
+      if (mounted) {
+        showErrorSnackbar(context, 'Could not launch $url');
+      }
     }
   }
 
@@ -128,7 +125,7 @@ class EditDialogState extends State<EditDialog> {
                     if (url.isNotEmpty) {
                       _launchUrl(url);
                     } else {
-                      showErrorSnackbar('No URL to go to');
+                      showErrorSnackbar(context, 'No URL to go to');
                     }
                   },
                   color: primaryColor,
@@ -149,14 +146,14 @@ class EditDialogState extends State<EditDialog> {
               DateTime dateTime = dateFormat.parse(dateController.text);
               widget.item.dateAdded = dateTime;
             } catch (e) {
-              showErrorSnackbar('Invalid date, not updating');
+              showErrorSnackbar(context, 'Invalid date, not updating');
             }
             if (widget.hasCount) {
               try {
                 int qty = int.parse(qtyController.text);
                 widget.item.count = qty;
               } catch (e) {
-                showErrorSnackbar('Invalid quantity, not updating');
+                showErrorSnackbar(context, 'Invalid quantity, not updating');
               }
             }
             widget.item.save();

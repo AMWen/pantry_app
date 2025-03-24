@@ -12,10 +12,10 @@ void main() async {
   
   // Open all Hive boxes
   await Future.wait(boxNames.map((boxName) => Hive.openBox<ListItem>(boxName)).toList());
-  await Hive.openBox<Settings>('settings');
+  await Hive.openBox<Settings>(settings);
 
   // Initialize if needed
-  var settingsBox = Hive.box<Settings>('settings');
+  var settingsBox = Hive.box<Settings>(settings);
   for (String boxName in boxNames) {
     if (!settingsBox.containsKey(boxName)) {
       settingsBox.put(boxName, Settings(boxName: boxName, fileLocation: null));

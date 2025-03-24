@@ -4,6 +4,8 @@ import '../screens/inventorylist_screen.dart';
 import '../screens/simplelist_screen.dart';
 import 'classes/tab_item.dart';
 
+final String settings = 'settings';
+
 final Map<String, List<String>> itemTypeTagMapping = {
   'pantry': [
     'meat',
@@ -153,6 +155,10 @@ class TextStyles {
   static const TextStyle normalText = TextStyle(
     fontWeight: FontWeight.normal,
     fontSize: 14,
-    color: Colors.black,
+  );
+
+  static const TextStyle boldText = TextStyle(
+    fontWeight: FontWeight.bold,
+    fontSize: 14,
   );
 }
