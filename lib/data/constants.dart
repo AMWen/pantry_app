@@ -38,8 +38,12 @@ final List<Map<String, dynamic>> tabConfigurations = [
     'itemType': (boxName) => boxName,
     'icon': Icons.kitchen_rounded,
     'screen':
-        (title, itemType, boxName) =>
-            InventoryListScreen(itemType: itemType, boxName: boxName, title: title),
+        (title, itemType, boxName) => InventoryListScreen(
+          itemType: itemType,
+          boxName: boxName,
+          title: title,
+          moveTo: 'shopping',
+        ),
   },
   {
     'title': 'Shopping',
@@ -88,11 +92,7 @@ Map<String, TabItem> tabItems = Map.fromEntries(
     final boxName = config['boxName'](config['title']);
     final itemType =
         config['itemType'] is Function ? config['itemType'](boxName) : config['itemType'];
-    final screen = config['screen'](
-      config['title'],
-      itemType,
-      boxName,
-    );
+    final screen = config['screen'](config['title'], itemType, boxName);
 
     return MapEntry(
       boxName, // boxName as the key
@@ -152,13 +152,13 @@ class TextStyles {
     height: 2.2,
   );
 
-  static const TextStyle normalText = TextStyle(
-    fontWeight: FontWeight.normal,
+  static const TextStyle hintText = TextStyle(
+    color: Colors.grey,
     fontSize: 14,
+    fontWeight: FontWeight.w300,
   );
 
-  static const TextStyle boldText = TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 14,
-  );
+  static const TextStyle normalText = TextStyle(fontWeight: FontWeight.normal, fontSize: 14);
+
+  static const TextStyle boldText = TextStyle(fontWeight: FontWeight.bold, fontSize: 14);
 }

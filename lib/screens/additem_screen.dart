@@ -42,7 +42,7 @@ class AddItemScreenState extends State<AddItemScreen> {
                   decoration: InputDecoration(
                     hintText:
                         'Enter items (one per line)${widget.hasCount ? '. Qty of 1 is optional.' : ''}',
-                    hintStyle: TextStyles.lightText,
+                    hintStyle: TextStyles.hintText,
                     border: OutlineInputBorder(),
                   ),
                 ),

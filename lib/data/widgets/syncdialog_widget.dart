@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hive/hive.dart';
+import 'package:pantry_app/data/widgets/snackbar_widget.dart';
 
 import '../../utils/file_utils.dart';
 import '../classes/list_item.dart';
@@ -31,7 +32,7 @@ class SyncDialogState extends State<SyncDialog> {
     }
   }
 
-  Future<bool?> _showOverwriteDialog() async {
+  Future<bool?> _showOverwriteDialog(BuildContext context) async {
     return showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -59,8 +60,8 @@ class SyncDialogState extends State<SyncDialog> {
     );
   }
 
-  Future<void> _handleLocationSelection(String boxName) async {
-    String? selectedLocation = await pickDirectory();
+  Future<void> _handleLocationSelection(BuildContext context, boxName) async {
+    String? selectedLocation = await pickLocation();
     if (selectedLocation != null) {
       setState(() {
         currentLocations[boxName] = selectedLocation;
@@ -68,12 +69,16 @@ class SyncDialogState extends State<SyncDialog> {
       await setFileLocation(boxName, selectedLocation);
 
       // Decision: how to sync?
-      bool? shouldOverwrite = await _showOverwriteDialog();
+      bool? shouldOverwrite = await _showOverwriteDialog(context);
+      String? message;
       if (shouldOverwrite == true) {
-        await importItemsFromFile(selectedLocation, boxName, add: false);
+        message = await importItemsFromFile(selectedLocation, boxName, add: false);
       } else if (shouldOverwrite == false) {
         var itemBox = Hive.box<ListItem>(boxName);
-        await exportItemsToFile(selectedLocation, itemBox.values.toList());
+        message = await exportItemsToFile(selectedLocation, itemBox.values.toList());
+      }
+      if (mounted && message != null) {
+        showErrorSnackbar(context, message);
       }
     }
   }
@@ -128,12 +133,13 @@ class SyncDialogState extends State<SyncDialog> {
                       Padding(
                         padding: const EdgeInsets.only(top: 4.0),
                         child: Text(
+                          '- This is a WIP. Use at your own risk.\n'
                           '- Click filepaths to expand. They are scrollable.\n'
                           '- Filepaths need to be an existing file.\n'
                           '- If no file exists yet, save the current list first.\n'
                           '- New changes will get automatically saved.\n'
-                          '- Not intended for real-time collaboration.\n'
-                          '- File changes will be checked every 5 minutes and may overwrite the list.',
+                          '- File changes will be checked every 5 minutes and may overwrite the list.\n'
+                          '- Not intended for real-time collaboration.',
                           style: TextStyles.tagText,
                         ),
                       ),
@@ -152,7 +158,7 @@ class SyncDialogState extends State<SyncDialog> {
                             child: IconButton(
                               icon: Icon(Icons.edit),
                               onPressed: () {
-                                _handleLocationSelection(boxName);
+                                _handleLocationSelection(context, boxName);
                               },
                             ),
                           ),

@@ -6,26 +6,36 @@ In addition to groceries management, the app has expanded to support tracking to
 
 ## Features
 
-- **Add multiple items**: Easily input new grocery items along with their quantities.
-- **Modify item quantities**: Update the quantity of any item, and the app will reflect the change in your pantry list.
-- **Delete items**: Remove items from your pantry, including support for deleting multiple selected items at once.
+- **Add multiple items**: Easily input new items along with their quantities.
+- **Edit items**: Edit quantity, name, and date added of any item.
+- **Add links**: Add a link, with ability to launch the URL.
+- **Modify item quantities**: Quickly change the quantity of any item.
+- **Delete items**: Remove items from your list, including support for deleting multiple selected items at once.
 - **Tagging items**: Assign tags to items for better organization
-- **Import/Export**: Import and export pantry data using JSON files.
-- **Sorting**: Sort pantry items by name, date added, or tag.
-- **Move items**: Move selected items from shopping list to pantry directly.
+- **Import/Export**: Import and export data using JSON files.
+- **Sorting**: Sort items by name, date added, or tag.
+- **Move items**: Move selected items between shopping list and pantry directly.
 - **Reordering items**: Rearrange the order of items in the list via drag and drop.
-- **Mark items as completed**: Mark to-do items as completed or incomplete.
+- **Mark items as completed**: Mark simple list items as completed or incomplete.
 
 ## Key Features in Detail
 
-- **Sorting**: Items can be sorted by `Name`, `Date Added`, `Tag`, or your own manual order. You can choose the sorting option using the app's toolbar.
-- **Tagging**: Tagging functionality allows users to categorize items and find them easily.
-- **Import and Export**: The app supports importing and exporting to a JSON file, which is useful for backup and sharing.
-- **Manage Items**: If applicable, users can adjust item quantities by tapping the item and using a simple UI with increment/decrement buttons or a slider. Otherwise, tapping the item marks the item as complete or incomplete. Users can also rename the item or change the date added but long pressing on the item.
-- **Multi-select deletion**: Allows you to delete multiple selected items at once.
-- **Reordering Items**: Users can reorder items with a drag-and-drop interface.
-- **Completed Items**: Users can toggle the visibility of completed items in the list.
-- **Move Items**: Users can move selected items between the shopping list to the pantry.
+- **Item Interaction Features**
+  - **Add items**: Add items by clicking the + icon right above the bottom navigation bar. Multiple items can be entered at once on separate lines. If it is a list with countable items, enter the quantity before the item name. If no quantity is provided, the count automatically defaults to 1.
+  - **Edit items**: Long press the item if you would like to manually update the quantity, name, or date added. You can even add a URL with easy access to launching the provided link.
+  - **Update quantity**: If the item has a count, you can quickly change the quantity by tapping on it. You can adjust item quantities by tapping the item and using a simple UI with increment/decrement buttons or a slider.
+  - **Update completion**: For non-countable items, tapping the item marks it as complete or incomplete.
+  - **Reordering Items**: Users can reorder items with the drag-and-drop interface on the right side.
+  - **Checkboxes**: Select items using the checkboxes for various interactions with the top toolbar.
+
+- **Toolbar Features**
+  - **🚚 Move Items**: Easily move selected items between the shopping list and the pantry.
+  - **👁️ Select and view completed items**: Select as well as toggle the visibility of completed items in the list.
+  - **↕️ Sorting**: Sort items by `Name`, `Date Added`, `Tag`, or your own manual order (from using the drag-and-drop interface).
+  - **💾 Saving and loading**: Load from and save to a JSON file, useful for backup and sharing. When you load, you can choose to add to the list or to completely replace the current list. You can also save the whole list or selected items.
+  - **🏷️ Multi-select tagging**: Categorize items using tags, and select one or more items to tag using the checkboxes.
+  - **🗑️ Multi-select deletion**: Delete multiple selected items at once.
+  - **ℹ️ Info**: Access these detailed instructions on how to use the app.
 
 ## Getting Started
 
@@ -87,50 +97,6 @@ If you encounter the "No valid code signing certificates were found" error when 
     - Make sure Automatically manage signing is checked.
     - Set the correct Bundle Identifier.
 - Certificates: Ensure you have valid certificates for signing in your Apple Developer account.
-
-## Usage
-### Edit Items
-
-The app allows you to easily edit pantry items. Depending on the field you'd like to update, you can use different gestures.
-
-- **Tap to Edit Quantity or Completion Status**: 
-  - Simply tap on a grocery item to modify the quantity. You can adjust the amount based on your needs (e.g., increase the quantity if you have more of the item).
-  - Tap on a non-grocery item to toggle the completion status.
-  
-- **Long Press to Edit Name and Date**: 
-  - If you want to update the name of a pantry item or the date it was added, long press on the item. This will bring up an editor where you can modify the name and the date associated with the item.
-
-### Save/Load Data
-- **Save Pantry Data**: To import pantry data into the app, click the "Save" icon in the app's toolbar. This will show the save/load options where you can choose to load previously saved pantry data.
-- **Load Pantry Data**: To back up or share your pantry data, click the "Save" icon in the app's toolbar and select the save option. This will allow you to generate a file containing your pantry data that you can save or share.
-
-### Multi-Select and Actions
-- **Multi-Select Items**: You can select multiple items by interacting with the pantry list. Once multiple items are selected, you can perform bulk actions:
-  - Move items (only available in Shopping Cart)
-  - Toggle visibility of completed items (only available in non-grocery lists)
-  - Tag items
-  - Delete items
-
-### Quick Actions
-- **Move Items**: The "Move" icon allows you to easily move selected items from your shopping cart to your pantry.
-
-- **Delete Items**: The "Delete" icon allows you to permanently remove selected items. Use this option when you want to clean up or remove unnecessary entries from your list.
-
-### Tagging and Sorting
-- **Tagging Items**: Click the "Label" icon in the app’s toolbar to open tagging options. You can assign, modify, or remove tags for items to help categorize them. This makes it easier to search and organize your list by specific tags like "Vegetarian", "Frozen", etc.
-
-- **Sorting Items**: Click the "Swap" icon in the toolbar to open sorting options. You can sort pantry items by:
-  - **None**: Defaults to order of addition unless manually reordered using the drag and drop functionality.
-  - **Name**: Sort items alphabetically by their name.
-  - **Date Added**: Sort by the date the items were added to your pantry.
-  - **Tag**: Sort by the item tag.
-
-### Managing Completed Items
-- **Show/Hide Completed Items**: The app allows you to toggle the visibility of completed items. Clicking the "Check" or "Eye" icon in the app’s toolbar will toggle between showing, hiding, or selecting items marked as completed. 
-  - If completed items are hidden, you can quickly review your pantry without the clutter of items that are already marked as done.
-  - If completed items are shown, you can also select all completed items at once, making it easier to manage them.
-
-These features are designed to give you full control over your list organization and management, making it easier to track, sort, and act on your inventory and to-do lists.
 
 ## Tech Stack
 
