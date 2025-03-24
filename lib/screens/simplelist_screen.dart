@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../data/classes/list_item.dart';
 import '../data/constants.dart';
 import '../data/widgets/autoloadservice_widget.dart';
@@ -82,6 +83,21 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   void dispose() {
     _autoLoadService.stopAutoLoad();
     super.dispose();
+  }
+
+  Future<void> _launchUrl(String url) async {
+    // Prepend "http://" if no protocol is provided
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = 'http://$url';
+    }
+
+    final Uri parsedUrl = Uri.parse(url);
+
+    if (!await launchUrl(parsedUrl)) {
+      if (mounted) {
+        showErrorSnackbar(context, 'Could not launch $url');
+      }
+    }
   }
 
   void _setLastUpdatedAndSave(String boxName) async {
@@ -447,11 +463,17 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       },
       {'icon': Icons.delete_forever, 'onPressed': _deleteSelectedItems},
       {
-        'icon': Icons.sync,
+        'icon': Icons.info,
         'onPressed': () {
-          _showSettings();
+          _launchUrl('https://github.com/AMWen/pantry_app?tab=readme-ov-file#key-features-in-detail');
         },
       },
+      // {
+      //   'icon': Icons.sync,
+      //   'onPressed': () {
+      //     _showSettings();
+      //   },
+      // },
     ];
 
     return Scaffold(
