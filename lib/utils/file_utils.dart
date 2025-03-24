@@ -17,26 +17,26 @@ void setLastUpdated(String boxName) {
   boxSettings.lastUpdated = DateTime.now();
 }
 
-Future<String?> getSaveDirectory(String providedFilePath) async {
-  Uri uri = Uri.parse(providedFilePath);
-  String fileName = uri.pathSegments.last;
-  String? directory =
-      uri.pathSegments.isNotEmpty
-          ? uri.pathSegments.sublist(0, uri.pathSegments.length - 1).join('/')
-          : null;
-  String? filePath = await FilePicker.platform.saveFile(
-    dialogTitle: 'Please select an output file:',
-    fileName: fileName,
-    type: FileType.custom,
-    allowedExtensions: ['json'],
-    bytes: Uint8List.fromList('{}'.codeUnits),
-    initialDirectory: directory
-  );
+Future<String> exportItemsWithSaveDialog(String fileName, List<ListItem> listItems) async {
+  try {
+    final jsonList = listItems.map((item) => item.toJson()).toList();
+    final jsonString = json.encode(jsonList);
 
-  return filePath;
+    await FilePicker.platform.saveFile(
+      dialogTitle: 'Please select an output file:',
+      fileName: fileName,
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+      bytes: Uint8List.fromList(jsonString.codeUnits),
+    ); // bug where filePath returned defaults to downloads folder
+
+    return exportSuccess;
+  } catch (e) {
+    return 'Error exporting items: $e';
+  }
 }
 
-Future<String?> pickDirectory() async {
+Future<String?> pickLocation() async {
   FilePickerResult? result = await FilePicker.platform.pickFiles(
     type: FileType.custom,
     allowedExtensions: ['json'],
