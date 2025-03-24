@@ -9,14 +9,14 @@ import '../constants.dart';
 import 'basic_widgets.dart';
 import 'filelocation_widget.dart';
 
-class SettingsDialog extends StatefulWidget {
-  const SettingsDialog({super.key});
+class SyncDialog extends StatefulWidget {
+  const SyncDialog({super.key});
 
   @override
-  SettingsDialogState createState() => SettingsDialogState();
+  SyncDialogState createState() => SyncDialogState();
 }
 
-class SettingsDialogState extends State<SettingsDialog> {
+class SyncDialogState extends State<SyncDialog> {
   Map<String, String?> currentLocations = {};
   late Box<Settings> _settingsBox;
   bool _showHelpText = false;
@@ -78,6 +78,12 @@ class SettingsDialogState extends State<SettingsDialog> {
     }
   }
 
+  void _deleteLocationSelection(String boxName) {
+    setState(() {
+      currentLocations[boxName] = null;
+    });
+  }
+
   Future<void> setFileLocation(String boxName, String? fileLocation) async {
     var boxSettings = _settingsBox.get(boxName);
 
@@ -114,7 +120,7 @@ class SettingsDialogState extends State<SettingsDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('File locations (if sync desired)', style: TextStyles.boldText),
-                          Text('Click for tips', style: TextStyles.tagText),
+                          Text('Click above for tips', style: TextStyles.tagText),
                         ],
                       ),
                     ),
@@ -135,15 +141,31 @@ class SettingsDialogState extends State<SettingsDialog> {
                       final boxName = entry.key;
                       final fileLocation = entry.value ?? 'Not set';
 
-                      return ListTile(
-                        title: FileLocationWidget(boxName: boxName, fileLocation: fileLocation),
-                        trailing: IconButton(
-                          // Folder at the end
-                          icon: Icon(Icons.folder_open),
-                          onPressed: () {
-                            _handleLocationSelection(boxName);
-                          },
-                        ),
+                      return Row(
+                        children: [
+                          SizedBox(width: 6),
+                          Expanded(
+                            child: FileLocationWidget(boxName: boxName, fileLocation: fileLocation),
+                          ),
+                          SizedBox(
+                            width: 36,
+                            child: IconButton(
+                              icon: Icon(Icons.edit),
+                              onPressed: () {
+                                _handleLocationSelection(boxName);
+                              },
+                            ),
+                          ),
+                          SizedBox(
+                            width: 36,
+                            child: IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () {
+                                _deleteLocationSelection(boxName);
+                              },
+                            ),
+                          ),
+                        ],
                       );
                     }),
                   ],

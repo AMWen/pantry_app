@@ -4,7 +4,7 @@ import '../data/classes/list_item.dart';
 import '../data/constants.dart';
 import '../data/widgets/basic_widgets.dart';
 import '../data/widgets/editdialog_widget.dart';
-import '../data/widgets/settingsdialog_widget.dart';
+import '../data/widgets/syncdialog_widget.dart';
 import '../data/widgets/snackbar_widget.dart';
 import '../utils/file_utils.dart';
 import '../utils/string_utils.dart';
@@ -298,7 +298,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     showDialog(
       context: context,
       builder: (context) {
-        return SettingsDialog();
+        return SyncDialog();
       },
     );
   }
@@ -421,7 +421,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       },
       {'icon': Icons.delete_forever, 'onPressed': _deleteSelectedItems},
       {
-        'icon': Icons.settings,
+        'icon': Icons.sync,
         'onPressed': () {
           _showSettings();
         },
