@@ -96,6 +96,8 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
 
   void _moveItem(ListItem item) {
     setState(() {
+      item.dateAdded = DateTime.now();
+      item.save();
       _deleteItem(_itemBox.values.toList().indexOf(item));
       _newItemBox.add(item);
     });
@@ -290,7 +292,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   }
 
   Future<void> _importItems() async {
-    final filePath = await pickDirectory();
+    final filePath = await pickLocation();
     String message = await importItemsFromFile(filePath, widget.boxName);
 
     if (mounted) {
@@ -310,8 +312,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
         showErrorSnackbar(context, 'No items to export!');
       }
     } else {
-      final filePath = await getSaveDirectory('${widget.boxName}_items.json');
-      String message = await exportItemsToFile(filePath, listItems);
+      String message = await exportItemsWithSaveDialog('${widget.boxName}_items.json', listItems);
 
       if (mounted) {
         showErrorSnackbar(context, message);
@@ -493,8 +494,8 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
               listItems.sort((a, b) => a.dateAdded.compareTo(b.dateAdded));
             } else if (_sortCriteria == 'tag') {
               listItems.sort((a, b) {
-                int aIndex = _tagOrder.indexOf(a.tag ?? 'other');
-                int bIndex = _tagOrder.indexOf(b.tag ?? 'other');
+                int aIndex = _tagOrder.indexOf(a.tag ?? '');
+                int bIndex = _tagOrder.indexOf(b.tag ?? '');
                 return aIndex.compareTo(bIndex);
               });
             }
