@@ -35,6 +35,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   bool get wantKeepAlive => true;
 
   late AutoLoadService _autoLoadService;
+  late AutoLoadService _newAutoLoadService;
   late Box<ListItem> _itemBox;
   late Box<ListItem> _newItemBox;
   late List<String> _tagOrder;
@@ -51,13 +52,24 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     _autoLoadService = AutoLoadService();
     Future.delayed(Duration.zero, () {
       if (mounted) {
-        _autoLoadService.startAutoLoad(widget.boxName, showErrorSnackbar: (message) => showErrorSnackbar(context, message));
+        _autoLoadService.startAutoLoad(
+          widget.boxName,
+          showErrorSnackbar: (message) => showErrorSnackbar(context, message),
+        );
       }
     });
     _itemBox = Hive.box<ListItem>(widget.boxName);
     if (widget.moveTo != null) {
       _newItemBox = Hive.box<ListItem>(widget.moveTo!);
-      autoLoad(widget.moveTo!);
+      _newAutoLoadService = AutoLoadService();
+      Future.delayed(Duration.zero, () {
+        if (mounted) {
+          _autoLoadService.startAutoLoad(
+            widget.moveTo!,
+            showErrorSnackbar: (message) => showErrorSnackbar(context, message),
+          );
+        }
+      });
     }
     if (itemTypeTagMapping.containsKey(widget.itemType)) {
       _tagOrder = itemTypeTagMapping[widget.itemType]!;
