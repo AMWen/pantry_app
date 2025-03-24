@@ -99,6 +99,8 @@ class AddItemScreenState extends State<AddItemScreen> {
         }
       }
     }
-    Navigator.pop(context); // Go back to the previous screen after adding items
+    if (mounted) {
+      Navigator.pop(context); // Go back to the previous screen after adding items
+    }
   }
 }

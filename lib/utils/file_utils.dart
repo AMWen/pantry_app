@@ -139,7 +139,6 @@ Future<String?> autoSave(String boxName) async {
         if (lastUpdated != null && lastUpdated.isAfter(lastModified)) {
           String message = await exportItemsToFile(filePath, itemBox.values.toList());
 
-          print(message);
           if (message == exportSuccess) {
             final newLastModified = await file.lastModified();
             boxSettings.lastUpdated = newLastModified;

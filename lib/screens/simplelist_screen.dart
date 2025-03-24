@@ -64,7 +64,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       _newAutoLoadService = AutoLoadService();
       Future.delayed(Duration.zero, () {
         if (mounted) {
-          _autoLoadService.startAutoLoad(
+          _newAutoLoadService.startAutoLoad(
             widget.moveTo!,
             showErrorSnackbar: (message) => showErrorSnackbar(context, message),
           );
