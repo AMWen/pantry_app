@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data'; // Import for Uint8List
-import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
 import 'package:hive/hive.dart';
 
 import '../data/classes/list_item.dart';
@@ -17,24 +17,31 @@ void setLastUpdated(String boxName) {
   boxSettings.lastUpdated = DateTime.now();
 }
 
-Future<String?> getSaveDirectory(String fileName) async {
-  final params = SaveFileDialogParams(
+Future<String?> getSaveDirectory(String providedFilePath) async {
+  Uri uri = Uri.parse(providedFilePath);
+  String fileName = uri.pathSegments.last;
+  String? directory =
+      uri.pathSegments.isNotEmpty
+          ? uri.pathSegments.sublist(0, uri.pathSegments.length - 1).join('/')
+          : null;
+  String? filePath = await FilePicker.platform.saveFile(
+    dialogTitle: 'Please select an output file:',
     fileName: fileName,
-    mimeTypesFilter: ['application/json'],
-    data: Uint8List.fromList('{}'.codeUnits),
+    type: FileType.custom,
+    allowedExtensions: ['json'],
+    bytes: Uint8List.fromList('{}'.codeUnits),
+    initialDirectory: directory
   );
 
-  final filePath = await FlutterFileDialog.saveFile(params: params);
   return filePath;
 }
 
 Future<String?> pickDirectory() async {
-  final params = OpenFileDialogParams(
-    dialogType: OpenFileDialogType.document,
-    fileExtensionsFilter: ['json'],
+  FilePickerResult? result = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: ['json'],
   );
-
-  final filePath = await FlutterFileDialog.pickFile(params: params);
+  final filePath = result?.files.first.path;
   return filePath;
 }
 
@@ -76,8 +83,10 @@ Future<String> exportItemsToFile(String? filePath, List<ListItem> listItems) asy
     if (filePath != null) {
       final file = File(filePath);
       await file.writeAsString(jsonString);
+      return exportSuccess;
+    } else {
+      return 'Error: No file path provided';
     }
-    return exportSuccess;
   } catch (e) {
     return 'Error exporting items: $e';
   }
