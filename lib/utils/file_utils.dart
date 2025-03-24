@@ -17,7 +17,7 @@ void setLastUpdated(String boxName) {
   boxSettings.lastUpdated = DateTime.now();
 }
 
-Future<String> exportItemsWithSaveDialog(String fileName, List<ListItem> listItems) async {
+Future<String> saveItemsWithSaveDialog(String fileName, List<ListItem> listItems) async {
   try {
     final jsonList = listItems.map((item) => item.toJson()).toList();
     final jsonString = json.encode(jsonList);
@@ -45,7 +45,7 @@ Future<String?> pickLocation() async {
   return filePath;
 }
 
-Future<String> importItemsFromFile(String? filePath, String boxName, {bool add = true}) async {
+Future<String> loadItemsFromFile(String? filePath, String boxName, {bool add = true}) async {
   Box<ListItem> itemBox = Hive.box<ListItem>(boxName);
 
   try {
@@ -75,7 +75,7 @@ Future<String> importItemsFromFile(String? filePath, String boxName, {bool add =
   }
 }
 
-Future<String> exportItemsToFile(String? filePath, List<ListItem> listItems) async {
+Future<String> saveItemsToFile(String? filePath, List<ListItem> listItems) async {
   try {
     final jsonList = listItems.map((item) => item.toJson()).toList();
     final jsonString = json.encode(jsonList);
@@ -107,7 +107,7 @@ Future<String?> autoLoad(String boxName, {Function(String)? showErrorSnackbar}) 
         final lastUpdated = boxSettings.lastUpdated;
 
         if (lastUpdated != null && lastUpdated.isBefore(lastModified)) {
-          String message = await importItemsFromFile(filePath, boxName, add: false);
+          String message = await loadItemsFromFile(filePath, boxName, add: false);
 
           if (message == importSuccess) {
             boxSettings.lastUpdated = lastModified;
@@ -146,7 +146,7 @@ Future<String?> autoSave(String boxName) async {
         final lastUpdated = boxSettings.lastUpdated;
 
         if (lastUpdated != null && lastUpdated.isAfter(lastModified)) {
-          String message = await exportItemsToFile(filePath, itemBox.values.toList());
+          String message = await saveItemsToFile(filePath, itemBox.values.toList());
 
           if (message == exportSuccess) {
             final newLastModified = await file.lastModified();
@@ -159,7 +159,7 @@ Future<String?> autoSave(String boxName) async {
         }
       } else {
         // If the file does not exist, export items to a new file
-        String message = await exportItemsToFile(filePath, itemBox.values.toList());
+        String message = await saveItemsToFile(filePath, itemBox.values.toList());
         return message;
       }
     } catch (e) {

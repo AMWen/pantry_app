@@ -72,10 +72,10 @@ class SyncDialogState extends State<SyncDialog> {
       bool? shouldOverwrite = await _showOverwriteDialog(context);
       String? message;
       if (shouldOverwrite == true) {
-        message = await importItemsFromFile(selectedLocation, boxName, add: false);
+        message = await loadItemsFromFile(selectedLocation, boxName, add: false);
       } else if (shouldOverwrite == false) {
         var itemBox = Hive.box<ListItem>(boxName);
-        message = await exportItemsToFile(selectedLocation, itemBox.values.toList());
+        message = await saveItemsToFile(selectedLocation, itemBox.values.toList());
       }
       if (mounted && message != null) {
         showErrorSnackbar(context, message);
@@ -83,10 +83,11 @@ class SyncDialogState extends State<SyncDialog> {
     }
   }
 
-  void _deleteLocationSelection(String boxName) {
+  void _deleteLocationSelection(String boxName) async {
     setState(() {
       currentLocations[boxName] = null;
     });
+    await setFileLocation(boxName, null);
   }
 
   Future<void> setFileLocation(String boxName, String? fileLocation) async {

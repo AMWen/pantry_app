@@ -159,6 +159,8 @@ class TextStyles {
     fontWeight: FontWeight.w300,
   );
 
+  static const TextStyle mediumText = TextStyle(fontSize: 12);
+
   static const TextStyle normalText = TextStyle(fontWeight: FontWeight.normal, fontSize: 14);
 
   static const TextStyle boldText = TextStyle(fontWeight: FontWeight.bold, fontSize: 14);

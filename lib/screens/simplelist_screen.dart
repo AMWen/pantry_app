@@ -8,6 +8,7 @@ import '../data/constants.dart';
 import '../data/widgets/basic_widgets.dart';
 import '../data/widgets/editdialog_widget.dart';
 // import '../data/widgets/syncdialog_widget.dart';
+import '../data/widgets/saveloaddialog_widget.dart';
 import '../data/widgets/snackbar_widget.dart';
 import '../utils/file_utils.dart';
 import '../utils/string_utils.dart';
@@ -52,7 +53,9 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     super.initState();
 
     // Set comletion settings
-    Box<CompletionSettings> completionSettingsBox = Hive.box<CompletionSettings>(completionSettings);
+    Box<CompletionSettings> completionSettingsBox = Hive.box<CompletionSettings>(
+      completionSettings,
+    );
     boxCompletionSettings = completionSettingsBox.get(widget.boxName)!;
 
     // _autoLoadService = AutoLoadService();
@@ -246,7 +249,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
 
                             return ChoiceChip(
                               label: Text(tag),
-                              labelStyle: TextStyle(color: isSelected ? Colors.white : dullColor),
+                              labelStyle: TextStyle(fontSize: 12, color: isSelected ? Colors.white : dullColor),
                               selected: isSelected,
                               selectedColor: getTagColor(tag, widget.itemType),
                               onSelected: (bool selected) {
@@ -273,72 +276,6 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     setState(() {
       _sortCriteria = criteria;
     });
-  }
-
-  void _showImportExportOptions() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: AlertTitle('Save or Load'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text('Load Items (add to list)'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _importItems();
-                },
-              ),
-              ListTile(
-                title: Text('Save Items'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _exportItems();
-                },
-              ),
-              ListTile(
-                title: Text('Save Selected'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _exportItems(selectedOnly: true);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _importItems() async {
-    final filePath = await pickLocation();
-    String message = await importItemsFromFile(filePath, widget.boxName);
-
-    if (mounted) {
-      showErrorSnackbar(context, message);
-    }
-    _setLastUpdatedAndSave(widget.boxName);
-  }
-
-  Future<void> _exportItems({bool selectedOnly = false}) async {
-    final listItems =
-        selectedOnly
-            ? _itemBox.values.where((item) => _selectedItemIds.contains(item.key)).toList()
-            : _itemBox.values.toList();
-
-    if (listItems.isEmpty) {
-      if (mounted) {
-        showErrorSnackbar(context, 'No items to export!');
-      }
-    } else {
-      String message = await exportItemsWithSaveDialog('${widget.boxName}_items.json', listItems);
-
-      if (mounted) {
-        showErrorSnackbar(context, message);
-      }
-    }
   }
 
   // void _showSync() {
@@ -385,6 +322,19 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       context: context,
       builder: (BuildContext context) {
         return EditDialog(item: item, boxName: widget.boxName, hasCount: widget.hasCount);
+      },
+    );
+  }
+
+  void _showSaveLoadDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SaveLoadDialog(
+          boxName: widget.boxName,
+          itemBox: _itemBox,
+          selectedItemIds: _selectedItemIds,
+        );
       },
     );
   }
@@ -457,7 +407,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       {
         'icon': Icons.save,
         'onPressed': () {
-          _showImportExportOptions();
+          _showSaveLoadDialog(context);
         },
       },
       {
