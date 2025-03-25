@@ -6,7 +6,7 @@ import 'classes/tab_item.dart';
 
 final String boxSettings = 'boxSettings';
 
-final Map<String, List<String>> itemTypeTagMapping = {
+final Map<String, List<String>> defaultTagMapping = {
   'pantry': [
     'meat',
     'grain',
@@ -26,6 +26,7 @@ final Map<String, List<String>> itemTypeTagMapping = {
 };
 
 final List<String> boxNames = tabItems.keys.toList();
+final List<TabItem> tabs = tabItems.values.toList();
 
 String lowercaseAndRemoveSpaces(String input) {
   return input.replaceAll(' ', '').toLowerCase();
@@ -141,11 +142,6 @@ class TextStyles {
     fontWeight: FontWeight.w700,
     fontSize: 18,
     // color: Colors.black,
-  );
-
-  static TextStyle buttonText = TextStyle(
-    fontWeight: FontWeight.w500,
-    // color: secondaryColor,
   );
 
   static TextStyle tagText = TextStyle(

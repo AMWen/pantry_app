@@ -5,6 +5,19 @@ import 'data/classes/box_settings.dart';
 import 'data/constants.dart';
 import 'data/widgets/bottomtabnavigator_widget.dart';
 
+Future<void> initializeBoxSettings() async {
+  var settingsBox = Hive.box<BoxSettings>(boxSettings);
+  for (String boxName in boxNames) {
+    if (!settingsBox.containsKey(boxName)) {
+      settingsBox.put(boxName, BoxSettings(boxName: boxName));
+    }
+    BoxSettings currentBoxSettings = settingsBox.get(boxName)!;
+    if (currentBoxSettings.tags.length == 1 && currentBoxSettings.tags[0] == '') {
+      currentBoxSettings.resetTags();
+    }
+  }
+}
+
 void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(ListItemAdapter());
@@ -13,14 +26,7 @@ void main() async {
   // Open all Hive boxes
   await Future.wait(boxNames.map((boxName) => Hive.openBox<ListItem>(boxName)).toList());
   await Hive.openBox<BoxSettings>(boxSettings);
-
-  // Initialize if needed
-  var settingsBox = Hive.box<BoxSettings>(boxSettings);
-  for (String boxName in boxNames) {
-    if (!settingsBox.containsKey(boxName)) {
-      settingsBox.put(boxName, BoxSettings(boxName: boxName));
-    }
-  }
+  initializeBoxSettings();
 
   runApp(MyApp());
 }

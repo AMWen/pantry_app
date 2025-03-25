@@ -22,13 +22,14 @@ class BoxSettingsAdapter extends TypeAdapter<BoxSettings> {
     )
       .._syncLocation = fields[1] as String?
       .._showCompleted = fields[3] as bool
-      .._selectAllCompleted = fields[4] as bool;
+      .._selectAllCompleted = fields[4] as bool
+      .._tags = (fields[5] as List?)?.cast<String>();
   }
 
   @override
   void write(BinaryWriter writer, BoxSettings obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.boxName)
       ..writeByte(1)
@@ -38,7 +39,9 @@ class BoxSettingsAdapter extends TypeAdapter<BoxSettings> {
       ..writeByte(3)
       ..write(obj._showCompleted)
       ..writeByte(4)
-      ..write(obj._selectAllCompleted);
+      ..write(obj._selectAllCompleted)
+      ..writeByte(5)
+      ..write(obj._tags);
   }
 
   @override

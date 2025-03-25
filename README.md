@@ -12,7 +12,7 @@ In addition to groceries management, the app has expanded to support tracking to
 - **Modify item quantities**: Quickly change the quantity of any item.
 - **Delete items**: Remove items from your list, including support for deleting multiple selected items at once.
 - **Copy items**: Copy items to clipboard for sharing.
-- **Tag items**: Assign tags to items for better organization.
+- **Tag items**: Assign customizable tags to items for better organization.
 - **Import/Export**: Import and export data using JSON files.
 - **Sorting**: Sort items by name, date added, or tag.
 - **Move items**: Move selected items between shopping list and pantry directly.
@@ -35,7 +35,7 @@ In addition to groceries management, the app has expanded to support tracking to
   - **📋 Copy**: Copy selected items to clipboard.
   - **↕️ Sorting**: Sort items by `Name`, `Date Added`, `Tag`, or your own manual order (from using the drag-and-drop interface).
   - **💾 Saving and loading**: Load from and save to a JSON file, useful for backup and sharing. When you load, you can choose to add to the list or to completely replace the current list. You can also save the whole list or selected items.
-  - **🏷️ Multi-select tagging**: Categorize items using tags, and select one or more items to tag using the checkboxes.
+  - **🏷️ Multi-select tagging**: Categorize multiple selected items at once using tags. The labels can be edited to your preferences.
   - **🗑️ Multi-select deletion**: Delete multiple selected items at once.
   - **ℹ️ Info**: Access these detailed instructions on how to use the app.
 

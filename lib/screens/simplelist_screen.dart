@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:pantry_app/data/widgets/tagdialog_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../data/classes/box_settings.dart';
 import '../data/classes/list_item.dart';
@@ -12,7 +13,6 @@ import '../data/widgets/editdialog_widget.dart';
 import '../data/widgets/saveloaddialog_widget.dart';
 import '../utils/file_utils.dart';
 import '../utils/snackbar_util.dart';
-import '../utils/string_utils.dart';
 
 class SimpleListScreen extends StatefulWidget {
   final String itemType;
@@ -79,11 +79,8 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       //   }
       // });
     }
-    if (itemTypeTagMapping.containsKey(widget.itemType)) {
-      _tagOrder = itemTypeTagMapping[widget.itemType]!;
-    } else {
-      _tagOrder = [''];
-    }
+
+    _tagOrder = currentBoxSettings.tags;
   }
 
   @override
@@ -228,69 +225,17 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     }
   }
 
-  void _showTaggingOptions(BuildContext context) {
+  Future<bool?>? _showTaggingOptions(BuildContext context) {
     if (_selectedItemIds.isNotEmpty) {
       final selectedItems =
           _itemBox.values
               .where((item) => _selectedItemIds.contains(item.key)) // Use key to filter
               .toList();
 
-      showDialog(
+      return showDialog<bool>(
         context: context,
         builder: (context) {
-          String selectedTag = '';
-
-          return StatefulBuilder(
-            builder: (context, setState) {
-              return AlertDialog(
-                actions: [
-                  FilledButton(
-                    onPressed: () {
-                      for (ListItem item in selectedItems) {
-                        item.tag = selectedTag;
-                        item.save();
-                      }
-                      _selectedItemIds.clear();
-                      _setLastUpdatedAndSave(widget.boxName);
-                      Navigator.of(context).pop(); // Close the dialog after selection
-                    },
-                    child: Text('Confirm'),
-                  ),
-                ],
-                title: Center(child: Text('Select Tag', style: TextStyles.dialogTitle)),
-                content: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: 200, // Set the max height to 200
-                  ),
-                  child: SingleChildScrollView(
-                    child: Wrap(
-                      spacing: 4.0,
-                      children:
-                          _tagOrder.map<Widget>((String tag) {
-                            bool isSelected = tag == selectedTag;
-
-                            return ChoiceChip(
-                              showCheckmark: false,
-                              label: Text(tag),
-                              labelStyle: TextStyle(
-                                fontSize: 12,
-                                color: isSelected ? Colors.white : dullColor,
-                              ),
-                              selected: isSelected,
-                              selectedColor: getTagColor(tag, widget.itemType),
-                              onSelected: (bool selected) {
-                                setState(() {
-                                  selectedTag = selected ? tag : '';
-                                });
-                              },
-                            );
-                          }).toList(),
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
+          return TagDialog(selectedItems: selectedItems, currentBoxSettings: currentBoxSettings);
         },
       );
     } else {
@@ -444,8 +389,13 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       },
       {
         'icon': Icons.label,
-        'onPressed': () {
-          _showTaggingOptions(context);
+        'onPressed': () async {
+          bool? result = await _showTaggingOptions(context);
+          if (result == true) {
+            _selectedItemIds.clear();
+            _tagOrder = currentBoxSettings.tags;
+            _setLastUpdatedAndSave(widget.boxName);
+          }
         },
       },
       {'icon': Icons.delete_forever, 'onPressed': _deleteSelectedItems},
@@ -598,7 +548,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
                               Container(
                                 padding: EdgeInsets.all(4),
                                 decoration: BoxDecoration(
-                                  color: item.itemTagColor(),
+                                  color: item.itemTagColor(_tagOrder),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(item.tag!, style: TextStyles.tagText),

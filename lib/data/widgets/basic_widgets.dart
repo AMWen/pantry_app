@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
 
-import '../constants.dart';
-
 class CancelButton extends StatelessWidget {
   final VoidCallback? onPressed;
+  final ButtonStyle? style;
+  final String? text;
+  final double? fontSize;
 
-  const CancelButton({super.key, this.onPressed});
+  const CancelButton({super.key, this.onPressed, this.style, this.text, this.fontSize});
 
   @override
   Widget build(BuildContext context) {
     return FilledButton(
-      style: FilledButton.styleFrom(
-        backgroundColor: Colors.red.shade400, // Red color for Cancel button
-      ),
+      style:
+          style ??
+          FilledButton.styleFrom(
+            backgroundColor: Colors.red.shade400,
+            padding: EdgeInsets.zero
+          ),
       onPressed: onPressed ?? () => Navigator.of(context).pop(), // Default behavior is to pop
-      child: Text('Cancel', style: TextStyles.buttonText),
+      child: Text(text ?? 'Cancel', style: TextStyle(fontSize: fontSize ?? 14.0)),
     );
   }
 }
@@ -33,9 +37,6 @@ class AlertTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      message,
-      style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
-    );
+    return Text(message, style: TextStyle(fontSize: fontSize, fontWeight: fontWeight));
   }
 }

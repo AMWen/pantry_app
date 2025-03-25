@@ -63,7 +63,7 @@ class ListItem<T> extends HiveObject {
   }
 
   // Helper method to get the color for the tag
-  Color itemTagColor() {
-    return getTagColor(tag, itemType);
+  Color itemTagColor(options) {
+    return getTagColor(tag, options);
   }
 }
