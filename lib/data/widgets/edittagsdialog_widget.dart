@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pantry_app/data/widgets/basic_widgets.dart';
 
-import '../../utils/string_utils.dart';
 import '../classes/box_settings.dart';
-import '../classes/list_item.dart';
 import '../constants.dart';
 
 class EditTagsDialog extends StatefulWidget {
@@ -43,7 +41,7 @@ class EditTagsDialogState extends State<EditTagsDialog> {
 
   @override
   Widget build(BuildContext context) {
-    AlertDialog(
+    return AlertDialog(
       title: Text('Edit Tags', style: TextStyles.dialogTitle),
       content: TextField(
         controller: _controller,

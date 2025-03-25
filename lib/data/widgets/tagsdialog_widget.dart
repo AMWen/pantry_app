@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'basic_widgets.dart';
 import 'edittagsdialog_widget.dart';
 import '../../utils/string_utils.dart';
 import '../classes/box_settings.dart';
@@ -19,28 +18,13 @@ class TagsDialog extends StatefulWidget {
 
 class TagsDialogState extends State<TagsDialog> {
   late List<String> tagOrder;
-  String selectedTag = '';
-  late TextEditingController _controller;
+  late String selectedTag;
 
   @override
   void initState() {
     super.initState();
     tagOrder = widget.currentBoxSettings.tags;
-    _controller = TextEditingController(text: tagOrder.join('\n').trimRight());
-  }
-
-  void _saveEditedTags() {
-    final inputText = _controller.text.trim();
-    final lines = inputText.split('\n').map((line) => line.trim()).toList();
-    final updatedTags = List<String>.from(lines.where((line) => line.isNotEmpty).toSet());
-    updatedTags.add('');
-
-    setState(() {
-      tagOrder = updatedTags;
-    });
-
-    widget.currentBoxSettings.tags = tagOrder;
-    widget.currentBoxSettings.save();
+    selectedTag = widget.selectedItems[0].tag ?? '';
   }
 
   @override
@@ -48,16 +32,16 @@ class TagsDialogState extends State<TagsDialog> {
     return AlertDialog(
       actions: [
         FilledButton(
-          onPressed: () {
-            showDialog<String>(
+          onPressed: () async {
+            await showDialog<bool>(
               context: context,
               builder: (context) {
-                EditTagsDialog(widget.currentBoxSettings);
-                setState(() {
-                  tagOrder = widget.currentBoxSettings.tags;
-                });
+                return EditTagsDialog(currentBoxSettings: widget.currentBoxSettings);
               },
             );
+            setState(() {
+              tagOrder = widget.currentBoxSettings.tags;
+            });
           },
           style: FilledButton.styleFrom(
             backgroundColor: Colors.green.shade700, // Green color for Edit button
