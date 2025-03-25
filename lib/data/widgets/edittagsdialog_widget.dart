@@ -42,6 +42,7 @@ class EditTagsDialogState extends State<EditTagsDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      contentPadding: alertPadding,
       title: Text('Edit Tags', style: TextStyles.dialogTitle),
       content: TextField(
         controller: _controller,

@@ -60,6 +60,7 @@ class EditDialogState extends State<EditDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      contentPadding: alertPadding,
       title: AlertTitle('Edit Item'),
       content: SingleChildScrollView(
         child: Column(

@@ -131,6 +131,8 @@ Color dullColor = Colors.grey[600]!;
 
 DateFormat dateFormat = DateFormat('M/d/yy');
 
+EdgeInsets alertPadding = EdgeInsets.symmetric(vertical: 10, horizontal: 20);
+
 class TextStyles {
   static TextStyle titleText = TextStyle(
     // color: secondaryColor,

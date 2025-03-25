@@ -50,7 +50,7 @@ class InventoryListScreenState extends SimpleListScreenState {
     });
   }
 
-  void _showItemDetails(BuildContext context, ListItem item) {
+  void _showItemDetails(ListItem item) {
     String displayName =
         item.name.endsWith('s')
             ? item.name.substring(0, item.name.length - 1) // Remove trailing 's'
@@ -63,6 +63,7 @@ class InventoryListScreenState extends SimpleListScreenState {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              contentPadding: alertPadding,
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.center, // Center the content
                 children: [
@@ -169,7 +170,7 @@ class InventoryListScreenState extends SimpleListScreenState {
   }
 
   @override
-  void onItemTapped(BuildContext context, ListItem item) {
-    _showItemDetails(context, item);
+  void onItemTapped(ListItem item) {
+    _showItemDetails(item);
   }
 }

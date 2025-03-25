@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../data/classes/box_settings.dart';
 import '../data/classes/list_item.dart';
 import '../data/constants.dart';
@@ -9,6 +8,7 @@ import '../data/constants.dart';
 import '../data/widgets/basic_widgets.dart';
 import '../data/widgets/editdialog_widget.dart';
 import '../data/widgets/edittagsdialog_widget.dart';
+import '../data/widgets/popupmenu_widget.dart';
 import '../data/widgets/tagsdialog_widget.dart';
 // import '../data/widgets/syncdialog_widget.dart';
 import '../data/widgets/saveloaddialog_widget.dart';
@@ -90,21 +90,6 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     super.dispose();
   }
 
-  Future<void> _launchUrl(String url) async {
-    // Prepend "http://" if no protocol is provided
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      url = 'http://$url';
-    }
-
-    final Uri parsedUrl = Uri.parse(url);
-
-    if (!await launchUrl(parsedUrl)) {
-      if (mounted) {
-        showErrorSnackbar(context, 'Could not launch $url');
-      }
-    }
-  }
-
   void copySelectedItems() {
     if (_selectedItemIds.isNotEmpty) {
       final selectedItems =
@@ -151,6 +136,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
         context: context,
         builder: (context) {
           return AlertDialog(
+            contentPadding: alertPadding,
             title: AlertTitle(
               'Are you sure you want to move all selected items to ${widget.moveTo}?',
             ),
@@ -196,6 +182,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
         context: context,
         builder: (context) {
           return AlertDialog(
+            contentPadding: alertPadding,
             title: AlertTitle('Are you sure you want to delete all selected items?'),
             content: Text('This action cannot be undone.'),
             actions: [
@@ -226,7 +213,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     }
   }
 
-  Future<bool?>? _showTaggingOptions(BuildContext context) {
+  Future<bool?>? _showTaggingOptions() {
     if (_selectedItemIds.isNotEmpty) {
       final selectedItems =
           _itemBox.values
@@ -264,11 +251,12 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   //   );
   // }
 
-  void _showSortingOptions(BuildContext context) {
+  void _showSortingOptions() {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
+          contentPadding: alertPadding,
           title: AlertTitle('Sort By'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -288,13 +276,13 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     );
   }
 
-  void onItemTapped(BuildContext context, ListItem item) {
+  void onItemTapped(ListItem item) {
     item.completed = (item.completed ?? false) ? false : true;
     item.save();
     _setLastUpdatedAndSave(widget.boxName);
   }
 
-  void _showEditDialog(BuildContext context, ListItem item) {
+  void _showEditDialog(ListItem item) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -303,7 +291,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     );
   }
 
-  void _showSaveLoadDialog(BuildContext context) {
+  void _showSaveLoadDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -384,19 +372,19 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       {
         'icon': Icons.swap_vert,
         'onPressed': () {
-          _showSortingOptions(context);
+          _showSortingOptions();
         },
       },
       {
         'icon': Icons.save,
         'onPressed': () {
-          _showSaveLoadDialog(context);
+          _showSaveLoadDialog();
         },
       },
       {
         'icon': Icons.label,
         'onPressed': () async {
-          bool? result = await _showTaggingOptions(context);
+          bool? result = await _showTaggingOptions();
           if (result == true) {
             _selectedItemIds.clear();
             _tagOrder = currentBoxSettings.tags;
@@ -405,14 +393,6 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
         },
       },
       {'icon': Icons.delete_forever, 'onPressed': _deleteSelectedItems},
-      {
-        'icon': Icons.info,
-        'onPressed': () {
-          _launchUrl(
-            'https://github.com/AMWen/pantry_app?tab=readme-ov-file#key-features-in-detail',
-          );
-        },
-      },
       // {
       //   'icon': Icons.sync,
       //   'onPressed': () {
@@ -431,6 +411,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
               child: IconButton(icon: Icon(action['icon']), onPressed: action['onPressed']),
             ),
           ),
+          PopupMenu(),
           Padding(padding: const EdgeInsets.only(right: 4)),
         ],
       ),
@@ -563,8 +544,8 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
                             Text(dateFormat.format(item.dateAdded), style: TextStyles.lightText),
                           ],
                         ),
-                        onTap: () => onItemTapped(context, item),
-                        onLongPress: () => _showEditDialog(context, item),
+                        onTap: () => onItemTapped(item),
+                        onLongPress: () => _showEditDialog(item),
                         trailing: ReorderableDragStartListener(
                           index: index,
                           child: const Icon(Icons.drag_indicator),

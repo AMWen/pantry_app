@@ -37,6 +37,7 @@ class SyncDialogState extends State<SyncDialog> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          contentPadding: alertPadding,
           title: AlertTitle('Initial Sync'),
           content: Text(
             "Do you want to save the current list to the file or overwrite it with the file's data?",
@@ -105,6 +106,7 @@ class SyncDialogState extends State<SyncDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      contentPadding: alertPadding,
       title: AlertTitle('Sync BoxSettings'),
       content:
           currentLocations.isEmpty

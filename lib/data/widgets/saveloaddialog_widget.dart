@@ -87,6 +87,7 @@ class SaveLoadDialogState extends State<SaveLoadDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      contentPadding: alertPadding,
       title: AlertTitle('Save or Load'),
       content: Column(
         mainAxisSize: MainAxisSize.min,

@@ -30,8 +30,13 @@ class TagsDialogState extends State<TagsDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      contentPadding: alertPadding,
       actions: [
         FilledButton(
+          style: FilledButton.styleFrom(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            backgroundColor: Colors.green.shade700,
+          ),
           onPressed: () async {
             await showDialog<bool>(
               context: context,
@@ -43,12 +48,10 @@ class TagsDialogState extends State<TagsDialog> {
               tagOrder = widget.currentBoxSettings.tags;
             });
           },
-          style: FilledButton.styleFrom(
-            backgroundColor: Colors.green.shade700, // Green color for Edit button
-          ),
           child: Text('Edit Tags'),
         ),
         FilledButton(
+          style: FilledButton.styleFrom(padding: EdgeInsets.symmetric(horizontal: 10)),
           onPressed: () {
             for (ListItem item in widget.selectedItems) {
               item.tag = selectedTag;
