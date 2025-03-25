@@ -1,8 +1,12 @@
 # Pantry App
 
-A simple and intuitive mobile app built with Flutter that helps you track your grocery items. The app allows you to input multiple items at once, modify quantities, delete items, and organize them using tags. It also includes options for importing and exporting data, and sorting items by different criteria.
+A simple and intuitive mobile app built with Flutter that helps you keep track of all your lists. Meant to be a no-frills, offline app, not requiring creation or access to any accounts.
 
-In addition to groceries management, the app has expanded to support tracking to-do lists and meal planning, providing an all-in-one solution for managing your daily tasks and food-related needs.
+Originally created to help manage pantry items, its main features were to allow you to easily update quantities as you go through them and track when they were added, so you can use up anything that's been sitting around for a while.
+
+Beyond pantry management, the app has expanded to include shopping, meal planning, to-do lists, and more, offering an all-in-one solution for managing your daily tasks, food-related needs, and other situations where lists are useful.
+
+The app allows you to quickly add multiple items at once, modify quantities, delete items, and organize them with customizable tags. It also includes features for importing and exporting data, as well as sorting items based on different criteria.
 
 ## Features
 
@@ -56,29 +60,35 @@ In addition to groceries management, the app has expanded to support tracking to
     ```
 
 2. Install dependencies:
-Simply run
 ```bash
 flutter pub get
 ```
 
 Examples are:
 - Hive for local storage
-- `flutter_file_dialog` for importing/exporting files
 - `build_runner` for code generation
 
 3. To generate necessary files for Hive, run the following:
 
 ```bash
-flutter pub run build_runner build
+dart run build_runner build
 ```
 
-4. To customize the app's launcher icon, you can use the `flutter_launcher_icons` package. Update `flutter_launcher_icons.yaml` accordingly then run the following command to generate icons for your app:
+4. To use the flutter icon picker, you need to generate the IconPacks to use from the `fluterr_iconpicker` package.
 
 ```bash
-flutter pub run flutter_launcher_icons:main
+dart run flutter_iconpicker:generate_packs --packs material,cupertino,..
 ```
 
-5. Once you're ready to release the app, you can generate a release APK using the following commands:
+5. To customize the app's launcher icon, you can use the `flutter_launcher_icons` package. Update `flutter_launcher_icons.yaml` accordingly then run the following command to generate icons for your app:
+
+```bash
+dart run flutter_launcher_icons:main
+```
+
+flutter_iconpicker 
+
+6. Once you're ready to release the app, you can generate a release APK using the following commands:
 
 For android:
 ```bash
