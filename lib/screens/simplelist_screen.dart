@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:pantry_app/data/widgets/tagdialog_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../data/classes/box_settings.dart';
 import '../data/classes/list_item.dart';
@@ -9,6 +8,8 @@ import '../data/constants.dart';
 // import '../data/classes/autoloadservice.dart';
 import '../data/widgets/basic_widgets.dart';
 import '../data/widgets/editdialog_widget.dart';
+import '../data/widgets/edittagsdialog_widget.dart';
+import '../data/widgets/tagsdialog_widget.dart';
 // import '../data/widgets/syncdialog_widget.dart';
 import '../data/widgets/saveloaddialog_widget.dart';
 import '../utils/file_utils.dart';
@@ -235,11 +236,16 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
       return showDialog<bool>(
         context: context,
         builder: (context) {
-          return TagDialog(selectedItems: selectedItems, currentBoxSettings: currentBoxSettings);
+          return TagsDialog(selectedItems: selectedItems, currentBoxSettings: currentBoxSettings);
         },
       );
     } else {
-      showErrorSnackbar(context, 'No items selected for tagging!');
+      return showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return EditTagsDialog(currentBoxSettings: currentBoxSettings);
+        },
+      );
     }
   }
 

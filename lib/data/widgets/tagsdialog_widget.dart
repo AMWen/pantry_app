@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:pantry_app/data/widgets/basic_widgets.dart';
 
+import 'basic_widgets.dart';
+import 'edittagsdialog_widget.dart';
 import '../../utils/string_utils.dart';
 import '../classes/box_settings.dart';
 import '../classes/list_item.dart';
 import '../constants.dart';
 
-class TagDialog extends StatefulWidget {
+class TagsDialog extends StatefulWidget {
   final List<ListItem> selectedItems;
   final BoxSettings currentBoxSettings;
 
-  const TagDialog({super.key, required this.selectedItems, required this.currentBoxSettings});
+  const TagsDialog({super.key, required this.selectedItems, required this.currentBoxSettings});
 
   @override
-  TagDialogState createState() => TagDialogState();
+  TagsDialogState createState() => TagsDialogState();
 }
 
-class TagDialogState extends State<TagDialog> {
+class TagsDialogState extends State<TagsDialog> {
   late List<String> tagOrder;
   String selectedTag = '';
   late TextEditingController _controller;
@@ -48,63 +49,13 @@ class TagDialogState extends State<TagDialog> {
       actions: [
         FilledButton(
           onPressed: () {
-            // Open a new dialog to edit tags
             showDialog<String>(
               context: context,
               builder: (context) {
-                return AlertDialog(
-                  title: Text('Edit Tags', style: TextStyles.dialogTitle),
-                  content: TextField(
-                    controller: _controller,
-                    maxLines: null, // Allow multiple lines
-                    decoration: InputDecoration(
-                      hintText: 'Enter tags, each on a new line',
-                      hintStyle: TextStyles.hintText,
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.multiline,
-                  ),
-                  actions: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Expanded(
-                          child: CancelButton(
-                            text: 'Default',
-                            onPressed: () {
-                              widget.currentBoxSettings.resetTags();
-                              setState(() {
-                                tagOrder = widget.currentBoxSettings.tags;
-                                _controller.text = tagOrder.join('\n').trimRight();
-                              });
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: FilledButton(
-                            style: FilledButton.styleFrom(padding: EdgeInsets.zero),
-                            onPressed: () {
-                              _saveEditedTags();
-                              Navigator.of(context).pop();
-                            },
-                            child: Text('Save'),
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: CancelButton(
-                            style: FilledButton.styleFrom(
-                              backgroundColor: Colors.green.shade800,
-                              padding: EdgeInsets.zero,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                );
+                EditTagsDialog(widget.currentBoxSettings);
+                setState(() {
+                  tagOrder = widget.currentBoxSettings.tags;
+                });
               },
             );
           },
