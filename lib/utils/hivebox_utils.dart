@@ -18,17 +18,25 @@ Future<void> initializeHiveBoxes() async {
   await Future.wait(boxNames.map((boxName) => Hive.openBox<ListItem>(boxName)).toList());
 }
 
+Box<TabConfiguration> getTabConfigurationsBox() {
+  return Hive.box<TabConfiguration>(HiveBoxNames.tabConfigurations);
+}
+
 Future<void> initializeTabConfigurations() async {
-  Box<TabConfiguration> tabBox = Hive.box<TabConfiguration>(HiveBoxNames.tabConfigurations);
+  Box<TabConfiguration> tabBox = getTabConfigurationsBox();
   if (tabBox.isEmpty) {
     for (var config in defaultTabConfigurations) {
-      await tabBox.add(config);
+      await tabBox.put(config.title, config);
     }
   }
 }
 
+Box<BoxSettings> getBoxSettingsBox() {
+  return Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
+}
+
 Future<void> initializeBoxSettings(List<String> boxNames) async {
-  var settingsBox = Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
+  var settingsBox = getBoxSettingsBox();
 
   // Initialize BoxSettings for each boxName
   for (String boxName in boxNames) {
@@ -45,17 +53,23 @@ Future<void> initializeBoxSettings(List<String> boxNames) async {
 }
 
 List<String> getBoxNames() {
-  Box<TabConfiguration> tabBox = Hive.box<TabConfiguration>(HiveBoxNames.tabConfigurations);
+  Box<TabConfiguration> tabBox = getTabConfigurationsBox();
   return tabBox.values.map((config) {
     final boxName = lowercaseAndRemoveSpaces(config.title);
     return boxName;
   }).toList();
 }
 
+IconData getMaterialIcon(int iconCodePoint) {
+  return IconData(iconCodePoint, fontFamily: 'MaterialIcons');
+}
+
 List<TabItem> generateTabItems() {
-  Box<TabConfiguration> tabBox = Hive.box<TabConfiguration>(HiveBoxNames.tabConfigurations);
-  return tabBox.values.map((config) {
-    final iconData = IconData(config.iconCodePoint, fontFamily: 'MaterialIcons');
+  Box<TabConfiguration> tabBox = getTabConfigurationsBox();
+  List<TabConfiguration> tabConfigs = tabBox.values.toList();
+
+  return tabConfigs.map((config) {
+    final iconData = getMaterialIcon(config.iconCodePoint);
     final boxName = lowercaseAndRemoveSpaces(config.title);
     final screen =
         config.hasCount

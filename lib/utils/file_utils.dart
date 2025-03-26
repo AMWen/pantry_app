@@ -13,7 +13,7 @@ String importSuccess = 'Items imported successfully!';
 String exportSuccess = 'Items exported successfully!';
 
 void setLastUpdated(String boxName) {
-  Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
+  Box<BoxSettings> settingsBox = getBoxSettingsBox();
   final BoxSettings boxBoxSettings = settingsBox.get(boxName)!;
   boxBoxSettings.lastUpdated = DateTime.now();
 }
@@ -94,7 +94,7 @@ Future<String> saveItemsToFile(String? filePath, List<ListItem> listItems) async
 }
 
 Future<String?> autoLoad(String boxName, {Function(String)? showErrorSnackbar}) async {
-  Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
+  Box<BoxSettings> settingsBox = getBoxSettingsBox();
   final BoxSettings? boxBoxSettings = settingsBox.get(boxName);
   final String? filePath = boxBoxSettings?.syncLocation;
 
@@ -133,7 +133,7 @@ Future<String?> autoLoad(String boxName, {Function(String)? showErrorSnackbar}) 
 }
 
 Future<String?> autoSave(String boxName) async {
-  Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
+  Box<BoxSettings> settingsBox = getBoxSettingsBox();
   Box<ListItem> itemBox = Hive.box<ListItem>(boxName);
   final BoxSettings? boxBoxSettings = settingsBox.get(boxName);
   final String? filePath = boxBoxSettings?.syncLocation;
@@ -183,7 +183,7 @@ Future<String> saveAllToFile(String fileName) async {
     }
 
     // Settings (single one containing each boxName as a key)
-    Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
+    Box<BoxSettings> settingsBox = getBoxSettingsBox();
     List<Map<String, dynamic>> settingsBoxData =
         settingsBox.values.map((item) => item.toJson()).toList();
     allData.add({'boxName': HiveBoxNames.boxSettings, 'settings': settingsBoxData});
@@ -225,7 +225,7 @@ Future<String> loadAllFromFile(String? filePath) async {
             await box.add(listItem);
           }
         } else if (boxName == HiveBoxNames.boxSettings) {
-          Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
+          Box<BoxSettings> settingsBox = getBoxSettingsBox();
           final List<dynamic> settings = boxData['settings'];
 
           for (var settingsData in settings) {

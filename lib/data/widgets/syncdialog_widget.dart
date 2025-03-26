@@ -26,7 +26,7 @@ class SyncDialogState extends State<SyncDialog> {
   @override
   void initState() {
     super.initState();
-    _settingsBox = Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
+    _settingsBox = getBoxSettingsBox();
     for (String boxName in getBoxNames()) {
       final boxBoxSettings = _settingsBox.get(boxName);
       currentLocations[boxName] = boxBoxSettings?.syncLocation ?? 'Not set';
