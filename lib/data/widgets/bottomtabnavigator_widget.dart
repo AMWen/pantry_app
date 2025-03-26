@@ -15,7 +15,7 @@ class BottomTabNavigator extends StatefulWidget {
 class BottomTabNavigatorState extends State<BottomTabNavigator> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController(); // PageView sync navigator
-  List<TabItem> _tabs = generateTabItems().sublist(0, 7);
+  List<TabItem> _tabs = generateTabItems();
 
   void _onItemTapped(int index) {
     setState(() {
@@ -37,10 +37,7 @@ class BottomTabNavigatorState extends State<BottomTabNavigator> {
     double screenWidth = MediaQuery.of(context).size.width;
     final iconWidth = 50; // Adjust this based on your icon size
     int iconsThatFit = (screenWidth / iconWidth).floor();
-
     bool needsScrolling = _tabs.length > iconsThatFit;
-    print(screenWidth);
-    print(iconsThatFit);
 
     return Scaffold(
       body: PageView(
