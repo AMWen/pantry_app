@@ -15,11 +15,12 @@ class BottomTabNavigator extends StatefulWidget {
 class BottomTabNavigatorState extends State<BottomTabNavigator> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController(); // PageView sync navigator
-  final List<TabItem> _tabs = generateTabItems();
+  List<TabItem> _tabs = generateTabItems().sublist(0, 7);
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      _tabs = generateTabItems();
     });
     _pageController.jumpToPage(index);
   }
@@ -27,11 +28,20 @@ class BottomTabNavigatorState extends State<BottomTabNavigator> {
   void _onPageChanged(int index) {
     setState(() {
       _selectedIndex = index;
+      _tabs = generateTabItems();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    final iconWidth = 50; // Adjust this based on your icon size
+    int iconsThatFit = (screenWidth / iconWidth).floor();
+
+    bool needsScrolling = _tabs.length > iconsThatFit;
+    print(screenWidth);
+    print(iconsThatFit);
+
     return Scaffold(
       body: PageView(
         controller: _pageController,
@@ -44,20 +54,38 @@ class BottomTabNavigatorState extends State<BottomTabNavigator> {
         color: primaryColor,
         notchMargin: 2,
         shape: CircularNotchedRectangle(),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children:
-              _tabs.map((tab) {
-                int index = _tabs.indexOf(tab);
-                return IconButton(
-                  icon: tab.icon,
-                  color: index == _selectedIndex ? secondaryColor : dullColor,
-                  onPressed: () => _onItemTapped(index),
-                  tooltip: tab.label,
-                );
-              }).toList(),
-        ),
+        child:
+            needsScrolling
+                ? SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children:
+                        _tabs.map((tab) {
+                          int index = _tabs.indexOf(tab);
+                          return IconButton(
+                            icon: tab.icon,
+                            color: index == _selectedIndex ? secondaryColor : dullColor,
+                            onPressed: () => _onItemTapped(index),
+                            tooltip: tab.label,
+                          );
+                        }).toList(),
+                  ),
+                )
+                : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children:
+                      _tabs.map((tab) {
+                        int index = _tabs.indexOf(tab);
+                        return IconButton(
+                          icon: tab.icon,
+                          color: index == _selectedIndex ? secondaryColor : dullColor,
+                          onPressed: () => _onItemTapped(index),
+                          tooltip: tab.label,
+                        );
+                      }).toList(),
+                ),
       ),
       floatingActionButton: SizedBox(
         height: 45,
