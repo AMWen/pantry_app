@@ -45,12 +45,14 @@ class EditTagsDialogState extends State<EditTagsDialog> {
       contentPadding: alertPadding,
       title: Text('Edit Tags', style: TextStyles.dialogTitle),
       content: TextField(
+        style: TextStyles.normalText,
         controller: _controller,
         maxLines: null, // Allow multiple lines
         decoration: InputDecoration(
           hintText: 'Enter tags, each on a new line',
           hintStyle: TextStyles.hintText,
           border: OutlineInputBorder(),
+          contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         ),
         keyboardType: TextInputType.multiline,
       ),
