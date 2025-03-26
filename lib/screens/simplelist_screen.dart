@@ -49,6 +49,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   late BoxSettings currentBoxSettings;
   List<ListItem> listItems = [];
   List<ListItem> completedItems = [];
+  String? adjustedMoveTo;
 
   @override
   void initState() {
@@ -69,16 +70,19 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     // });
     _itemBox = Hive.box<ListItem>(widget.boxName);
     if (widget.moveTo != null) {
-      _newItemBox = Hive.box<ListItem>(widget.moveTo!);
-      // _newAutoLoadService = AutoLoadService();
-      // Future.delayed(Duration.zero, () {
-      //   if (mounted) {
-      //     _newAutoLoadService.startAutoLoad(
-      //       widget.moveTo!,
-      //       showErrorSnackbar: (message) => showErrorSnackbar(context, message),
-      //     );
-      //   }
-      // });
+      if (Hive.isBoxOpen(widget.moveTo!)) {
+        adjustedMoveTo = widget.moveTo;
+        _newItemBox = Hive.box<ListItem>(widget.moveTo!);
+        // _newAutoLoadService = AutoLoadService();
+        // Future.delayed(Duration.zero, () {
+        //   if (mounted) {
+        //     _newAutoLoadService.startAutoLoad(
+        //       widget.moveTo!,
+        //       showErrorSnackbar: (message) => showErrorSnackbar(context, message),
+        //     );
+        //   }
+        // });
+      } // moveTo not valid if associated Hive box does not exist / is not open
     }
 
     _tagOrder = currentBoxSettings.tags;
@@ -138,7 +142,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
           return AlertDialog(
             contentPadding: alertPadding,
             title: AlertTitle(
-              'Are you sure you want to move all selected items to ${widget.moveTo}?',
+              'Are you sure you want to move all selected items to $adjustedMoveTo?',
             ),
             content: Text('This action cannot be undone.'),
             actions: [
@@ -155,7 +159,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
                   }
                   _selectedItemIds.clear();
                   _setLastUpdatedAndSave(widget.boxName);
-                  _setLastUpdatedAndSave(widget.moveTo!);
+                  _setLastUpdatedAndSave(adjustedMoveTo!);
 
                   Navigator.of(context).pop(); // Close the dialog
                 },
@@ -331,7 +335,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> actionList = [
-      if (widget.moveTo != null) {'icon': Icons.local_shipping, 'onPressed': _moveSelectedItems},
+      if (adjustedMoveTo != null) {'icon': Icons.local_shipping, 'onPressed': _moveSelectedItems},
       if (!widget.hasCount) // Only add this action if hasCount is false
         {
           'icon':
