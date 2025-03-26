@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Import for date formatting
-import '../screens/inventorylist_screen.dart';
-import '../screens/simplelist_screen.dart';
-import 'classes/tab_item.dart';
+import 'classes/tab_configuration.dart';
 
-final String boxSettings = 'boxSettings';
+class HiveBoxNames {
+  static const String boxSettings = 'boxSettings';
+  static const String tabConfigurations = 'tabConfigurations';
+}
+
+Map<String, String> defaultItemTypesFromConfigurations() {
+  return Map.fromEntries(
+    defaultTabConfigurations.map(
+      (config) => MapEntry(lowercaseAndRemoveSpaces(config.title), config.itemType),
+    ),
+  );
+}
 
 final Map<String, List<String>> defaultTagMapping = {
   'pantry': [
     'meat',
+    'protein',
     'grain',
     'fruit',
     'vegetable',
@@ -25,98 +35,50 @@ final Map<String, List<String>> defaultTagMapping = {
   'ideas': ['easy', 'moderate', 'difficult', 'useful', 'fun', ''],
 };
 
-final List<String> boxNames = tabItems.keys.toList();
-final List<TabItem> tabs = tabItems.values.toList();
+final defaultTabConfigurations = [
+  TabConfiguration(
+    title: 'Pantry',
+    itemType: 'pantry',
+    iconCodePoint: Icons.kitchen_rounded.codePoint,
+    hasCount: true,
+    moveTo: 'shopping',
+  ),
+  TabConfiguration(
+    title: 'Shopping',
+    itemType: 'shopping',
+    iconCodePoint: Icons.local_grocery_store.codePoint,
+    hasCount: true,
+    moveTo: 'pantry',
+  ),
+  TabConfiguration(
+    title: 'Meals',
+    itemType: 'meals',
+    iconCodePoint: Icons.dinner_dining.codePoint,
+    hasCount: false,
+  ),
+  TabConfiguration(
+    title: 'To Eat',
+    itemType: 'meals',
+    iconCodePoint: Icons.local_dining.codePoint,
+    hasCount: false,
+  ),
+  TabConfiguration(
+    title: 'To Do',
+    itemType: 'meals',
+    iconCodePoint: Icons.list.codePoint,
+    hasCount: false,
+  ),
+  TabConfiguration(
+    title: 'Ideas',
+    itemType: 'ideas',
+    iconCodePoint: Icons.lightbulb.codePoint,
+    hasCount: false,
+  ),
+];
 
 String lowercaseAndRemoveSpaces(String input) {
   return input.replaceAll(' ', '').toLowerCase();
 }
-
-// Primary determinant of what tabs are available
-final List<Map<String, dynamic>> tabConfigurations = [
-  {
-    'title': 'Pantry',
-    'boxName': (title) => lowercaseAndRemoveSpaces(title),
-    'itemType': (boxName) => boxName,
-    'icon': Icons.kitchen_rounded,
-    'screen':
-        (title, itemType, boxName) => InventoryListScreen(
-          itemType: itemType,
-          boxName: boxName,
-          title: title,
-          moveTo: 'shopping',
-        ),
-  },
-  {
-    'title': 'Shopping',
-    'boxName': (title) => lowercaseAndRemoveSpaces(title),
-    'itemType': 'pantry', // Special case
-    'icon': Icons.local_grocery_store,
-    'screen':
-        (title, itemType, boxName) => InventoryListScreen(
-          itemType: itemType,
-          boxName: boxName,
-          title: title,
-          moveTo: 'pantry', // Special case
-        ),
-  },
-  {
-    'title': 'Meals',
-    'boxName': (title) => lowercaseAndRemoveSpaces(title),
-    'itemType': (boxName) => boxName,
-    'icon': Icons.dinner_dining,
-    'screen':
-        (title, itemType, boxName) =>
-            SimpleListScreen(itemType: itemType, boxName: boxName, title: title),
-  },
-  {
-    'title': 'To Eat',
-    'boxName': (title) => lowercaseAndRemoveSpaces(title),
-    'itemType': 'meals', // Special case
-    'icon': Icons.local_dining,
-    'screen':
-        (title, itemType, boxName) =>
-            SimpleListScreen(itemType: itemType, boxName: boxName, title: title),
-  },
-  {
-    'title': 'To Do',
-    'boxName': (title) => lowercaseAndRemoveSpaces(title),
-    'itemType': (boxName) => boxName,
-    'icon': Icons.list,
-    'screen':
-        (title, itemType, boxName) =>
-            SimpleListScreen(itemType: itemType, boxName: boxName, title: title),
-  },
-  {
-    'title': 'Ideas',
-    'boxName': (title) => lowercaseAndRemoveSpaces(title),
-    'itemType': 'ideas',
-    'icon': Icons.lightbulb,
-    'screen':
-        (title, itemType, boxName) =>
-            SimpleListScreen(itemType: itemType, boxName: boxName, title: title),
-  },
-];
-
-Map<String, TabItem> tabItems = Map.fromEntries(
-  tabConfigurations.map((config) {
-    final boxName = config['boxName'](config['title']);
-    final itemType =
-        config['itemType'] is Function ? config['itemType'](boxName) : config['itemType'];
-    final screen = config['screen'](config['title'], itemType, boxName);
-
-    return MapEntry(
-      boxName, // boxName as the key
-      TabItem(
-        screen: screen,
-        icon: Icon(config['icon']),
-        label: config['title'], // Use title as the label
-        itemType: itemType, // Set the itemType
-        boxName: boxName, // Set the boxName
-      ),
-    );
-  }),
-);
 
 final List<Map<String, String>> sortOptions = [
   {'title': 'None', 'value': ''},

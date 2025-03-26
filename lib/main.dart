@@ -2,32 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'data/classes/list_item.dart';
 import 'data/classes/box_settings.dart';
+import 'data/classes/tab_configuration.dart';
 import 'data/constants.dart';
 import 'data/widgets/bottomtabnavigator_widget.dart';
-
-Future<void> initializeBoxSettings() async {
-  var settingsBox = Hive.box<BoxSettings>(boxSettings);
-  for (String boxName in boxNames) {
-    if (!settingsBox.containsKey(boxName)) {
-      settingsBox.put(boxName, BoxSettings(boxName: boxName));
-    }
-    BoxSettings currentBoxSettings = settingsBox.get(boxName)!;
-    if (currentBoxSettings.tags.length == 1 && currentBoxSettings.tags[0] == '') {
-      currentBoxSettings.resetTags();
-    }
-  }
-}
+import 'utils/hivebox_utils.dart';
 
 void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(ListItemAdapter());
   Hive.registerAdapter(BoxSettingsAdapter());
-
-  // Open all Hive boxes
-  await Future.wait(boxNames.map((boxName) => Hive.openBox<ListItem>(boxName)).toList());
-  await Hive.openBox<BoxSettings>(boxSettings);
-  initializeBoxSettings();
-
+  Hive.registerAdapter(TabConfigurationAdapter());
+  await initializeHiveBoxes();
   runApp(MyApp());
 }
 

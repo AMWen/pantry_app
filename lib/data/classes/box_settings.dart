@@ -29,7 +29,8 @@ class BoxSettings extends HiveObject {
     this.lastUpdated,
     bool showCompleted = true,
     bool selectAllCompleted = false,
-  }) : _tags = defaultTagMapping[tabItems[boxName]?.itemType] ?? [''],
+    List<String>? tags,
+  }) : _tags = tags ?? defaultTagMapping[defaultItemTypesFromConfigurations()[boxName]] ?? [''],
        _syncLocation = syncLocation,
        _showCompleted = showCompleted,
        _selectAllCompleted = selectAllCompleted;
@@ -65,21 +66,23 @@ class BoxSettings extends HiveObject {
   }
 
   void resetTags() {
-    _tags = defaultTagMapping[tabItems[boxName]?.itemType] ?? [''];
+    _tags = defaultTagMapping[defaultItemTypesFromConfigurations()[boxName]] ?? [''];
     save();
   }
 
   factory BoxSettings.fromJson(Map<String, dynamic> json) {
     return BoxSettings(
-        boxName: json['boxName'],
-        syncLocation: json['syncLocation'],
-        lastUpdated: json['lastUpdated'] != null ? DateTime.parse(json['lastUpdated']) : null,
-        showCompleted: json['showCompleted'] ?? true,
-        selectAllCompleted: json['selectAllCompleted'] ?? false,
-      )
-      .._tags = List<String>.from(
-        json['tags'] ?? defaultTagMapping[tabItems[json['boxName']]?.itemType] ?? [''],
-      ); // Ensure tags are correctly loaded from JSON
+      boxName: json['boxName'],
+      syncLocation: json['syncLocation'],
+      lastUpdated: json['lastUpdated'] != null ? DateTime.parse(json['lastUpdated']) : null,
+      showCompleted: json['showCompleted'] ?? true,
+      selectAllCompleted: json['selectAllCompleted'] ?? false,
+      tags: List<String>.from(
+        json['tags'] ??
+            defaultTagMapping[defaultItemTypesFromConfigurations()[json['boxName']]] ??
+            [''],
+      ),
+    );
   }
 
   Map<String, dynamic> toJson() {

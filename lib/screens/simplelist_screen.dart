@@ -55,7 +55,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     super.initState();
 
     // Set comletion settings
-    Box<BoxSettings> boxSettingsBox = Hive.box<BoxSettings>(boxSettings);
+    Box<BoxSettings> boxSettingsBox = Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
     currentBoxSettings = boxSettingsBox.get(widget.boxName)!;
 
     // _autoLoadService = AutoLoadService();

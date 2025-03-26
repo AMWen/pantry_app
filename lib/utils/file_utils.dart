@@ -7,12 +7,13 @@ import 'package:hive/hive.dart';
 import '../data/classes/list_item.dart';
 import '../data/classes/box_settings.dart';
 import '../data/constants.dart';
+import 'hivebox_utils.dart';
 
 String importSuccess = 'Items imported successfully!';
 String exportSuccess = 'Items exported successfully!';
 
 void setLastUpdated(String boxName) {
-  Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(boxSettings);
+  Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
   final BoxSettings boxBoxSettings = settingsBox.get(boxName)!;
   boxBoxSettings.lastUpdated = DateTime.now();
 }
@@ -93,7 +94,7 @@ Future<String> saveItemsToFile(String? filePath, List<ListItem> listItems) async
 }
 
 Future<String?> autoLoad(String boxName, {Function(String)? showErrorSnackbar}) async {
-  Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(boxSettings);
+  Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
   final BoxSettings? boxBoxSettings = settingsBox.get(boxName);
   final String? filePath = boxBoxSettings?.syncLocation;
 
@@ -132,7 +133,7 @@ Future<String?> autoLoad(String boxName, {Function(String)? showErrorSnackbar}) 
 }
 
 Future<String?> autoSave(String boxName) async {
-  Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(boxSettings);
+  Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
   Box<ListItem> itemBox = Hive.box<ListItem>(boxName);
   final BoxSettings? boxBoxSettings = settingsBox.get(boxName);
   final String? filePath = boxBoxSettings?.syncLocation;
@@ -175,17 +176,17 @@ Future<String> saveAllToFile(String fileName) async {
     List<Map<String, dynamic>> allData = [];
 
     // All lists (one for each boxName)
-    for (var boxName in boxNames) {
+    for (var boxName in getBoxNames()) {
       Box<ListItem> box = Hive.box<ListItem>(boxName);
       List<Map<String, dynamic>> boxData = box.values.map((item) => item.toJson()).toList();
       allData.add({'boxName': boxName, 'items': boxData});
     }
 
     // Settings (single one containing each boxName as a key)
-    Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(boxSettings);
+    Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
     List<Map<String, dynamic>> settingsBoxData =
         settingsBox.values.map((item) => item.toJson()).toList();
-    allData.add({'boxName': boxSettings, 'settings': settingsBoxData});
+    allData.add({'boxName': HiveBoxNames.boxSettings, 'settings': settingsBoxData});
 
     await FilePicker.platform.saveFile(
       dialogTitle: 'Please select an output file:',
@@ -212,7 +213,7 @@ Future<String> loadAllFromFile(String? filePath) async {
       for (var boxData in allData) {
         final boxName = boxData['boxName'];
 
-        if (boxNames.contains(boxName)) {
+        if (getBoxNames().contains(boxName)) {
           Box<ListItem> box = Hive.box<ListItem>(boxName);
           final List<dynamic> items = boxData['items'];
 
@@ -223,8 +224,8 @@ Future<String> loadAllFromFile(String? filePath) async {
             final listItem = ListItem.fromJson(itemData);
             await box.add(listItem);
           }
-        } else if (boxName == boxSettings) {
-          Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(boxSettings);
+        } else if (boxName == HiveBoxNames.boxSettings) {
+          Box<BoxSettings> settingsBox = Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
           final List<dynamic> settings = boxData['settings'];
 
           for (var settingsData in settings) {

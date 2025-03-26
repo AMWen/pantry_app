@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hive/hive.dart';
+import 'package:pantry_app/utils/hivebox_utils.dart';
 import 'package:pantry_app/utils/snackbar_util.dart';
 
 import '../../utils/file_utils.dart';
@@ -25,8 +26,8 @@ class SyncDialogState extends State<SyncDialog> {
   @override
   void initState() {
     super.initState();
-    _settingsBox = Hive.box<BoxSettings>(boxSettings);
-    for (String boxName in boxNames) {
+    _settingsBox = Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
+    for (String boxName in getBoxNames()) {
       final boxBoxSettings = _settingsBox.get(boxName);
       currentLocations[boxName] = boxBoxSettings?.syncLocation ?? 'Not set';
     }

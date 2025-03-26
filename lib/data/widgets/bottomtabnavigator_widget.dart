@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pantry_app/screens/inventorylist_screen.dart';
 import '../../data/constants.dart';
 import '../../screens/additem_screen.dart';
+import '../../utils/hivebox_utils.dart';
 import '../classes/tab_item.dart';
 
 class BottomTabNavigator extends StatefulWidget {
@@ -14,7 +15,7 @@ class BottomTabNavigator extends StatefulWidget {
 class BottomTabNavigatorState extends State<BottomTabNavigator> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController(); // PageView sync navigator
-  final List<TabItem> _tabs = tabItems.values.toList();
+  final List<TabItem> _tabs = generateTabItems();
 
   void _onItemTapped(int index) {
     setState(() {
