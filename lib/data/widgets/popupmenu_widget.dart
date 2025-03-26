@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:pantry_app/utils/hivebox_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../utils/snackbar_util.dart';
 import '../constants.dart';
 import 'basic_widgets.dart';
+import 'managelistsdialog_widget.dart';
 
-enum Menu { info, download }
+enum Menu { info, help, manage }
 
 class PopupMenu extends StatefulWidget {
   const PopupMenu({super.key});
@@ -30,83 +32,14 @@ class PopupMenuState extends State<PopupMenu> {
     }
   }
 
-  void _showAddDialog() {
+  void _showManageListsDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          contentPadding: alertPadding,
-          title: AlertTitle('Add a list'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                // 'title': 'Pantry',
-                // itemType dropdown
-                // icon
-                // countable or not
-                // has moveTo or not
-              ],
-            ),
-          ),
-          actions: [CancelButton()],
-        );
+        return ManageListsDialog();
       },
     );
-  }
-
-  void _showDeleteDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          contentPadding: alertPadding,
-          title: AlertTitle('Delete list(s)'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                // multiselect checkbox for deletion
-              ],
-            ),
-          ),
-          actions: [CancelButton()],
-        );
-      },
-    );
-  }
-
-  void _showManageDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          contentPadding: alertPadding,
-          title: AlertTitle('Manage Lists'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                ListTile(
-                  minTileHeight: 10,
-                  title: Text('Add a list', style: TextStyles.mediumText),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _showAddDialog();
-                  },
-                ),
-                ListTile(
-                  minTileHeight: 10,
-                  title: Text('Delete list(s)', style: TextStyles.mediumText),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _showDeleteDialog();
-                  },
-                ),
-              ],
-            ),
-          ),
-          actions: [CancelButton()],
-        );
-      },
-    );
+    initializeHiveBoxes();
   }
 
   @override
@@ -121,8 +54,39 @@ class PopupMenuState extends State<PopupMenu> {
               PopupMenuItem<Menu>(
                 value: Menu.info,
                 child: ListTile(
-                  leading: Icon(Icons.info),
+                  leading: Icon(Icons.info_outline),
                   title: Text('Info'),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          contentPadding: alertPadding,
+                          title: AlertTitle('Pantry App'),
+                          content: Text(
+                            'A simple and intuitive mobile app built with Flutter that helps you keep '
+                            'track of all your lists. Meant to be a no-frills, offline app, not '
+                            'requiring creation or access to any accounts.',
+                          ),
+                          actions: [
+                            FilledButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(true);
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+              PopupMenuItem<Menu>(
+                value: Menu.help,
+                child: ListTile(
+                  leading: Icon(Icons.help_outline),
+                  title: Text('How to Use'),
                   onTap: () {
                     _launchUrl(
                       'https://github.com/AMWen/pantry_app?tab=readme-ov-file#key-features-in-detail',
@@ -131,13 +95,13 @@ class PopupMenuState extends State<PopupMenu> {
                 ),
               ),
               PopupMenuItem<Menu>(
-                value: Menu.download,
+                value: Menu.manage,
                 child: ListTile(
                   leading: Icon(Icons.edit),
                   title: Text('Manage Lists'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    _showManageDialog();
+                    _showManageListsDialog();
                   },
                 ),
               ),
