@@ -23,6 +23,9 @@ class BoxSettings extends HiveObject {
   @HiveField(5)
   List<String>? _tags;
 
+  @HiveField(6)
+  String? _sortCriteria;
+
   BoxSettings({
     required this.boxName,
     String? syncLocation,
@@ -30,15 +33,18 @@ class BoxSettings extends HiveObject {
     bool showCompleted = true,
     bool selectAllCompleted = false,
     List<String>? tags,
-  }) : _tags = tags ?? defaultTagMapping[defaultItemTypesFromConfigurations()[boxName]] ?? [''],
-       _syncLocation = syncLocation,
+    String? sortCriteria,
+  }) : _syncLocation = syncLocation,
        _showCompleted = showCompleted,
-       _selectAllCompleted = selectAllCompleted;
+       _selectAllCompleted = selectAllCompleted,
+       _tags = tags ?? defaultTagMapping[defaultItemTypesFromConfigurations()[boxName]] ?? [''],
+       _sortCriteria = sortCriteria ?? '';
 
   String? get syncLocation => _syncLocation;
   bool get showCompleted => _showCompleted;
   bool get selectAllCompleted => _selectAllCompleted;
   List<String> get tags => _tags ?? [''];
+  String get sortCriteria => _sortCriteria ?? '';
 
   set syncLocation(String? location) {
     _syncLocation = location;
@@ -65,6 +71,11 @@ class BoxSettings extends HiveObject {
     save();
   }
 
+  set sortCriteria(String value) {
+    _sortCriteria = value;
+    save();
+  }
+
   void resetTags() {
     _tags = defaultTagMapping[defaultItemTypesFromConfigurations()[boxName]] ?? [''];
     save();
@@ -82,6 +93,7 @@ class BoxSettings extends HiveObject {
             defaultTagMapping[defaultItemTypesFromConfigurations()[json['boxName']]] ??
             [''],
       ),
+      sortCriteria: json['sortCriteria'] ?? '',
     );
   }
 
@@ -93,6 +105,7 @@ class BoxSettings extends HiveObject {
       'showCompleted': _showCompleted,
       'selectAllCompleted': _selectAllCompleted,
       'tags': _tags,
+      'sortCriteria': _sortCriteria,
     };
   }
 }

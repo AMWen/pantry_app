@@ -13,6 +13,7 @@ import '../data/widgets/tagsdialog_widget.dart';
 // import '../data/widgets/syncdialog_widget.dart';
 import '../data/widgets/saveloaddialog_widget.dart';
 import '../utils/file_utils.dart';
+import '../utils/hivebox_utils.dart';
 import '../utils/snackbar_util.dart';
 
 class SimpleListScreen extends StatefulWidget {
@@ -44,7 +45,6 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   late Box<ListItem> _itemBox;
   late Box<ListItem> _newItemBox;
   late List<String> _tagOrder;
-  String _sortCriteria = '';
   Set<int> _selectedItemIds = {};
   late BoxSettings currentBoxSettings;
   List<ListItem> listItems = [];
@@ -56,7 +56,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     super.initState();
 
     // Set comletion settings
-    Box<BoxSettings> boxSettingsBox = Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
+    Box<BoxSettings> boxSettingsBox = getBoxSettingsBox();
     currentBoxSettings = boxSettingsBox.get(widget.boxName)!;
 
     // _autoLoadService = AutoLoadService();
@@ -217,7 +217,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     }
   }
 
-  Future<bool?>? _showTaggingOptions() {
+  Future<bool?> _showTaggingOptions() {
     if (_selectedItemIds.isNotEmpty) {
       final selectedItems =
           _itemBox.values
@@ -242,7 +242,8 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
 
   void _sortListItems(String criteria) {
     setState(() {
-      _sortCriteria = criteria;
+      currentBoxSettings.sortCriteria = criteria;
+      currentBoxSettings.save();
     });
   }
 
@@ -327,7 +328,8 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     }
 
     setState(() {
-      _sortCriteria = '';
+      currentBoxSettings.sortCriteria = '';
+      currentBoxSettings.save();
     });
     _setLastUpdatedAndSave(widget.boxName);
   }
@@ -440,11 +442,11 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
             }
 
             // Sort the items based on selected criteria
-            if (_sortCriteria == 'name') {
+            if (currentBoxSettings.sortCriteria == 'name') {
               listItems.sort((a, b) => a.name.compareTo(b.name));
-            } else if (_sortCriteria == 'dateAdded') {
+            } else if (currentBoxSettings.sortCriteria == 'dateAdded') {
               listItems.sort((a, b) => a.dateAdded.compareTo(b.dateAdded));
-            } else if (_sortCriteria == 'tag') {
+            } else if (currentBoxSettings.sortCriteria == 'tag') {
               listItems.sort((a, b) {
                 int aIndex = _tagOrder.indexOf(a.tag ?? '');
                 int bIndex = _tagOrder.indexOf(b.tag ?? '');
