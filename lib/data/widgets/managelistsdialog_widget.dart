@@ -40,9 +40,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
               onPressed: () async {
                 Box<TabConfiguration> tabBox = getTabConfigurationsBox();
                 Navigator.of(context).pop(true);
-                for (var key in tabBox.keys) {
-                  await tabBox.delete(key); // delete all
-                }
+                await tabBox.deleteAll(tabBox.keys);
                 for (var config in defaultTabConfigurations) {
                   await tabBox.put(lowercaseAndRemoveSpaces(config.title), config); // add defaults
                 }
