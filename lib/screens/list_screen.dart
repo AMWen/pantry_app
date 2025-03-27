@@ -1,65 +1,66 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
 import '../data/classes/box_settings.dart';
 import '../data/classes/list_item.dart';
+import '../data/classes/tab_configuration.dart';
 import '../data/constants.dart';
 // import '../data/classes/autoloadservice.dart';
 import '../data/widgets/basic_widgets.dart';
 import '../data/widgets/editdialog_widget.dart';
 import '../data/widgets/edittagsdialog_widget.dart';
+import '../data/widgets/moveitemsdialog_widget.dart';
 import '../data/widgets/popupmenu_widget.dart';
 import '../data/widgets/tagsdialog_widget.dart';
 // import '../data/widgets/syncdialog_widget.dart';
 import '../data/widgets/saveloaddialog_widget.dart';
 import '../utils/file_utils.dart';
 import '../utils/hivebox_utils.dart';
-import '../utils/snackbar_util.dart';
+import '../utils/widget_utils.dart';
 
-class SimpleListScreen extends StatefulWidget {
+class ListScreen extends StatefulWidget {
   final String itemType;
   final String boxName; // Can be different (e.g. shopping box for pantry items)
   final String title;
-  final bool hasCount;
-  final String? moveTo;
   final ValueNotifier<int> refreshNotifier;
 
-  const SimpleListScreen({
+  const ListScreen({
     super.key,
     required this.itemType,
     required this.boxName,
     required this.title,
-    this.hasCount = false,
-    this.moveTo,
     required this.refreshNotifier,
   });
 
   @override
-  SimpleListScreenState createState() => SimpleListScreenState();
+  ListScreenState createState() => ListScreenState();
 }
 
-class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAliveClientMixin {
+class ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
   // late AutoLoadService _autoLoadService;
-  // late AutoLoadService _newAutoLoadService;
   late Box<ListItem> _itemBox;
-  late Box<ListItem> _newItemBox;
   late List<String> _tagOrder;
   Set<int> _selectedItemIds = {};
   late BoxSettings currentBoxSettings;
+  late TabConfiguration currentTab;
   List<ListItem> listItems = [];
   List<ListItem> completedItems = [];
-  String? adjustedMoveTo;
+  double updateQuantity = 0;
 
   @override
   void initState() {
     super.initState();
 
-    // Set comletion settings
     Box<BoxSettings> boxSettingsBox = getBoxSettingsBox();
     currentBoxSettings = boxSettingsBox.get(widget.boxName)!;
+    Box<TabConfiguration> tabBox = getTabConfigurationsBox();
+    currentTab = tabBox.get(widget.boxName)!;
 
     // _autoLoadService = AutoLoadService();
     // Future.delayed(Duration.zero, () {
@@ -71,22 +72,6 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     //   }
     // });
     _itemBox = Hive.box<ListItem>(widget.boxName);
-    if (widget.moveTo != null) {
-      if (Hive.isBoxOpen(widget.moveTo!)) {
-        adjustedMoveTo = widget.moveTo;
-        _newItemBox = Hive.box<ListItem>(widget.moveTo!);
-        // _newAutoLoadService = AutoLoadService();
-        // Future.delayed(Duration.zero, () {
-        //   if (mounted) {
-        //     _newAutoLoadService.startAutoLoad(
-        //       widget.moveTo!,
-        //       showErrorSnackbar: (message) => showErrorSnackbar(context, message),
-        //     );
-        //   }
-        // });
-      } // moveTo not valid if associated Hive box does not exist / is not open
-    }
-
     _tagOrder = currentBoxSettings.tags;
   }
 
@@ -104,7 +89,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
               .toList();
 
       final itemNames = selectedItems
-          .map((item) => widget.hasCount ? '${item.count} ${item.name}' : item.name)
+          .map((item) => currentTab.hasCount ? '${item.count} ${item.name}' : item.name)
           .join('\n');
 
       Clipboard.setData(ClipboardData(text: itemNames)).then((_) {
@@ -127,57 +112,149 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     }
   }
 
-  void _moveItem(ListItem item) {
-    setState(() {
-      item.dateAdded = DateTime.now();
-      item.save();
-      _deleteItem(_itemBox.values.toList().indexOf(item));
-      _newItemBox.add(item);
-    });
-  }
-
-  void _moveSelectedItems() {
+  Future<String?> _showMoveItemsDialog() async {
     if (_selectedItemIds.isNotEmpty) {
-      showDialog(
+      return showDialog<String?>(
         context: context,
-        builder: (context) {
-          return AlertDialog(
-            contentPadding: alertPadding,
-            title: AlertTitle(
-              'Are you sure you want to move all selected items to $adjustedMoveTo?',
-            ),
-            content: Text('This action cannot be undone.'),
-            actions: [
-              CancelButton(),
-              OkButton(
-                onPressed: () {
-                  final selectedItems =
-                      _itemBox.values
-                          .where((item) => _selectedItemIds.contains(item.key)) // Use key to filter
-                          .toList();
-
-                  for (var item in selectedItems) {
-                    _moveItem(item);
-                  }
-                  _selectedItemIds.clear();
-                  _setLastUpdatedAndSave(widget.boxName);
-                  _setLastUpdatedAndSave(adjustedMoveTo!);
-
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-              ),
-            ],
+        builder: (BuildContext context) {
+          return MoveItemsDialog(
+            boxName: widget.boxName,
+            itemBox: _itemBox,
+            selectedItemIds: _selectedItemIds,
           );
         },
       );
     } else {
       showErrorSnackbar(context, 'No items selected for migration!');
+      return null;
     }
   }
 
-  void _deleteItem(int index) {
+  void _updateItem(dynamic key, int newCount) {
     setState(() {
-      _itemBox.deleteAt(index);
+      final item = _itemBox.get(key);
+      if (newCount == 0) {
+        _deleteItem(key);
+      } else if (item != null) {
+        item.count = newCount;
+        item.save(); // Save the updated item back to the box
+      }
+    });
+  }
+
+  void _showItemDetails(ListItem item) {
+    String displayName =
+        item.name.endsWith('s')
+            ? item.name.substring(0, item.name.length - 1) // Remove trailing 's'
+            : item.name;
+    showDialog(
+      context: context,
+      builder: (context) {
+        updateQuantity = item.count.toDouble();
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              contentPadding: alertPadding,
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.center, // Center the content
+                children: [
+                  Text('${item.count} ${item.name}', style: TextStyles.dialogTitle),
+                  Text(
+                    'Date Added: ${DateFormat('M/d/yy').format(item.dateAdded)}', // Format the date
+                    style: TextStyle(
+                      color: Colors.grey, // Lighter font color
+                      fontWeight: FontWeight.w300, // Lighter weight
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center, // Center the content
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 20,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: Icon(Icons.remove, size: 15), // Icon size
+                            onPressed: () {
+                              setState(() {
+                                updateQuantity = (updateQuantity - 1).clamp(0.0, double.infinity);
+                              });
+                            },
+                          ),
+                        ),
+                        Slider(
+                          value: updateQuantity,
+                          min: 0,
+                          max: max(item.count.toDouble(), updateQuantity),
+                          divisions: item.count,
+                          label: '$updateQuantity',
+                          onChanged: (double value) {
+                            setState(() {
+                              updateQuantity = value;
+                            });
+                          },
+                        ),
+                        SizedBox(
+                          width: 20,
+                          child: IconButton(
+                            icon: Icon(Icons.add, size: 15),
+                            onPressed: () {
+                              setState(() {
+                                updateQuantity = (updateQuantity + 1).clamp(0.0, double.infinity);
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'New Quantity: ${updateQuantity.toInt()} $displayName(s)',
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        FilledButton(
+                          onPressed: () {
+                            _updateItem(item.key, updateQuantity.toInt());
+                            updateQuantity = 0;
+                            Navigator.of(context).pop();
+                          },
+                          child: Text('Update Quantity'),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete, color: primaryColor),
+                          onPressed: () {
+                            _deleteItem(item.key);
+                            updateQuantity = 0;
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _deleteItem(dynamic key) {
+    setState(() {
+      _itemBox.delete(key);
     });
   }
 
@@ -200,12 +277,12 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
                           .toList();
 
                   for (var item in selectedItems) {
-                    _deleteItem(_itemBox.values.toList().indexOf(item));
+                    _deleteItem(item.key);
                   }
                   _selectedItemIds.clear();
                   _setLastUpdatedAndSave(widget.boxName);
 
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop();
                 },
               ),
             ],
@@ -283,8 +360,12 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   }
 
   void onItemTapped(ListItem item) {
-    item.completed = (item.completed ?? false) ? false : true;
-    item.save();
+    if (currentTab.hasCount) {
+      _showItemDetails(item);
+    } else {
+      item.completed = (item.completed ?? false) ? false : true;
+      item.save();
+    }
     _setLastUpdatedAndSave(widget.boxName);
   }
 
@@ -292,7 +373,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return EditDialog(item: item, boxName: widget.boxName, hasCount: widget.hasCount);
+        return EditDialog(item: item, boxName: widget.boxName, hasCount: currentTab.hasCount);
       },
     );
   }
@@ -338,8 +419,18 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> actionList = [
-      if (adjustedMoveTo != null) {'icon': Icons.local_shipping, 'onPressed': _moveSelectedItems},
-      if (!widget.hasCount) // Only add this action if hasCount is false
+      {
+        'icon': Icons.local_shipping,
+        'onPressed': () async {
+          String? moveTo = await _showMoveItemsDialog();
+          if (moveTo != null) {
+            _selectedItemIds.clear();
+            _setLastUpdatedAndSave(widget.boxName);
+            _setLastUpdatedAndSave(moveTo);
+          }
+        },
+      },
+      if (!currentTab.hasCount) // Only add this action if hasCount is false
         {
           'icon':
               currentBoxSettings.selectAllCompleted
@@ -499,7 +590,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
                     itemBuilder: (context, index) {
                       final item = listItems[index];
 
-                      if (widget.hasCount && item.name.endsWith('s') && item.count == 1) {
+                      if (currentTab.hasCount && item.name.endsWith('s') && item.count == 1) {
                         item.name = item.name.substring(0, item.name.length - 1);
                         item.save();
                       }
@@ -528,7 +619,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
                             ),
                             Expanded(
                               child: Text(
-                                widget.hasCount ? '${item.count} ${item.name}' : item.name,
+                                currentTab.hasCount ? '${item.count} ${item.name}' : item.name,
                                 softWrap:
                                     true, // Ensure text wraps to the next line if it's too long
                                 style: TextStyle(

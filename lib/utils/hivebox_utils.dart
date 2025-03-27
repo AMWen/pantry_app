@@ -6,8 +6,7 @@ import '../data/classes/list_item.dart';
 import '../data/classes/tab_configuration.dart';
 import '../data/classes/tab_item.dart';
 import '../data/constants.dart';
-import '../screens/inventorylist_screen.dart';
-import '../screens/simplelist_screen.dart';
+import '../screens/list_screen.dart';
 
 Future<void> initializeHiveBoxes() async {
   await Hive.openBox<TabConfiguration>(HiveBoxNames.tabConfigurations);
@@ -15,7 +14,7 @@ Future<void> initializeHiveBoxes() async {
   List<String> boxNames = getBoxNames();
   await Hive.openBox<BoxSettings>(HiveBoxNames.boxSettings);
   await initializeBoxSettings(boxNames);
-  await Future.wait(boxNames.map((boxName) => Hive.openBox<ListItem>(boxName)).toList());
+  await Future.wait(boxNames.map((boxName) => openBox(boxName)).toList());
 }
 
 Future<void> openBox(String boxName) async {
@@ -84,16 +83,7 @@ List<TabItem> generateTabItems(ValueNotifier<int> refreshNotifier) {
   return tabConfigs.map((config) {
     final iconData = getMaterialIcon(config.iconCodePoint);
     final boxName = lowercaseAndRemoveSpaces(config.title);
-    final screen =
-        config.hasCount
-            ? InventoryListScreen(
-              itemType: config.itemType,
-              boxName: boxName,
-              title: config.title,
-              moveTo: config.moveTo,
-              refreshNotifier: refreshNotifier,
-            )
-            : SimpleListScreen(
+    final screen = ListScreen(
               itemType: config.itemType,
               boxName: boxName,
               title: config.title,
