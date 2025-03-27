@@ -23,13 +23,14 @@ class ListItemAdapter extends TypeAdapter<ListItem> {
       completed: fields[4] as bool?,
       itemType: fields[5] as String,
       url: fields[6] as String?,
+      notes: fields[7] as String?,
     ).._count = fields[1] as int?;
   }
 
   @override
   void write(BinaryWriter writer, ListItem obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -43,7 +44,9 @@ class ListItemAdapter extends TypeAdapter<ListItem> {
       ..writeByte(5)
       ..write(obj.itemType)
       ..writeByte(6)
-      ..write(obj.url);
+      ..write(obj.url)
+      ..writeByte(7)
+      ..write(obj.notes);
   }
 
   @override

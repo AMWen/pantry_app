@@ -9,13 +9,18 @@ void showErrorSnackbar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), duration: duration));
 }
 
-List<Widget> generateListTiles(BuildContext context, List<Map<String, dynamic>> actions) {
+List<Widget> generateListTiles(
+  BuildContext context,
+  List<Map<String, dynamic>> actions, [
+  bool pop = true,
+]) {
   return actions.map((action) {
     return ListTile(
       minTileHeight: 10,
+      leading: action['leading'],
       title: Text(action['title'], style: TextStyles.mediumText),
       onTap: () {
-        Navigator.of(context).pop();
+        pop ? Navigator.of(context).pop() : null;
         action['action']();
       },
     );

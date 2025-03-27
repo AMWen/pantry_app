@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:pantry_app/utils/hivebox_utils.dart';
-import 'package:pantry_app/utils/snackbar_util.dart';
+import 'package:pantry_app/utils/widget_utils.dart';
 
 import '../../utils/file_utils.dart';
 import '../classes/list_item.dart';

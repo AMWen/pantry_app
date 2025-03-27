@@ -5,7 +5,7 @@ import '../../utils/file_utils.dart';
 import '../classes/list_item.dart';
 import '../constants.dart';
 import 'basic_widgets.dart';
-import '../../utils/snackbar_util.dart';
+import '../../utils/widget_utils.dart';
 
 class EditDialog extends StatefulWidget {
   final ListItem item;
@@ -23,6 +23,7 @@ class EditDialogState extends State<EditDialog> {
   late TextEditingController nameController;
   late TextEditingController dateController;
   late TextEditingController urlController;
+  late TextEditingController notesController;
 
   @override
   void initState() {
@@ -31,6 +32,7 @@ class EditDialogState extends State<EditDialog> {
     nameController = TextEditingController(text: widget.item.name);
     dateController = TextEditingController(text: dateFormat.format(widget.item.dateAdded));
     urlController = TextEditingController(text: widget.item.url);
+    notesController = TextEditingController(text: widget.item.notes);
   }
 
   @override
@@ -39,6 +41,7 @@ class EditDialogState extends State<EditDialog> {
     nameController.dispose();
     dateController.dispose();
     urlController.dispose();
+    notesController.dispose();
     super.dispose();
   }
 
@@ -135,6 +138,19 @@ class EditDialogState extends State<EditDialog> {
                 ),
               ],
             ),
+            SizedBox(height: 2),
+            TextField(
+              controller: notesController,
+              maxLines: null,
+              decoration: InputDecoration(
+                labelText: 'Notes',
+                hintText: 'Enter any additional notes',
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: primaryColor, width: 2),
+                ),
+                border: InputBorder.none,
+              ),
+            ),
           ],
         ),
       ),
@@ -145,6 +161,7 @@ class EditDialogState extends State<EditDialog> {
             // Handle saving the data
             widget.item.name = nameController.text;
             widget.item.url = urlController.text;
+            widget.item.notes = notesController.text;
             try {
               DateTime dateTime = dateFormat.parse(dateController.text);
               widget.item.dateAdded = dateTime;

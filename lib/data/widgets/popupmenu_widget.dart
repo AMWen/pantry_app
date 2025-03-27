@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pantry_app/utils/hivebox_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../utils/snackbar_util.dart';
+import '../../utils/widget_utils.dart';
 import '../constants.dart';
 import 'basic_widgets.dart';
 import 'managelistsdialog_widget.dart';

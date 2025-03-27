@@ -5,7 +5,7 @@ import '../data/classes/tab_configuration.dart';
 import '../data/constants.dart';
 import '../utils/file_utils.dart';
 import '../utils/hivebox_utils.dart';
-import '../utils/snackbar_util.dart';
+import '../utils/widget_utils.dart';
 
 class AddItemScreen extends StatefulWidget {
   final String itemType;
