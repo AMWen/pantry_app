@@ -4,12 +4,13 @@ A simple and intuitive mobile app built with Flutter that helps you keep track o
 
 Originally created to help manage pantry items, its main features were to allow you to easily update quantities as you go through them and track when they were added, so you can use up anything that's been sitting around for a while.
 
-Beyond pantry management, the app has expanded to include shopping, meal planning, to-do lists, and more, offering an all-in-one solution for managing your daily tasks, food-related needs, and other situations where lists are useful.
+Beyond pantry management, the app has expanded and can handle applications including shopping, meal planning, to-do lists, and more, offering an all-in-one solution for managing your daily tasks, food-related needs, and other situations where lists are useful.
 
-The app allows you to quickly add multiple items at once, modify quantities, delete items, and organize them with customizable tags. It also includes features for importing and exporting data, as well as sorting items based on different criteria.
+The app allows you to quickly add multiple items at once, modify quantities, delete items, and organize them with customizable tags. It also includes features for managing lists, importing and exporting data, as well as sorting items based on different criteria.
 
 ## Features
 
+- **Manage lists**: Add, remove, or edit the available lists. Also has an option to reset to defaults.
 - **Add multiple items**: Easily input new items along with their quantities.
 - **Edit items**: Edit quantity, name, and date added of any item.
 - **Add links**: Add a link, with ability to launch the URL.
@@ -41,7 +42,14 @@ The app allows you to quickly add multiple items at once, modify quantities, del
   - **💾 Saving and loading**: Load from and save to a JSON file, useful for backup and sharing. When you load, you can choose to add to the list or to completely replace the current list. You can also save the whole list or selected items.
   - **🏷️ Multi-select tagging**: Categorize multiple selected items at once using tags. The labels can be edited to your preferences.
   - **🗑️ Multi-select deletion**: Delete multiple selected items at once.
-  - **ℹ️ Info**: Access these detailed instructions on how to use the app.
+  - ** Popup menu**:
+    - **ℹ️ Info**: Short snippet about purpose of app.
+    - **❓ How to Use**: Access these detailed instructions on how to use the app.
+    - **✏️ Manage Lists**:
+      - **Add**: Allows you to create a new list with a variety of custom settings and preferences. You can set the list’s title, choose an icon, decide whether the items within the list have a count, and specify if items can be moved to an existing list. Additionally, you can add tags to the list, which could be preset tags based on item type or custom tags you create as a comma-delimited list.
+      - **Delete**: To remove any list that’s no longer needed, simply click on the title of the list. This action performs a "soft" delete, meaning that if you later create a new list with the same title, the list items can be recovered, keeping your data safe while decluttering.
+      - **Edit**: Lets you modify several aspects of an existing list, including whether items in the list are countable, updating the list’s icon, changing the ability to move items to another existing list, and managing tags.
+      - **Reset**: This option restores the app to its original configuration, resetting all lists back to the default 6 lists that come with the app. It's helpful if you want to start fresh or revert any changes made.
 
 ## Getting Started
 
