@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_iconpicker/Models/configuration.dart';
 import 'package:flutter_iconpicker/flutter_iconpicker.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../utils/hivebox_utils.dart';
 import '../../utils/widget_utils.dart';
@@ -242,29 +242,69 @@ class ManageListsDialogState extends State<ManageListsDialog> {
     );
   }
 
+  void _onReorder(int oldIndex, int newIndex) {
+    List<TabConfiguration> tabs = generateTabConfigs();
+    int dropIndex = newIndex;
+    if (oldIndex < newIndex) {
+      dropIndex = newIndex - 1; // strange, but 0 <-> 1 gives 0,2 vs 1,0 depending on drag direction
+    }
+
+    final moveItem = tabs.removeAt(oldIndex);
+    tabs.insert(dropIndex, moveItem);
+
+    for (int i = 0; i < tabs.length; i++) {
+      tabs[i].sort = i;
+      tabs[i].save();
+    }
+
+    widget.refreshNotifier.value++;
+  }
+
   Future<void> _showEditDialog() async {
+    Box<TabConfiguration> tabBox = Hive.box<TabConfiguration>(HiveBoxNames.tabConfigurations);
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          contentPadding: alertPadding,
-          title: AlertTitle('Edit list(s)'),
-          content: SingleChildScrollView(
-            child: Column(
-              children:
-                  generateTabItems(widget.refreshNotifier).map<Widget>((TabItem tabItem) {
-                    return ListTile(
-                      minTileHeight: 10,
-                      leading: tabItem.icon,
-                      title: Text(tabItem.label, style: TextStyles.mediumText),
-                      onTap: () {
-                        _showEditListDialog(tabItem.boxName);
+        return ValueListenableBuilder(
+          valueListenable: tabBox.listenable(),
+          builder: (context, Box<TabConfiguration> box, _) {
+            List<TabConfiguration> tabs = generateTabConfigs();
+
+            return AlertDialog(
+              contentPadding: alertPadding,
+              title: AlertTitle('Edit list(s)'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ReorderableListView.builder(
+                      shrinkWrap: true,
+                      onReorder: _onReorder,
+                      itemCount: tabs.length,
+                      itemBuilder: (context, index) {
+                        final tabItem = tabs[index];
+                        return ListTile(
+                          key: ValueKey(tabItem.key),
+                          minTileHeight: 10,
+                          leading: Icon(getMaterialIcon(tabItem.iconCodePoint)),
+                          title: Text(tabItem.title, style: TextStyles.mediumText),
+                          onTap: () {
+                            _showEditListDialog(tabItem.key);
+                          },
+                          trailing: ReorderableDragStartListener(
+                            index: index,
+                            child: const Icon(Icons.drag_indicator),
+                          ),
+                        );
                       },
-                    );
-                  }).toList(),
-            ),
-          ),
-          actions: [OkButton()],
+                    ),
+                  ],
+                ),
+              ),
+              actions: [OkButton()],
+            );
+          },
         );
       },
     );

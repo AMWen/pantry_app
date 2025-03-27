@@ -46,7 +46,7 @@ The app allows you to quickly add multiple items at once, modify quantities, del
     - **✏️ Manage Lists**:
       - **Add**: Allows you to create a new list with a variety of custom settings and preferences. You can set the list’s title, choose an icon, decide whether the items within the list have a count, and specify the default list items should be moved to. Additionally, you can add tags to the list, which could be preset tags based on item type or custom tags you create as a comma-delimited list. Note that titles have to be unique. If you create a list with an identical title to a previous list, it updates the previous list with any new settings and moves it to the end.
       - **Delete**: To remove any list that is no longer needed, simply click on the title of the list. This action performs a "soft" delete, meaning that if you later create a new list with the same title, the list items can be recovered, keeping your data safe while decluttering.
-      - **Edit**: Lets you modify several aspects of an existing list, including whether items in the list are countable, the list’s icon, the default list to move items to, and managing tags.
+      - **Edit**: Allows you to reorder lists and modify various aspects of the existing lists, including whether items are countable, the list's icon, the default list to move items to, and managing tags.
       - **Reset**: This option restores the app to its original configuration, resetting all lists back to the default 6 lists that come with the app. It's helpful if you want to start fresh or revert any changes made.
     - **❓ How to Use**: Access these detailed instructions on how to use the app.
     - **ℹ️ Info**: Short snippet about purpose of app.

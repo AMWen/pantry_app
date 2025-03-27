@@ -23,7 +23,7 @@ class TabConfigurationAdapter extends TypeAdapter<TabConfiguration> {
       .._iconCodePoint = fields[2] as int
       .._hasCount = fields[3] as bool
       .._moveTo = fields[4] as String?
-      .._timestamp = fields[5] as DateTime?;
+      .._sort = fields[6] as int?;
   }
 
   @override
@@ -40,8 +40,8 @@ class TabConfigurationAdapter extends TypeAdapter<TabConfiguration> {
       ..write(obj._hasCount)
       ..writeByte(4)
       ..write(obj._moveTo)
-      ..writeByte(5)
-      ..write(obj._timestamp);
+      ..writeByte(6)
+      ..write(obj._sort);
   }
 
   @override

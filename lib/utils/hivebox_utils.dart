@@ -73,18 +73,21 @@ IconData getMaterialIcon(int iconCodePoint) {
   return IconData(iconCodePoint, fontFamily: 'MaterialIcons');
 }
 
-List<TabItem> generateTabItems(ValueNotifier<int> refreshNotifier) {
+List<TabConfiguration> generateTabConfigs() {
   Box<TabConfiguration> tabBox = getTabConfigurationsBox();
   List<TabConfiguration> tabConfigs = tabBox.values.toList();
 
-  for (TabConfiguration config in tabConfigs) {
-    if (config.timestamp == defaultDateTime) {
-      config.timestamp = DateTime.now().toUtc();
-    }
+  tabConfigs.sort((a, b) => a.sort.compareTo(b.sort));
+
+  // Re-index sorting
+  for (int index = 0; index < tabConfigs.length; index++) {
+    tabConfigs[index].sort = index;
   }
+  return tabConfigs;
+}
 
-  tabConfigs.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-
+List<TabItem> generateTabItems(ValueNotifier<int> refreshNotifier) {
+  List<TabConfiguration> tabConfigs = generateTabConfigs();
   return tabConfigs.map((config) {
     final iconData = getMaterialIcon(config.iconCodePoint);
     final boxName = lowercaseAndRemoveSpaces(config.title);

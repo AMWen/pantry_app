@@ -16,20 +16,20 @@ class TabConfiguration extends HiveObject {
   bool _hasCount;
   @HiveField(4)
   String? _moveTo;
-  @HiveField(5)
-  DateTime? _timestamp;
-
+  @HiveField(6)
+  int? _sort;
+  
   TabConfiguration({
     required this.title,
     required this.itemType,
     int? iconCodePoint,
     bool hasCount = false,
     String? moveTo,
-    DateTime? timestamp,
+    int? sort,
   }) : _iconCodePoint = iconCodePoint ?? defaultCodePoint,
        _hasCount = hasCount,
        _moveTo = moveTo,
-       _timestamp = timestamp ?? DateTime.now().toUtc();
+       _sort = sort ?? DateTime.now().toUtc().millisecondsSinceEpoch;
 
   int get iconCodePoint => _iconCodePoint;
   set iconCodePoint(int value) {
@@ -49,9 +49,9 @@ class TabConfiguration extends HiveObject {
     save();
   }
 
-  DateTime get timestamp => _timestamp ?? defaultDateTime;
-  set timestamp(DateTime value) {
-    _timestamp = value;
+  int get sort => _sort ?? defaultDateTime.millisecondsSinceEpoch;
+  set sort(int value) {
+    _sort = value;
     save();
   }
 
@@ -62,7 +62,7 @@ class TabConfiguration extends HiveObject {
       iconCodePoint: json['iconCodePoint'] ?? defaultCodePoint,
       hasCount: json['hasCount'] ?? false,
       moveTo: json['moveTo'],
-      timestamp: json['timestamp'] != null ? DateTime.parse(json['timestamp']) : null,
+      sort: json['sort'],
     );
   }
 
@@ -74,7 +74,7 @@ class TabConfiguration extends HiveObject {
       'iconCodePoint': _iconCodePoint,
       'hasCount': _hasCount,
       'moveTo': _moveTo,
-      'timestamp': _timestamp?.toIso8601String(),
+      'sort': _sort,
     };
   }
 }
