@@ -268,7 +268,8 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
             children:
                 sortOptions.map((option) {
                   return ListTile(
-                    title: Text(option['title']!),
+                    minTileHeight: 10,
+                    title: Text(option['title']!, style: TextStyles.normalText),
                     onTap: () {
                       _sortListItems(option['value']!);
                       Navigator.of(context).pop();
