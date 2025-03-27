@@ -59,6 +59,7 @@ class PopupMenuState extends State<PopupMenu> {
                   leading: Icon(Icons.info_outline),
                   title: Text('Info'),
                   onTap: () {
+                    Navigator.of(context).pop();
                     showDialog(
                       context: context,
                       builder: (context) {
@@ -83,6 +84,7 @@ class PopupMenuState extends State<PopupMenu> {
                   leading: Icon(Icons.help_outline),
                   title: Text('How to Use'),
                   onTap: () {
+                    Navigator.of(context).pop();
                     _launchUrl(
                       'https://github.com/AMWen/pantry_app?tab=readme-ov-file#key-features-in-detail',
                     );

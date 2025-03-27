@@ -35,6 +35,8 @@ final Map<String, List<String>> defaultTagMapping = {
   'ideas': ['easy', 'moderate', 'difficult', 'useful', 'fun', ''],
 };
 
+enum DefaultTabs { pantry, shopping, meals, toeat, todo, ideas }
+
 final defaultTabConfigurations = [
   TabConfiguration(
     title: 'Pantry',
@@ -42,6 +44,7 @@ final defaultTabConfigurations = [
     iconCodePoint: Icons.kitchen_rounded.codePoint,
     hasCount: true,
     moveTo: 'shopping',
+    timestamp: defaultDateTime.add(Duration(milliseconds: DefaultTabs.pantry.index + 1)),
   ),
   TabConfiguration(
     title: 'Shopping',
@@ -49,30 +52,35 @@ final defaultTabConfigurations = [
     iconCodePoint: Icons.local_grocery_store.codePoint,
     hasCount: true,
     moveTo: 'pantry',
+    timestamp: defaultDateTime.add(Duration(milliseconds: DefaultTabs.shopping.index * 2)),
   ),
   TabConfiguration(
     title: 'Meals',
     itemType: 'meals',
     iconCodePoint: Icons.dinner_dining.codePoint,
     hasCount: false,
+    timestamp: defaultDateTime.add(Duration(milliseconds: DefaultTabs.meals.index * 2)),
   ),
   TabConfiguration(
     title: 'To Eat',
     itemType: 'meals',
     iconCodePoint: Icons.local_dining.codePoint,
     hasCount: false,
+    timestamp: defaultDateTime.add(Duration(milliseconds: DefaultTabs.toeat.index * 2)),
   ),
   TabConfiguration(
     title: 'To Do',
     itemType: 'meals',
     iconCodePoint: Icons.list.codePoint,
     hasCount: false,
+    timestamp: defaultDateTime.add(Duration(milliseconds: DefaultTabs.todo.index * 2)),
   ),
   TabConfiguration(
     title: 'Ideas',
     itemType: 'ideas',
     iconCodePoint: Icons.lightbulb.codePoint,
     hasCount: false,
+    timestamp: defaultDateTime.add(Duration(milliseconds: DefaultTabs.ideas.index * 2)),
   ),
 ];
 

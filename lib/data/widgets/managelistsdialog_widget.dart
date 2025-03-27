@@ -41,9 +41,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                 Box<TabConfiguration> tabBox = getTabConfigurationsBox();
                 Navigator.of(context).pop(true);
                 await tabBox.deleteAll(tabBox.keys);
-                for (var config in defaultTabConfigurations) {
-                  await tabBox.put(lowercaseAndRemoveSpaces(config.title), config); // add defaults
-                }
+                await initializeTabConfigurations();
                 widget.refreshNotifier.value++;
               },
             ),
@@ -239,7 +237,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
       builder: (BuildContext context) {
         return AlertDialog(
           contentPadding: alertPadding,
-          title: AlertTitle('Edit a list'),
+          title: AlertTitle('Edit list(s)'),
           content: SingleChildScrollView(
             child: Column(
               children:
@@ -590,7 +588,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
             ListTile(
               minTileHeight: 10,
               leading: Icon(Icons.edit),
-              title: Text('Edit a list', style: TextStyles.mediumText),
+              title: Text('Edit list(s)', style: TextStyles.mediumText),
               onTap: () async {
                 await _showEditDialog();
               },
