@@ -18,13 +18,12 @@ class ListItemAdapter extends TypeAdapter<ListItem> {
     };
     return ListItem(
       name: fields[0] as String,
-      count: fields[1] as int?,
       dateAdded: fields[2] as DateTime,
       tag: fields[3] as String?,
       completed: fields[4] as bool?,
       itemType: fields[5] as String,
       url: fields[6] as String?,
-    );
+    ).._count = fields[1] as int?;
   }
 
   @override
@@ -34,7 +33,7 @@ class ListItemAdapter extends TypeAdapter<ListItem> {
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.count)
+      ..write(obj._count)
       ..writeByte(2)
       ..write(obj.dateAdded)
       ..writeByte(3)

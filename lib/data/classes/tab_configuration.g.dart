@@ -22,13 +22,14 @@ class TabConfigurationAdapter extends TypeAdapter<TabConfiguration> {
     )
       .._iconCodePoint = fields[2] as int
       .._hasCount = fields[3] as bool
-      .._moveTo = fields[4] as String?;
+      .._moveTo = fields[4] as String?
+      .._timestamp = fields[5] as DateTime?;
   }
 
   @override
   void write(BinaryWriter writer, TabConfiguration obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
@@ -38,7 +39,9 @@ class TabConfigurationAdapter extends TypeAdapter<TabConfiguration> {
       ..writeByte(3)
       ..write(obj._hasCount)
       ..writeByte(4)
-      ..write(obj._moveTo);
+      ..write(obj._moveTo)
+      ..writeByte(5)
+      ..write(obj._timestamp);
   }
 
   @override

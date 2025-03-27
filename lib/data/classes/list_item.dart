@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import '../../utils/string_utils.dart';
 
-part 'list_item.g.dart'; // build with flutter pub run build_runner build
-// needed to edit this portion: itemType: fields[5] != null ? fields[5] as String : 'pantry'
+part 'list_item.g.dart'; // build with dart run build_runner build
 
 @HiveType(typeId: 0)
 class ListItem<T> extends HiveObject {
@@ -11,7 +10,7 @@ class ListItem<T> extends HiveObject {
   String name;
 
   @HiveField(1)
-  int? count;
+  int? _count;
 
   @HiveField(2)
   DateTime dateAdded;
@@ -30,18 +29,18 @@ class ListItem<T> extends HiveObject {
 
   ListItem({
     required this.name,
-    this.count,
+    int? count = 1,
     required this.dateAdded,
     this.tag,
     this.completed = false,
     this.itemType = 'pantry',
     this.url,
-  });
+  }) : _count = count ?? 1;
 
   factory ListItem.fromJson(Map<String, dynamic> json) {
     return ListItem(
       name: json['name'],
-      count: json['count'],
+      count: json['count'] ?? 1,
       dateAdded: DateTime.parse(json['dateAdded']),
       tag: json['tag'],
       completed: json['completed'] ?? false,
@@ -53,13 +52,19 @@ class ListItem<T> extends HiveObject {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'count': count,
+      'count': _count ?? 1,
       'dateAdded': dateAdded.toIso8601String(),
       'tag': tag,
       'completed': completed,
       'itemType': itemType,
       'url': url,
     };
+  }
+
+  int get count => _count ?? 1;
+  set count(int value) {
+    _count = value;
+    save();
   }
 
   // Helper method to get the color for the tag

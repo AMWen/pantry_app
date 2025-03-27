@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../data/classes/list_item.dart';
+import '../data/classes/tab_configuration.dart';
 import '../data/constants.dart';
 import '../utils/file_utils.dart';
+import '../utils/hivebox_utils.dart';
 import '../utils/snackbar_util.dart';
 
 class AddItemScreen extends StatefulWidget {
   final String itemType;
   final String boxName;
-  final bool hasCount;
 
-  const AddItemScreen({
-    super.key,
-    required this.itemType,
-    required this.boxName,
-    this.hasCount = true,
-  });
+  const AddItemScreen({super.key, required this.itemType, required this.boxName});
 
   @override
   AddItemScreenState createState() => AddItemScreenState();
@@ -23,6 +19,14 @@ class AddItemScreen extends StatefulWidget {
 
 class AddItemScreenState extends State<AddItemScreen> {
   final _controller = TextEditingController();
+  Box<TabConfiguration> tabBox = getTabConfigurationsBox();
+  late bool hasCount;
+
+  @override
+  void initState() {
+    super.initState();
+    hasCount = tabBox.get(widget.boxName)!.hasCount;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +45,7 @@ class AddItemScreenState extends State<AddItemScreen> {
                   maxLines: null, // Allow multiline input
                   decoration: InputDecoration(
                     hintText:
-                        'Enter items (one per line)${widget.hasCount ? '. Qty of 1 is optional.' : ''}',
+                        'Enter items (one per line)${hasCount ? '. Qty of 1 is optional.' : ''}',
                     hintStyle: TextStyles.hintText,
                     border: OutlineInputBorder(),
                   ),
@@ -72,18 +76,18 @@ class AddItemScreenState extends State<AddItemScreen> {
       if (line.isNotEmpty) {
         final parts = line.split(' ');
 
-        int count = widget.hasCount ? 1 : 0; // Default count to 1 if hasCount is true, otherwise 0
+        int count = 1;
         String name = line;
 
         // If hasCount is true and the first part is a number, adjust count and name
-        if (widget.hasCount && parts.length > 1 && int.tryParse(parts[0]) != null) {
+        if (hasCount && parts.length > 1 && int.tryParse(parts[0]) != null) {
           count = int.parse(parts[0]);
           name = parts.sublist(1).join(' '); // Join the remaining parts as the name
         }
 
         final item = ListItem(
           name: name,
-          count: widget.hasCount ? count : null, // Only assign count if hasCount is true
+          count: count,
           dateAdded: DateTime.now(),
           itemType: widget.itemType,
         );

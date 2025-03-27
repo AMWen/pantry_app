@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pantry_app/screens/inventorylist_screen.dart';
 import '../../data/constants.dart';
 import '../../screens/additem_screen.dart';
 import '../../utils/hivebox_utils.dart';
@@ -57,11 +56,10 @@ class BottomTabNavigatorState extends State<BottomTabNavigator> {
         valueListenable: refreshNotifier,
         builder: (context, value, child) {
           _tabs = generateTabItems(refreshNotifier);
-          print('generating new tabs');
           double screenWidth = MediaQuery.of(context).size.width;
           int iconsThatFit = (screenWidth / iconWidth).floor();
           bool needsScrolling = _tabs.length > iconsThatFit;
-          
+
           return BottomAppBar(
             height: 64,
             padding: EdgeInsets.all(2),
@@ -117,7 +115,6 @@ class BottomTabNavigatorState extends State<BottomTabNavigator> {
                       (context) => AddItemScreen(
                         itemType: _tabs[_selectedIndex].itemType,
                         boxName: _tabs[_selectedIndex].boxName,
-                        hasCount: _tabs[_selectedIndex].screen is InventoryListScreen,
                       ),
                 ),
               );

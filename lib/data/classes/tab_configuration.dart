@@ -54,4 +54,27 @@ class TabConfiguration extends HiveObject {
     _timestamp = value;
     save();
   }
+
+  factory TabConfiguration.fromJson(Map<String, dynamic> json) {
+    return TabConfiguration(
+      title: json['title'],
+      itemType: json['itemType'],
+      iconCodePoint: json['iconCodePoint'] ?? defaultCodePoint,
+      hasCount: json['hasCount'] ?? false,
+      moveTo: json['moveTo'],
+      timestamp: json['timestamp'] != null ? DateTime.parse(json['timestamp']) : null,
+    );
+  }
+
+  // toJson to convert TabConfiguration object to a Map
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'itemType': itemType,
+      'iconCodePoint': _iconCodePoint,
+      'hasCount': _hasCount,
+      'moveTo': _moveTo,
+      'timestamp': _timestamp?.toIso8601String(),
+    };
+  }
 }
