@@ -68,14 +68,7 @@ class PopupMenuState extends State<PopupMenu> {
                             'track of all your lists. Meant to be a no-frills, offline app, not '
                             'requiring creation or access to any accounts.',
                           ),
-                          actions: [
-                            FilledButton(
-                              onPressed: () {
-                                Navigator.of(context).pop(true);
-                              },
-                              child: Text('OK'),
-                            ),
-                          ],
+                          actions: [OkButton()],
                         );
                       },
                     );

@@ -26,7 +26,8 @@ Future<void> initializeTabConfigurations() async {
   Box<TabConfiguration> tabBox = getTabConfigurationsBox();
   if (tabBox.isEmpty) {
     for (var config in defaultTabConfigurations) {
-      await tabBox.put(config.title, config);
+      // Use boxName as key
+      await tabBox.put(lowercaseAndRemoveSpaces(config.title), config);
     }
   }
 }

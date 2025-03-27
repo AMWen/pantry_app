@@ -147,7 +147,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
             content: Text('This action cannot be undone.'),
             actions: [
               CancelButton(),
-              FilledButton(
+              OkButton(
                 onPressed: () {
                   final selectedItems =
                       _itemBox.values
@@ -163,7 +163,6 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
 
                   Navigator.of(context).pop(); // Close the dialog
                 },
-                child: Text('OK'),
               ),
             ],
           );
@@ -191,7 +190,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
             content: Text('This action cannot be undone.'),
             actions: [
               CancelButton(),
-              FilledButton(
+              OkButton(
                 onPressed: () {
                   final selectedItems =
                       _itemBox.values
@@ -206,7 +205,6 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
 
                   Navigator.of(context).pop(); // Close the dialog
                 },
-                child: Text('OK'),
               ),
             ],
           );

@@ -140,7 +140,7 @@ class EditDialogState extends State<EditDialog> {
       ),
       actions: [
         CancelButton(),
-        FilledButton(
+        OkButton(
           onPressed: () {
             // Handle saving the data
             widget.item.name = nameController.text;
@@ -163,7 +163,6 @@ class EditDialogState extends State<EditDialog> {
             autoSave(widget.boxName);
             Navigator.of(context).pop();
           },
-          child: Text('OK'),
         ),
       ],
     );
