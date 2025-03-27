@@ -22,6 +22,7 @@ class SimpleListScreen extends StatefulWidget {
   final String title;
   final bool hasCount;
   final String? moveTo;
+  final ValueNotifier<int> refreshNotifier;
 
   const SimpleListScreen({
     super.key,
@@ -30,6 +31,7 @@ class SimpleListScreen extends StatefulWidget {
     required this.title,
     this.hasCount = false,
     this.moveTo,
+    required this.refreshNotifier,
   });
 
   @override
@@ -415,7 +417,7 @@ class SimpleListScreenState extends State<SimpleListScreen> with AutomaticKeepAl
               child: IconButton(icon: Icon(action['icon']), onPressed: action['onPressed']),
             ),
           ),
-          PopupMenu(),
+          PopupMenu(refreshNotifier: widget.refreshNotifier),
           Padding(padding: const EdgeInsets.only(right: 4)),
         ],
       ),

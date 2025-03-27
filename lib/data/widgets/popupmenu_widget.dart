@@ -10,7 +10,9 @@ import 'managelistsdialog_widget.dart';
 enum Menu { info, help, manage }
 
 class PopupMenu extends StatefulWidget {
-  const PopupMenu({super.key});
+  final ValueNotifier<int> refreshNotifier;
+
+  const PopupMenu({super.key, required this.refreshNotifier});
 
   @override
   PopupMenuState createState() => PopupMenuState();
@@ -36,7 +38,7 @@ class PopupMenuState extends State<PopupMenu> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return ManageListsDialog();
+        return ManageListsDialog(refreshNotifier: widget.refreshNotifier);
       },
     );
     initializeHiveBoxes();

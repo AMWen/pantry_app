@@ -15,12 +15,18 @@ class BottomTabNavigator extends StatefulWidget {
 class BottomTabNavigatorState extends State<BottomTabNavigator> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController(); // PageView sync navigator
-  List<TabItem> _tabs = generateTabItems();
+  final ValueNotifier<int> refreshNotifier = ValueNotifier<int>(0);
+  List<TabItem> _tabs = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabs = generateTabItems(refreshNotifier);
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      _tabs = generateTabItems();
     });
     _pageController.jumpToPage(index);
   }
@@ -28,61 +34,74 @@ class BottomTabNavigatorState extends State<BottomTabNavigator> {
   void _onPageChanged(int index) {
     setState(() {
       _selectedIndex = index;
-      _tabs = generateTabItems();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    final iconWidth = 50; // Adjust this based on your icon size
-    int iconsThatFit = (screenWidth / iconWidth).floor();
-    bool needsScrolling = _tabs.length > iconsThatFit;
+    final iconWidth = 50;
 
     return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: _onPageChanged,
-        children: _tabs.map((tab) => tab.screen).toList(),
+      body: ValueListenableBuilder<int>(
+        valueListenable: refreshNotifier,
+        builder: (context, value, child) {
+          _tabs = generateTabItems(refreshNotifier);
+          return PageView(
+            controller: _pageController,
+            onPageChanged: _onPageChanged,
+            children: _tabs.map((tab) => tab.screen).toList(),
+          );
+        },
       ),
-      bottomNavigationBar: BottomAppBar(
-        height: 64,
-        padding: EdgeInsets.all(2),
-        color: primaryColor,
-        notchMargin: 2,
-        shape: CircularNotchedRectangle(),
-        child:
-            needsScrolling
-                ? SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children:
-                        _tabs.map((tab) {
-                          int index = _tabs.indexOf(tab);
-                          return IconButton(
-                            icon: tab.icon,
-                            color: index == _selectedIndex ? secondaryColor : dullColor,
-                            onPressed: () => _onItemTapped(index),
-                            tooltip: tab.label,
-                          );
-                        }).toList(),
-                  ),
-                )
-                : Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children:
-                      _tabs.map((tab) {
-                        int index = _tabs.indexOf(tab);
-                        return IconButton(
-                          icon: tab.icon,
-                          color: index == _selectedIndex ? secondaryColor : dullColor,
-                          onPressed: () => _onItemTapped(index),
-                          tooltip: tab.label,
-                        );
-                      }).toList(),
-                ),
+      bottomNavigationBar: ValueListenableBuilder<int>(
+        valueListenable: refreshNotifier,
+        builder: (context, value, child) {
+          _tabs = generateTabItems(refreshNotifier);
+          print('generating new tabs');
+          double screenWidth = MediaQuery.of(context).size.width;
+          int iconsThatFit = (screenWidth / iconWidth).floor();
+          bool needsScrolling = _tabs.length > iconsThatFit;
+          
+          return BottomAppBar(
+            height: 64,
+            padding: EdgeInsets.all(2),
+            color: primaryColor,
+            notchMargin: 2,
+            shape: CircularNotchedRectangle(),
+            child:
+                needsScrolling
+                    ? SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children:
+                            _tabs.map((tab) {
+                              int index = _tabs.indexOf(tab);
+                              return IconButton(
+                                icon: tab.icon,
+                                color: index == _selectedIndex ? secondaryColor : dullColor,
+                                onPressed: () => _onItemTapped(index),
+                                tooltip: tab.label,
+                              );
+                            }).toList(),
+                      ),
+                    )
+                    : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children:
+                          _tabs.map((tab) {
+                            int index = _tabs.indexOf(tab);
+                            return IconButton(
+                              icon: tab.icon,
+                              color: index == _selectedIndex ? secondaryColor : dullColor,
+                              onPressed: () => _onItemTapped(index),
+                              tooltip: tab.label,
+                            );
+                          }).toList(),
+                    ),
+          );
+        },
       ),
       floatingActionButton: SizedBox(
         height: 45,

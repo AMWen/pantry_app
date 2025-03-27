@@ -16,6 +16,7 @@ class InventoryListScreen extends SimpleListScreen {
     required super.title,
     super.hasCount = true,
     super.moveTo,
+    required super.refreshNotifier,
   });
 
   @override

@@ -1,5 +1,7 @@
 import 'package:hive/hive.dart';
 
+import '../constants.dart';
+
 part 'tab_configuration.g.dart';
 
 @HiveType(typeId: 2)
@@ -14,16 +16,20 @@ class TabConfiguration extends HiveObject {
   bool _hasCount;
   @HiveField(4)
   String? _moveTo;
+  @HiveField(5)
+  DateTime? _timestamp;
 
   TabConfiguration({
     required this.title,
     required this.itemType,
-    int iconCodePoint = 0,
+    int? iconCodePoint,
     bool hasCount = false,
     String? moveTo,
-  }) : _iconCodePoint = iconCodePoint,
+    DateTime? timestamp,
+  }) : _iconCodePoint = iconCodePoint ?? defaultCodePoint,
        _hasCount = hasCount,
-       _moveTo = moveTo;
+       _moveTo = moveTo,
+       _timestamp = timestamp ?? DateTime.now().toUtc();
 
   int get iconCodePoint => _iconCodePoint;
   set iconCodePoint(int value) {
@@ -40,6 +46,12 @@ class TabConfiguration extends HiveObject {
   String? get moveTo => _moveTo;
   set moveTo(String? value) {
     _moveTo = value;
+    save();
+  }
+
+  DateTime get timestamp => _timestamp ?? defaultDateTime;
+  set timestamp(DateTime value) {
+    _timestamp = value;
     save();
   }
 }

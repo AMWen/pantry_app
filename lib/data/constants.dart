@@ -80,6 +80,10 @@ String lowercaseAndRemoveSpaces(String input) {
   return input.replaceAll(' ', '').toLowerCase();
 }
 
+final int defaultCodePoint = 58408;
+
+final DateTime defaultDateTime = DateTime.utc(2000, 1, 1);
+
 final List<Map<String, String>> sortOptions = [
   {'title': 'None', 'value': ''},
   {'title': 'Name', 'value': 'name'},

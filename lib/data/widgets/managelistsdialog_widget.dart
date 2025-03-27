@@ -12,7 +12,9 @@ import '../constants.dart';
 import '../widgets/basic_widgets.dart';
 
 class ManageListsDialog extends StatefulWidget {
-  const ManageListsDialog({super.key});
+  final ValueNotifier<int> refreshNotifier;
+
+  const ManageListsDialog({super.key, required this.refreshNotifier});
 
   @override
   ManageListsDialogState createState() => ManageListsDialogState();
@@ -44,6 +46,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                 for (var config in defaultTabConfigurations) {
                   await tabBox.put(lowercaseAndRemoveSpaces(config.title), config); // add defaults
                 }
+                widget.refreshNotifier.value++;
               },
             ),
           ],
@@ -220,6 +223,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                 tab.save();
                 currentBoxSettings.save();
 
+                widget.refreshNotifier.value++;
                 Navigator.of(context).pop();
                 Navigator.of(context).pop(); // remove previous _showEditDialog
                 _showEditDialog(); // re-render
@@ -241,7 +245,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
           content: SingleChildScrollView(
             child: Column(
               children:
-                  generateTabItems().map<Widget>((TabItem tabItem) {
+                  generateTabItems(widget.refreshNotifier).map<Widget>((TabItem tabItem) {
                     return ListTile(
                       minTileHeight: 10,
                       leading: tabItem.icon,
@@ -266,13 +270,13 @@ class ManageListsDialogState extends State<ManageListsDialog> {
     final List<String> itemTypes = List.from(defaultTagMapping.keys)..add('');
     ValueNotifier<String> selectedTypeNotifier = ValueNotifier<String>('');
     ValueNotifier<bool> hasCountNotifier = ValueNotifier(false);
-    final ValueNotifier<int> iconCodePointNotifier = ValueNotifier<int>(59495);
+    final ValueNotifier<int> iconCodePointNotifier = ValueNotifier<int>(defaultCodePoint);
 
     void pickIcon() async {
       IconPickerIcon? icon = await showIconPicker(
         context,
         configuration: SinglePickerConfiguration(
-          searchHintText: 'hint: savings for pig',
+          searchHintText: 'e.g. savings=pig',
           title: Text('Pick an icon (material icons)', style: TextStyles.dialogTitle),
         ),
       );
@@ -491,6 +495,9 @@ class ManageListsDialogState extends State<ManageListsDialog> {
 
                 await tabBox.put(boxName, tabConfig);
                 await boxSettingsBox.put(boxName, boxSettings);
+                await openBox(boxName);
+
+                widget.refreshNotifier.value++;
               },
             ),
           ],
@@ -514,6 +521,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
               onPressed: () async {
                 Box<TabConfiguration> tabBox = getTabConfigurationsBox();
                 tabBox.delete(tabTitle);
+                widget.refreshNotifier.value++;
                 Navigator.of(context).pop();
                 Navigator.of(context).pop(); // remove previous _showDeleteDialog
                 await _showDeleteDialog(); // re-render
@@ -535,13 +543,13 @@ class ManageListsDialogState extends State<ManageListsDialog> {
           content: SingleChildScrollView(
             child: Column(
               children:
-                  generateTabItems().map<Widget>((TabItem tabItem) {
+                  generateTabItems(widget.refreshNotifier).map<Widget>((TabItem tabItem) {
                     return ListTile(
                       minTileHeight: 10,
                       leading: tabItem.icon,
                       title: Text(tabItem.label, style: TextStyles.mediumText),
                       onTap: () {
-                        if (generateTabItems().length > 1) {
+                        if (generateTabItems(widget.refreshNotifier).length > 1) {
                           _deleteList(tabItem.boxName);
                         } else {
                           showErrorSnackbar(context, 'Need to keep at least one list.');

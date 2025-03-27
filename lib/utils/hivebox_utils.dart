@@ -18,6 +18,10 @@ Future<void> initializeHiveBoxes() async {
   await Future.wait(boxNames.map((boxName) => Hive.openBox<ListItem>(boxName)).toList());
 }
 
+Future<void> openBox(String boxName) async {
+  await Hive.openBox<ListItem>(boxName);
+}
+
 Box<TabConfiguration> getTabConfigurationsBox() {
   return Hive.box<TabConfiguration>(HiveBoxNames.tabConfigurations);
 }
@@ -65,9 +69,17 @@ IconData getMaterialIcon(int iconCodePoint) {
   return IconData(iconCodePoint, fontFamily: 'MaterialIcons');
 }
 
-List<TabItem> generateTabItems() {
+List<TabItem> generateTabItems(ValueNotifier<int> refreshNotifier) {
   Box<TabConfiguration> tabBox = getTabConfigurationsBox();
   List<TabConfiguration> tabConfigs = tabBox.values.toList();
+
+  for (TabConfiguration config in tabConfigs) {
+    if (config.timestamp == defaultDateTime) {
+      config.timestamp = DateTime.now().toUtc();
+    }
+  }
+
+  tabConfigs.sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
   return tabConfigs.map((config) {
     final iconData = getMaterialIcon(config.iconCodePoint);
@@ -79,8 +91,14 @@ List<TabItem> generateTabItems() {
               boxName: boxName,
               title: config.title,
               moveTo: config.moveTo,
+              refreshNotifier: refreshNotifier,
             )
-            : SimpleListScreen(itemType: config.itemType, boxName: boxName, title: config.title);
+            : SimpleListScreen(
+              itemType: config.itemType,
+              boxName: boxName,
+              title: config.title,
+              refreshNotifier: refreshNotifier,
+            );
 
     return TabItem(
       screen: screen,
