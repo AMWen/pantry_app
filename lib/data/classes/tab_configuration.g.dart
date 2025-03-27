@@ -19,10 +19,10 @@ class TabConfigurationAdapter extends TypeAdapter<TabConfiguration> {
     return TabConfiguration(
       title: fields[0] as String,
       itemType: fields[1] as String,
-      iconCodePoint: fields[2] as int,
-      hasCount: fields[3] as bool,
-      moveTo: fields[4] as String?,
-    );
+    )
+      .._iconCodePoint = fields[2] as int
+      .._hasCount = fields[3] as bool
+      .._moveTo = fields[4] as String?;
   }
 
   @override
@@ -34,11 +34,11 @@ class TabConfigurationAdapter extends TypeAdapter<TabConfiguration> {
       ..writeByte(1)
       ..write(obj.itemType)
       ..writeByte(2)
-      ..write(obj.iconCodePoint)
+      ..write(obj._iconCodePoint)
       ..writeByte(3)
-      ..write(obj.hasCount)
+      ..write(obj._hasCount)
       ..writeByte(4)
-      ..write(obj.moveTo);
+      ..write(obj._moveTo);
   }
 
   @override

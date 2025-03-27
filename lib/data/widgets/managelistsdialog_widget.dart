@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_iconpicker/Models/configuration.dart';
+import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 import 'package:hive/hive.dart';
-import 'package:pantry_app/data/widgets/basic_widgets.dart';
-import 'package:pantry_app/utils/snackbar_util.dart';
 
 import '../../utils/hivebox_utils.dart';
+import '../../utils/snackbar_util.dart';
+import '../classes/box_settings.dart';
 import '../classes/tab_configuration.dart';
 import '../classes/tab_item.dart';
 import '../constants.dart';
+import '../widgets/basic_widgets.dart';
 
 class ManageListsDialog extends StatefulWidget {
   const ManageListsDialog({super.key});
@@ -31,7 +34,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
           content: Text('Any new lists will be removed. This action cannot be undone.'),
           actions: [
             CancelButton(),
-            FilledButton(
+            OkButton(
               onPressed: () async {
                 Box<TabConfiguration> tabBox = getTabConfigurationsBox();
                 Navigator.of(context).pop(true);
@@ -39,10 +42,9 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                   await tabBox.delete(key); // delete all
                 }
                 for (var config in defaultTabConfigurations) {
-                  await tabBox.put(config.title, config); // add defaults
+                  await tabBox.put(lowercaseAndRemoveSpaces(config.title), config); // add defaults
                 }
               },
-              child: Text('OK'),
             ),
           ],
         );
@@ -50,27 +52,180 @@ class ManageListsDialogState extends State<ManageListsDialog> {
     );
   }
 
-  void _showEditListDialog(String tabTitle) {
+  void _showEditListDialog(String boxName) {
+    Box<TabConfiguration> tabBox = getTabConfigurationsBox();
+    TabConfiguration tab = tabBox.get(boxName)!;
+    Box<BoxSettings> boxSettingsBox = getBoxSettingsBox();
+    BoxSettings currentBoxSettings = boxSettingsBox.get(boxName)!;
+    final moveToController = TextEditingController(text: tab.moveTo ?? '');
+    final tagsController = TextEditingController(text: currentBoxSettings.tags.join(', '));
+    ValueNotifier<bool> hasCountNotifier = ValueNotifier(tab.hasCount);
+    final ValueNotifier<int> iconCodePointNotifier = ValueNotifier<int>(tab.iconCodePoint);
+
+    void pickIcon() async {
+      IconPickerIcon? icon = await showIconPicker(
+        context,
+        configuration: SinglePickerConfiguration(
+          searchHintText: 'eg. savings=pig',
+          title: Text('Pick an icon (material icons)', style: TextStyles.dialogTitle),
+        ),
+      );
+
+      if (icon != null) {
+        setState(() {
+          iconCodePointNotifier.value = icon.data.codePoint;
+          tab.iconCodePoint = iconCodePointNotifier.value;
+        });
+      }
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           contentPadding: alertPadding,
-          title: AlertTitle('Edit a list'),
+          title: AlertTitle('Edit ${tab.title}'),
           content: SingleChildScrollView(
-            child: Column(
-              children: [
-                // click item
-                // 'title': 'Pantry',
-                // itemType dropdown
-                // icon
-                // countable or not
-                // has moveTo or not
-                // edit option
-              ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text('Title:', style: TextStyles.boldText),
+                      SizedBox(width: 6),
+                      Text(tab.title),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text('Countable:', style: TextStyles.boldText),
+                      SizedBox(width: 6),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            hasCountNotifier.value = !hasCountNotifier.value;
+                            tab.hasCount = hasCountNotifier.value;
+                          });
+                        },
+                        child: ValueListenableBuilder<bool>(
+                          valueListenable: hasCountNotifier,
+                          builder: (context, hasCount, child) {
+                            return Text(
+                              hasCount.toString(),
+                              style: TextStyle(color: Colors.blueAccent),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text('Icon:', style: TextStyles.boldText),
+                      SizedBox(width: 6),
+                      GestureDetector(
+                        onTap: pickIcon,
+                        child: ValueListenableBuilder<int>(
+                          valueListenable: iconCodePointNotifier,
+                          builder: (context, iconCodePoint, child) {
+                            return Icon(getMaterialIcon(iconCodePoint));
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Move to:', style: TextStyles.boldText),
+                      SizedBox(width: 6),
+                      Expanded(
+                        child: TextField(
+                          style: TextStyles.normalText,
+                          controller: moveToController,
+                          maxLines: null,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            hintText: 'List to move items to',
+                            hintStyle: TextStyles.hintText,
+                            border: InputBorder.none,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: primaryColor, width: 2),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 6),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Tags:', style: TextStyles.boldText),
+                      SizedBox(width: 4),
+                      Expanded(
+                        child: TextField(
+                          style: TextStyles.normalText,
+                          controller: tagsController,
+                          maxLines: null,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            hintText: 'Separate by commas',
+                            hintStyle: TextStyles.hintText,
+                            border: InputBorder.none,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: primaryColor, width: 2),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 6),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          actions: [CancelButton()],
+          actions: [
+            CancelButton(),
+            OkButton(
+              onPressed: () async {
+                // Prep moveTo
+                String moveTo = moveToController.text.trim();
+                final potentialMoveTo = lowercaseAndRemoveSpaces(moveTo);
+                if (tabBox.keys.contains(potentialMoveTo) || potentialMoveTo == '') {
+                  tab.moveTo = potentialMoveTo;
+                } else {
+                  showErrorSnackbar(context, '$moveTo is not a valid list to move to. Skipping.');
+                }
+
+                // Prep tags
+                final tags = tagsController.text.split(',').map((tag) => tag.trim()).toSet();
+                final updatedTags = List<String>.from(tags.where((tag) => tag.isNotEmpty));
+                updatedTags.add('');
+                currentBoxSettings.tags = updatedTags;
+
+                // Save boxes
+                tab.save();
+                currentBoxSettings.save();
+
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // remove previous _showEditDialog
+                _showEditDialog(); // re-render
+              },
+            ),
+          ],
         );
       },
     );
@@ -92,19 +247,43 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                       leading: tabItem.icon,
                       title: Text(tabItem.label, style: TextStyles.mediumText),
                       onTap: () {
-                        _showEditListDialog(tabItem.label);
+                        _showEditListDialog(tabItem.boxName);
                       },
                     );
                   }).toList(),
             ),
           ),
-          actions: [CancelButton()],
+          actions: [OkButton()],
         );
       },
     );
   }
 
   Future<void> _showAddDialog() async {
+    final titleController = TextEditingController(text: '');
+    final moveToController = TextEditingController(text: '');
+    final tagsController = TextEditingController(text: '');
+    final List<String> itemTypes = List.from(defaultTagMapping.keys)..add('');
+    ValueNotifier<String> selectedTypeNotifier = ValueNotifier<String>('');
+    ValueNotifier<bool> hasCountNotifier = ValueNotifier(false);
+    final ValueNotifier<int> iconCodePointNotifier = ValueNotifier<int>(59495);
+
+    void pickIcon() async {
+      IconPickerIcon? icon = await showIconPicker(
+        context,
+        configuration: SinglePickerConfiguration(
+          searchHintText: 'hint: savings for pig',
+          title: Text('Pick an icon (material icons)', style: TextStyles.dialogTitle),
+        ),
+      );
+
+      if (icon != null) {
+        setState(() {
+          iconCodePointNotifier.value = icon.data.codePoint;
+        });
+      }
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -112,17 +291,209 @@ class ManageListsDialogState extends State<ManageListsDialog> {
           contentPadding: alertPadding,
           title: AlertTitle('Add a list'),
           content: SingleChildScrollView(
-            child: Column(
-              children: [
-                // 'title': 'Pantry',
-                // itemType dropdown
-                // icon
-                // countable or not
-                // has moveTo or not
-              ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text('Title:', style: TextStyles.boldText),
+                      SizedBox(width: 6),
+                      Expanded(
+                        child: TextField(
+                          style: TextStyles.normalText,
+                          controller: titleController,
+                          maxLines: null,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            hintText: 'Title for list',
+                            hintStyle: TextStyles.hintText,
+                            border: InputBorder.none,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: primaryColor, width: 2),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 6),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text('Countable:', style: TextStyles.boldText),
+                      SizedBox(width: 6),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            hasCountNotifier.value = !hasCountNotifier.value;
+                          });
+                        },
+                        child: ValueListenableBuilder<bool>(
+                          valueListenable: hasCountNotifier,
+                          builder: (context, hasCount, child) {
+                            return Text(
+                              hasCount.toString(),
+                              style: TextStyle(color: Colors.blueAccent),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text('Icon:', style: TextStyles.boldText),
+                      SizedBox(width: 6),
+                      GestureDetector(
+                        onTap: pickIcon,
+                        child: ValueListenableBuilder<int>(
+                          valueListenable: iconCodePointNotifier,
+                          builder: (context, iconCodePoint, child) {
+                            return Icon(getMaterialIcon(iconCodePoint));
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Move to:', style: TextStyles.boldText),
+                      SizedBox(width: 6),
+                      Expanded(
+                        child: TextField(
+                          style: TextStyles.normalText,
+                          controller: moveToController,
+                          maxLines: null,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            hintText: 'List to move items to',
+                            hintStyle: TextStyles.hintText,
+                            border: InputBorder.none,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: primaryColor, width: 2),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 6),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2.0),
+                        child: Text('Item Type:', style: TextStyles.boldText),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: ValueListenableBuilder<String>(
+                          valueListenable: selectedTypeNotifier,
+                          builder: (context, selectedType, child) {
+                            return DropdownButton<String>(
+                              underline: Container(),
+                              style: TextStyles.normalText,
+                              padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                              isDense: true,
+                              value: selectedType, // Value from ValueNotifier
+                              onChanged: (String? newValue) {
+                                selectedTypeNotifier.value = newValue ?? ''; // Update ValueNotifier
+                                if (newValue != null && defaultTagMapping.containsKey(newValue)) {
+                                  tagsController.text = defaultTagMapping[newValue]!.join(', ');
+                                }
+                              },
+                              items:
+                                  itemTypes.map<DropdownMenuItem<String>>((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value.isEmpty ? 'None: custom tags' : value),
+                                    );
+                                  }).toList(),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Tags:', style: TextStyles.boldText),
+                      SizedBox(width: 4),
+                      Expanded(
+                        child: TextField(
+                          style: TextStyles.normalText,
+                          controller: tagsController,
+                          maxLines: null,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            hintText: 'Separate by commas',
+                            hintStyle: TextStyles.hintText,
+                            border: InputBorder.none,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: primaryColor, width: 2),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 6),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          actions: [CancelButton()],
+          actions: [
+            CancelButton(),
+            OkButton(
+              onPressed: () async {
+                final String title = titleController.text.trim();
+                final String boxName = lowercaseAndRemoveSpaces(title);
+
+                Box<TabConfiguration> tabBox = getTabConfigurationsBox();
+                Box<BoxSettings> boxSettingsBox = getBoxSettingsBox();
+
+                // Prep moveTo
+                String moveTo = moveToController.text.trim();
+                String potentialMoveTo = lowercaseAndRemoveSpaces(moveTo);
+                if (!tabBox.keys.contains(potentialMoveTo) && potentialMoveTo != '') {
+                  showErrorSnackbar(context, '$moveTo is not a valid list to move to. Skipping.');
+                  potentialMoveTo = '';
+                }
+
+                // Prep tags
+                final tags = tagsController.text.split(',').map((tag) => tag.trim()).toSet();
+                final updatedTags = List<String>.from(tags.where((tag) => tag.isNotEmpty));
+                updatedTags.add('');
+
+                TabConfiguration tabConfig = TabConfiguration(
+                  title: title,
+                  itemType: selectedTypeNotifier.value,
+                  iconCodePoint: iconCodePointNotifier.value,
+                  hasCount: hasCountNotifier.value,
+                  moveTo: potentialMoveTo,
+                );
+                BoxSettings boxSettings = BoxSettings(boxName: boxName, tags: updatedTags);
+                Navigator.of(context).pop();
+
+                await tabBox.put(boxName, tabConfig);
+                await boxSettingsBox.put(boxName, boxSettings);
+              },
+            ),
+          ],
         );
       },
     );
@@ -139,7 +510,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
           content: Text('This action cannot be undone.'),
           actions: [
             CancelButton(),
-            FilledButton(
+            OkButton(
               onPressed: () async {
                 Box<TabConfiguration> tabBox = getTabConfigurationsBox();
                 tabBox.delete(tabTitle);
@@ -147,7 +518,6 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                 Navigator.of(context).pop(); // remove previous _showDeleteDialog
                 await _showDeleteDialog(); // re-render
               },
-              child: Text('OK'),
             ),
           ],
         );
@@ -172,7 +542,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                       title: Text(tabItem.label, style: TextStyles.mediumText),
                       onTap: () {
                         if (generateTabItems().length > 1) {
-                          _deleteList(tabItem.label);
+                          _deleteList(tabItem.boxName);
                         } else {
                           showErrorSnackbar(context, 'Need to keep at least one list.');
                         }
@@ -181,7 +551,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                   }).toList(),
             ),
           ),
-          actions: [CancelButton()],
+          actions: [OkButton()],
         );
       },
     );
@@ -195,14 +565,6 @@ class ManageListsDialogState extends State<ManageListsDialog> {
       content: SingleChildScrollView(
         child: Column(
           children: [
-            ListTile(
-              minTileHeight: 10,
-              leading: Icon(Icons.edit),
-              title: Text('Edit a list', style: TextStyles.mediumText),
-              onTap: () async {
-                await _showEditDialog();
-              },
-            ),
             ListTile(
               minTileHeight: 10,
               leading: Icon(Icons.add),
@@ -221,12 +583,18 @@ class ManageListsDialogState extends State<ManageListsDialog> {
             ),
             ListTile(
               minTileHeight: 10,
+              leading: Icon(Icons.edit),
+              title: Text('Edit a list', style: TextStyles.mediumText),
+              onTap: () async {
+                await _showEditDialog();
+              },
+            ),
+            ListTile(
+              minTileHeight: 10,
               leading: Icon(Icons.restore),
               title: Text('Reset lists to default', style: TextStyles.mediumText),
               onTap: () async {
                 bool? result = await _resetLists();
-                print('result');
-                print(result ?? 'null');
                 if (mounted && result == true) {
                   showErrorSnackbar(context, 'Lists have been reset!');
                 }
@@ -235,7 +603,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
           ],
         ),
       ),
-      actions: [CancelButton()],
+      actions: [OkButton()],
     );
   }
 }
