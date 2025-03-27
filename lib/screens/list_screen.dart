@@ -12,7 +12,6 @@ import '../data/constants.dart';
 import '../data/widgets/basic_widgets.dart';
 import '../data/widgets/editdialog_widget.dart';
 import '../data/widgets/edittagsdialog_widget.dart';
-import '../data/widgets/moveitemsdialog_widget.dart';
 import '../data/widgets/popupmenu_widget.dart';
 import '../data/widgets/tagsdialog_widget.dart';
 // import '../data/widgets/syncdialog_widget.dart';
@@ -103,30 +102,12 @@ class ListScreenState extends State<ListScreen> {
 
   void _setLastUpdatedAndSave(String boxName) async {
     setLastUpdated(boxName);
-    String? message = await autoSave(boxName);
-    if (message != null) {
-      if (mounted) {
-        showErrorSnackbar(context, message);
-      }
-    }
-  }
-
-  Future<String?> _showMoveItemsDialog() async {
-    if (_selectedItemIds.isNotEmpty) {
-      return showDialog<String?>(
-        context: context,
-        builder: (BuildContext context) {
-          return MoveItemsDialog(
-            boxName: widget.boxName,
-            itemBox: _itemBox,
-            selectedItemIds: _selectedItemIds,
-          );
-        },
-      );
-    } else {
-      showErrorSnackbar(context, 'No items selected for migration!');
-      return null;
-    }
+    // String? message = await autoSave(boxName);
+    // if (message != null) {
+    //   if (mounted) {
+    //     showErrorSnackbar(context, message);
+    //   }
+    // }
   }
 
   void _updateItem(dynamic key, int newCount) {
@@ -418,17 +399,6 @@ class ListScreenState extends State<ListScreen> {
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> actionList = [
-      {
-        'icon': Icons.local_shipping,
-        'onPressed': () async {
-          String? moveTo = await _showMoveItemsDialog();
-          if (moveTo != null) {
-            _selectedItemIds.clear();
-            _setLastUpdatedAndSave(widget.boxName);
-            _setLastUpdatedAndSave(moveTo);
-          }
-        },
-      },
       if (!currentTab.hasCount) // Only add this action if hasCount is false
         {
           'icon':
@@ -508,7 +478,12 @@ class ListScreenState extends State<ListScreen> {
               child: IconButton(icon: Icon(action['icon']), onPressed: action['onPressed']),
             ),
           ),
-          PopupMenu(refreshNotifier: widget.refreshNotifier),
+          PopupMenu(
+            refreshNotifier: widget.refreshNotifier,
+            boxName: widget.boxName,
+            itemBox: _itemBox,
+            selectedItemIds: _selectedItemIds,
+          ),
           Padding(padding: const EdgeInsets.only(right: 4)),
         ],
       ),

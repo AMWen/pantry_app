@@ -27,7 +27,7 @@ The app allows you to quickly add multiple items at once, modify quantities, del
 ## Key Features in Detail
 
 - **Item Interaction Features**
-  - **Add items**: Add items by clicking the + icon right above the bottom navigation bar. Multiple items can be entered at once on separate lines. If it is a list with countable items, enter the quantity before the item name. If no quantity is provided, the count automatically defaults to 1.
+  - **Add items**: Add items by clicking the + icon at the bottom, above the navigation bar. Multiple items can be entered at once on separate lines. If it is a list with countable items, enter the quantity before the item name. If no quantity is provided, the count automatically defaults to 1.
   - **Edit items**: Long press the item if you would like to manually update the quantity, name, or date added. You can even add a URL with easy access to launching the provided link.
   - **Update quantity**: If the item has a count, you can quickly change the quantity by tapping on it. You can adjust item quantities by tapping the item and using a simple UI with increment/decrement buttons or a slider.
   - **Update completion**: For non-countable items, tapping the item marks it as complete or incomplete.
@@ -35,21 +35,21 @@ The app allows you to quickly add multiple items at once, modify quantities, del
   - **Checkboxes**: Select items using the checkboxes for various interactions with the top toolbar.
 
 - **Toolbar Features**
-  - **🚚 Move Items**: Easily move selected items between the shopping list and the pantry.
   - **👁️ Select and view completed items**: Select as well as toggle the visibility of completed items in the list.
   - **📋 Copy**: Copy selected items to clipboard.
   - **↕️ Sorting**: Sort items by `Name`, `Date Added`, `Tag`, or your own manual order (from using the drag-and-drop interface).
-  - **💾 Saving and loading**: Load from and save to a JSON file, useful for backup and sharing. When you load, you can choose to add to the list or to completely replace the current list. You can also save the whole list or selected items.
+  - **💾 Saving and loading**: Load from and save to a JSON file, useful for backup and sharing. When you load, you can choose to add to the list or to completely replace the current list. You can also save the whole list or selected items. In addition to individual lists, you can import and export all the data in the app at once.
   - **🏷️ Multi-select tagging**: Categorize multiple selected items at once using tags. The labels can be edited to your preferences.
   - **🗑️ Multi-select deletion**: Delete multiple selected items at once.
   - ** Popup menu**:
-    - **ℹ️ Info**: Short snippet about purpose of app.
-    - **❓ How to Use**: Access these detailed instructions on how to use the app.
+    - **🚚 Move Items**: Easily move selected items from the list to a different list. By default, items will move to the list specified during creation, but you can also choose from any available list in the dropdown menu.
     - **✏️ Manage Lists**:
-      - **Add**: Allows you to create a new list with a variety of custom settings and preferences. You can set the list’s title, choose an icon, decide whether the items within the list have a count, and specify if items can be moved to an existing list. Additionally, you can add tags to the list, which could be preset tags based on item type or custom tags you create as a comma-delimited list.
-      - **Delete**: To remove any list that’s no longer needed, simply click on the title of the list. This action performs a "soft" delete, meaning that if you later create a new list with the same title, the list items can be recovered, keeping your data safe while decluttering.
-      - **Edit**: Lets you modify several aspects of an existing list, including whether items in the list are countable, updating the list’s icon, changing the ability to move items to another existing list, and managing tags.
+      - **Add**: Allows you to create a new list with a variety of custom settings and preferences. You can set the list’s title, choose an icon, decide whether the items within the list have a count, and specify the default list items should be moved to. Additionally, you can add tags to the list, which could be preset tags based on item type or custom tags you create as a comma-delimited list. Note that titles have to be unique. If you create a list with an identical title to a previous list, it updates the previous list with any new settings and moves it to the end.
+      - **Delete**: To remove any list that is no longer needed, simply click on the title of the list. This action performs a "soft" delete, meaning that if you later create a new list with the same title, the list items can be recovered, keeping your data safe while decluttering.
+      - **Edit**: Lets you modify several aspects of an existing list, including whether items in the list are countable, the list’s icon, the default list to move items to, and managing tags.
       - **Reset**: This option restores the app to its original configuration, resetting all lists back to the default 6 lists that come with the app. It's helpful if you want to start fresh or revert any changes made.
+    - **❓ How to Use**: Access these detailed instructions on how to use the app.
+    - **ℹ️ Info**: Short snippet about purpose of app.
 
 ## Getting Started
 
@@ -100,7 +100,7 @@ flutter_iconpicker
 
 For android:
 ```bash
-flutter build apk --release
+flutter build apk --release --no-tree-shake-icons
 ```
 
 For iOS (need to create an an iOS Development Certificate in Apple Developer account):
