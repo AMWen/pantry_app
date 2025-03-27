@@ -5,7 +5,7 @@ import '../../utils/file_utils.dart';
 import '../classes/list_item.dart';
 import '../constants.dart';
 import 'basic_widgets.dart';
-import '../../utils/snackbar_util.dart';
+import '../../utils/widget_utils.dart';
 
 class SaveLoadDialog extends StatefulWidget {
   final String boxName;
@@ -69,19 +69,6 @@ class SaveLoadDialogState extends State<SaveLoadDialog> {
     if (mounted) {
       showErrorSnackbar(context, message);
     }
-  }
-
-  List<Widget> generateListTiles(BuildContext context, List<Map<String, dynamic>> actions) {
-    return actions.map((action) {
-      return ListTile(
-        minTileHeight: 10,
-        title: Text(action['title'], style: TextStyles.mediumText),
-        onTap: () {
-          Navigator.of(context).pop();
-          action['action']();
-        },
-      );
-    }).toList();
   }
 
   @override
