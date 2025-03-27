@@ -4,7 +4,7 @@ import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 import 'package:hive/hive.dart';
 
 import '../../utils/hivebox_utils.dart';
-import '../../utils/snackbar_util.dart';
+import '../../utils/widget_utils.dart';
 import '../classes/box_settings.dart';
 import '../classes/tab_configuration.dart';
 import '../classes/tab_item.dart';
@@ -568,43 +568,33 @@ class ManageListsDialogState extends State<ManageListsDialog> {
       title: AlertTitle('Manage Lists'),
       content: SingleChildScrollView(
         child: Column(
-          children: [
-            ListTile(
-              minTileHeight: 10,
-              leading: Icon(Icons.add),
-              title: Text('Add a list', style: TextStyles.mediumText),
-              onTap: () async {
-                await _showAddDialog();
-              },
-            ),
-            ListTile(
-              minTileHeight: 10,
-              leading: Icon(Icons.remove),
-              title: Text('Delete list(s)', style: TextStyles.mediumText),
-              onTap: () async {
-                await _showDeleteDialog();
-              },
-            ),
-            ListTile(
-              minTileHeight: 10,
-              leading: Icon(Icons.edit),
-              title: Text('Edit list(s)', style: TextStyles.mediumText),
-              onTap: () async {
-                await _showEditDialog();
-              },
-            ),
-            ListTile(
-              minTileHeight: 10,
-              leading: Icon(Icons.restore),
-              title: Text('Reset lists to default', style: TextStyles.mediumText),
-              onTap: () async {
+          children: generateListTiles(context, [
+            {
+              'leading': Icon(Icons.add),
+              'title': 'Add a list',
+              'action': () async => await _showAddDialog(),
+            },
+            {
+              'leading': Icon(Icons.remove),
+              'title': 'Delete list(s)',
+              'action': () async => await _showDeleteDialog(),
+            },
+            {
+              'leading': Icon(Icons.edit),
+              'title': 'Edit list(s)',
+              'action': () async => await _showEditDialog(),
+            },
+            {
+              'leading': Icon(Icons.restore),
+              'title': 'Reset lists to default',
+              'action': () async {
                 bool? result = await _resetLists();
                 if (mounted && result == true) {
                   showErrorSnackbar(context, 'Lists have been reset!');
                 }
               },
-            ),
-          ],
+            },
+          ], false),
         ),
       ),
       actions: [OkButton()],
