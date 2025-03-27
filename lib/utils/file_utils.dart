@@ -6,6 +6,7 @@ import 'package:hive/hive.dart';
 
 import '../data/classes/list_item.dart';
 import '../data/classes/box_settings.dart';
+import '../data/classes/tab_configuration.dart';
 import '../data/constants.dart';
 import 'hivebox_utils.dart';
 
@@ -188,6 +189,11 @@ Future<String> saveAllToFile(String fileName) async {
         settingsBox.values.map((item) => item.toJson()).toList();
     allData.add({'boxName': HiveBoxNames.boxSettings, 'settings': settingsBoxData});
 
+    // Tab Configs (single one containing each boxName as a key)
+    Box<TabConfiguration> tabBox = getTabConfigurationsBox();
+    List<Map<String, dynamic>> tabBoxData = tabBox.values.map((item) => item.toJson()).toList();
+    allData.add({'boxName': HiveBoxNames.tabConfigurations, 'configs': tabBoxData});
+
     await FilePicker.platform.saveFile(
       dialogTitle: 'Please select an output file:',
       fileName: fileName,
@@ -231,6 +237,17 @@ Future<String> loadAllFromFile(String? filePath) async {
           for (var settingsData in settings) {
             final currentBoxSettings = BoxSettings.fromJson(settingsData);
             await settingsBox.put(boxName, currentBoxSettings);
+          }
+        } else if (boxName == HiveBoxNames.tabConfigurations) {
+          Box<TabConfiguration> tabBox = getTabConfigurationsBox();
+          final List<dynamic> configs = boxData['configs'];
+
+          final keys = tabBox.keys.toList();
+          await tabBox.deleteAll(keys);
+
+          for (var config in configs) {
+            final currentTab = TabConfiguration.fromJson(config);
+            await tabBox.put(boxName, currentTab);
           }
         }
       }
