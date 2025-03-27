@@ -56,10 +56,18 @@ class ManageListsDialogState extends State<ManageListsDialog> {
     TabConfiguration tab = tabBox.get(boxName)!;
     Box<BoxSettings> boxSettingsBox = getBoxSettingsBox();
     BoxSettings currentBoxSettings = boxSettingsBox.get(boxName)!;
-    final moveToController = TextEditingController(text: tab.moveTo ?? '');
     final tagsController = TextEditingController(text: currentBoxSettings.tags.join(', '));
-    ValueNotifier<bool> hasCountNotifier = ValueNotifier(tab.hasCount);
+    final ValueNotifier<bool> hasCountNotifier = ValueNotifier(tab.hasCount);
     final ValueNotifier<int> iconCodePointNotifier = ValueNotifier<int>(tab.iconCodePoint);
+    final ValueNotifier<String?> moveToDropdownNotifier = ValueNotifier<String?>(null);
+
+    Map<String, String> boxNameToTitleMap = {
+      for (var config in tabBox.values) config.key: config.title,
+    };
+    List<String?> moveToOptions = (boxNameToTitleMap.keys.cast<String?>().toList()..add(null));
+    if (moveToOptions.contains(tab.moveTo)) {
+      moveToDropdownNotifier.value = tab.moveTo;
+    }
 
     void pickIcon() async {
       IconPickerIcon? icon = await showIconPicker(
@@ -145,23 +153,37 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Move to:', style: TextStyles.boldText),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2.0),
+                        child: Text('Move to:', style: TextStyles.boldText),
+                      ),
                       SizedBox(width: 6),
                       Expanded(
-                        child: TextField(
-                          style: TextStyles.normalText,
-                          controller: moveToController,
-                          maxLines: null,
-                          decoration: InputDecoration(
-                            isDense: true,
-                            hintText: 'List to move items to',
-                            hintStyle: TextStyles.hintText,
-                            border: InputBorder.none,
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: primaryColor, width: 2),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 6),
-                          ),
+                        child: ValueListenableBuilder<String?>(
+                          valueListenable: moveToDropdownNotifier,
+                          builder: (context, moveTo, child) {
+                            return DropdownButton<String>(
+                              underline: Container(),
+                              style: TextStyles.normalText,
+                              padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                              isDense: true,
+                              value: moveTo,
+                              onChanged: (String? newValue) {
+                                moveToDropdownNotifier.value = newValue;
+                                tab.moveTo = moveToDropdownNotifier.value;
+                              },
+                              items:
+                                  moveToOptions.map<DropdownMenuItem<String>>((String? value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child:
+                                          value != null
+                                              ? Text(boxNameToTitleMap[value] ?? '(Unknown)')
+                                              : Text('(null)'),
+                                    );
+                                  }).toList(),
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -200,15 +222,6 @@ class ManageListsDialogState extends State<ManageListsDialog> {
             CancelButton(),
             OkButton(
               onPressed: () async {
-                // Prep moveTo
-                String moveTo = moveToController.text.trim();
-                final potentialMoveTo = lowercaseAndRemoveSpaces(moveTo);
-                if (tabBox.keys.contains(potentialMoveTo) || potentialMoveTo == '') {
-                  tab.moveTo = potentialMoveTo;
-                } else {
-                  showErrorSnackbar(context, '$moveTo is not a valid list to move to. Skipping.');
-                }
-
                 // Prep tags
                 final tags = tagsController.text.split(',').map((tag) => tag.trim()).toSet();
                 final updatedTags = List<String>.from(tags.where((tag) => tag.isNotEmpty));
@@ -261,12 +274,18 @@ class ManageListsDialogState extends State<ManageListsDialog> {
 
   Future<void> _showAddDialog() async {
     final titleController = TextEditingController(text: '');
-    final moveToController = TextEditingController(text: '');
     final tagsController = TextEditingController(text: '');
     final List<String> itemTypes = List.from(defaultTagMapping.keys)..add('');
-    ValueNotifier<String> selectedTypeNotifier = ValueNotifier<String>('');
-    ValueNotifier<bool> hasCountNotifier = ValueNotifier(false);
+    final ValueNotifier<String> selectedTypeNotifier = ValueNotifier<String>('');
+    final ValueNotifier<bool> hasCountNotifier = ValueNotifier(false);
     final ValueNotifier<int> iconCodePointNotifier = ValueNotifier<int>(defaultCodePoint);
+    final ValueNotifier<String?> moveToDropdownNotifier = ValueNotifier<String?>(null);
+    final Box<TabConfiguration> tabBox = getTabConfigurationsBox();
+
+    Map<String, String> boxNameToTitleMap = {
+      for (var config in tabBox.values) config.key: config.title,
+    };
+    List<String?> moveToOptions = (boxNameToTitleMap.keys.cast<String?>().toList()..add(null));
 
     void pickIcon() async {
       IconPickerIcon? icon = await showIconPicker(
@@ -366,23 +385,36 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Move to:', style: TextStyles.boldText),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2.0),
+                        child: Text('Move to:', style: TextStyles.boldText),
+                      ),
                       SizedBox(width: 6),
                       Expanded(
-                        child: TextField(
-                          style: TextStyles.normalText,
-                          controller: moveToController,
-                          maxLines: null,
-                          decoration: InputDecoration(
-                            isDense: true,
-                            hintText: 'List to move items to',
-                            hintStyle: TextStyles.hintText,
-                            border: InputBorder.none,
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: primaryColor, width: 2),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 6),
-                          ),
+                        child: ValueListenableBuilder<String?>(
+                          valueListenable: moveToDropdownNotifier,
+                          builder: (context, moveTo, child) {
+                            return DropdownButton<String>(
+                              underline: Container(),
+                              style: TextStyles.normalText,
+                              padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                              isDense: true,
+                              value: moveTo,
+                              onChanged: (String? newValue) {
+                                moveToDropdownNotifier.value = newValue;
+                              },
+                              items:
+                                  moveToOptions.map<DropdownMenuItem<String>>((String? value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child:
+                                          value != null
+                                              ? Text(boxNameToTitleMap[value] ?? '(Unknown)')
+                                              : Text('(null)'),
+                                    );
+                                  }).toList(),
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -466,14 +498,6 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                 Box<TabConfiguration> tabBox = getTabConfigurationsBox();
                 Box<BoxSettings> boxSettingsBox = getBoxSettingsBox();
 
-                // Prep moveTo
-                String moveTo = moveToController.text.trim();
-                String potentialMoveTo = lowercaseAndRemoveSpaces(moveTo);
-                if (!tabBox.keys.contains(potentialMoveTo) && potentialMoveTo != '') {
-                  showErrorSnackbar(context, '$moveTo is not a valid list to move to. Skipping.');
-                  potentialMoveTo = '';
-                }
-
                 // Prep tags
                 final tags = tagsController.text.split(',').map((tag) => tag.trim()).toSet();
                 final updatedTags = List<String>.from(tags.where((tag) => tag.isNotEmpty));
@@ -484,7 +508,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                   itemType: selectedTypeNotifier.value,
                   iconCodePoint: iconCodePointNotifier.value,
                   hasCount: hasCountNotifier.value,
-                  moveTo: potentialMoveTo,
+                  moveTo: moveToDropdownNotifier.value,
                 );
                 BoxSettings boxSettings = BoxSettings(boxName: boxName, tags: updatedTags);
                 Navigator.of(context).pop();
