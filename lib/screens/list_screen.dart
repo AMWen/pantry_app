@@ -39,10 +39,7 @@ class ListScreen extends StatefulWidget {
   ListScreenState createState() => ListScreenState();
 }
 
-class ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
+class ListScreenState extends State<ListScreen> {
   // late AutoLoadService _autoLoadService;
   late Box<ListItem> _itemBox;
   late List<String> _tagOrder;
@@ -56,12 +53,7 @@ class ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMix
   @override
   void initState() {
     super.initState();
-
-    Box<BoxSettings> boxSettingsBox = getBoxSettingsBox();
-    currentBoxSettings = boxSettingsBox.get(widget.boxName)!;
-    Box<TabConfiguration> tabBox = getTabConfigurationsBox();
-    currentTab = tabBox.get(widget.boxName)!;
-
+    initialize();
     // _autoLoadService = AutoLoadService();
     // Future.delayed(Duration.zero, () {
     //   if (mounted) {
@@ -71,7 +63,14 @@ class ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMix
     //     );
     //   }
     // });
+  }
+
+  void initialize() {
     _itemBox = Hive.box<ListItem>(widget.boxName);
+    Box<BoxSettings> boxSettingsBox = getBoxSettingsBox();
+    currentBoxSettings = boxSettingsBox.get(widget.boxName)!;
+    Box<TabConfiguration> tabBox = getTabConfigurationsBox();
+    currentTab = tabBox.get(widget.boxName)!;
     _tagOrder = currentBoxSettings.tags;
   }
 
@@ -515,144 +514,155 @@ class ListScreenState extends State<ListScreen> with AutomaticKeepAliveClientMix
       ),
       body: Padding(
         padding: const EdgeInsets.only(left: 0, right: 0, top: 20, bottom: 0),
-        child: ValueListenableBuilder(
-          valueListenable: _itemBox.listenable(),
-          builder: (context, Box<ListItem> box, _) {
-            if (box.values.isEmpty) {
-              return Center(child: Text('No items added yet.'));
-            }
+        child: ValueListenableBuilder<int>(
+          valueListenable: widget.refreshNotifier,
+          builder: (context, refreshValue, _) {
+            initialize();
+            return ValueListenableBuilder(
+              valueListenable: _itemBox.listenable(),
+              builder: (context, Box<ListItem> box, _) {
+                if (box.values.isEmpty) {
+                  return Center(child: Text('No items added yet.'));
+                }
 
-            listItems = box.values.toList(); // Original list
-            completedItems = listItems.where((item) => item.completed == true).toList();
+                listItems = box.values.toList(); // Original list
+                completedItems = listItems.where((item) => item.completed == true).toList();
 
-            // Filter out completed items
-            if (!currentBoxSettings.showCompleted) {
-              listItems =
-                  listItems
-                      .where((item) => item.completed == false || item.completed == null)
-                      .toList();
-            }
+                // Filter out completed items
+                if (!currentBoxSettings.showCompleted) {
+                  listItems =
+                      listItems
+                          .where((item) => item.completed == false || item.completed == null)
+                          .toList();
+                }
 
-            // Sort the items based on selected criteria
-            if (currentBoxSettings.sortCriteria == 'name') {
-              listItems.sort((a, b) => a.name.compareTo(b.name));
-            } else if (currentBoxSettings.sortCriteria == 'dateAdded') {
-              listItems.sort((a, b) => a.dateAdded.compareTo(b.dateAdded));
-            } else if (currentBoxSettings.sortCriteria == 'tag') {
-              listItems.sort((a, b) {
-                int aIndex = _tagOrder.indexOf(a.tag ?? '');
-                int bIndex = _tagOrder.indexOf(b.tag ?? '');
-                return aIndex.compareTo(bIndex);
-              });
-            }
+                // Sort the items based on selected criteria
+                if (currentBoxSettings.sortCriteria == 'name') {
+                  listItems.sort((a, b) => a.name.compareTo(b.name));
+                } else if (currentBoxSettings.sortCriteria == 'dateAdded') {
+                  listItems.sort((a, b) => a.dateAdded.compareTo(b.dateAdded));
+                } else if (currentBoxSettings.sortCriteria == 'tag') {
+                  listItems.sort((a, b) {
+                    int aIndex = _tagOrder.indexOf(a.tag ?? '');
+                    int bIndex = _tagOrder.indexOf(b.tag ?? '');
+                    return aIndex.compareTo(bIndex);
+                  });
+                }
 
-            return Column(
-              children: [
-                // "Select All" checkbox row
-                ListTile(
-                  key: ValueKey('selectAll'),
-                  minTileHeight: 10,
-                  title: Row(
-                    children: [
-                      SizedBox(
-                        height: 24, // Used to remove padding from Checkbox
-                        child: Checkbox(
-                          value: _itemBox.values.every(
-                            (item) => _selectedItemIds.contains(item.key),
-                          ), // Check if all items are selected
-                          onChanged: (bool? value) {
-                            setState(() {
-                              if (value == true) {
-                                _selectedItemIds = _itemBox.values.fold<Set<int>>({}, (
-                                  Set<int> selectedIds,
-                                  item,
-                                ) {
-                                  selectedIds.add(item.key);
-                                  return selectedIds;
+                return Column(
+                  children: [
+                    // "Select All" checkbox row
+                    ListTile(
+                      key: ValueKey('selectAll'),
+                      minTileHeight: 10,
+                      title: Row(
+                        children: [
+                          SizedBox(
+                            height: 24, // Used to remove padding from Checkbox
+                            child: Checkbox(
+                              value: _itemBox.values.every(
+                                (item) => _selectedItemIds.contains(item.key),
+                              ), // Check if all items are selected
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  if (value == true) {
+                                    _selectedItemIds = _itemBox.values.fold<Set<int>>({}, (
+                                      Set<int> selectedIds,
+                                      item,
+                                    ) {
+                                      selectedIds.add(item.key);
+                                      return selectedIds;
+                                    });
+                                  } else {
+                                    _selectedItemIds.clear();
+                                  }
                                 });
-                              } else {
-                                _selectedItemIds.clear();
-                              }
-                            });
-                          },
-                        ),
+                              },
+                            ),
+                          ),
+                          Text('Select All', style: TextStyle(fontWeight: FontWeight.w600)),
+                        ],
                       ),
-                      Text('Select All', style: TextStyle(fontWeight: FontWeight.w600)),
-                    ],
-                  ),
-                ),
+                    ),
 
-                // ReorderableListView for items
-                Expanded(
-                  child: ReorderableListView.builder(
-                    onReorder: _onReorder,
-                    itemCount: listItems.length,
-                    itemBuilder: (context, index) {
-                      final item = listItems[index];
+                    // ReorderableListView for items
+                    Expanded(
+                      child: ReorderableListView.builder(
+                        onReorder: _onReorder,
+                        itemCount: listItems.length,
+                        itemBuilder: (context, index) {
+                          final item = listItems[index];
 
-                      if (currentTab.hasCount && item.name.endsWith('s') && item.count == 1) {
-                        item.name = item.name.substring(0, item.name.length - 1);
-                        item.save();
-                      }
+                          if (currentTab.hasCount && item.name.endsWith('s') && item.count == 1) {
+                            item.name = item.name.substring(0, item.name.length - 1);
+                            item.save();
+                          }
 
-                      return ListTile(
-                        key: ValueKey(item.key),
-                        minTileHeight: 10,
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              height: 24, // Used to remove padding from Checkbox
-                              child: Checkbox(
-                                value: _selectedItemIds.contains(item.key),
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    if (value == true) {
-                                      _selectedItemIds.add(item.key);
-                                    } else {
-                                      _selectedItemIds.remove(item.key);
-                                    }
-                                  });
-                                },
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                currentTab.hasCount ? '${item.count} ${item.name}' : item.name,
-                                softWrap:
-                                    true, // Ensure text wraps to the next line if it's too long
-                                style: TextStyle(
-                                  decoration:
-                                      item.completed == true ? TextDecoration.lineThrough : null,
+                          return ListTile(
+                            key: ValueKey(item.key),
+                            minTileHeight: 10,
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  height: 24, // Used to remove padding from Checkbox
+                                  child: Checkbox(
+                                    value: _selectedItemIds.contains(item.key),
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        if (value == true) {
+                                          _selectedItemIds.add(item.key);
+                                        } else {
+                                          _selectedItemIds.remove(item.key);
+                                        }
+                                      });
+                                    },
+                                  ),
                                 ),
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            if (item.tag != null && item.tag!.isNotEmpty)
-                              Container(
-                                padding: EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: item.itemTagColor(_tagOrder),
-                                  borderRadius: BorderRadius.circular(12),
+                                Expanded(
+                                  child: Text(
+                                    currentTab.hasCount ? '${item.count} ${item.name}' : item.name,
+                                    softWrap:
+                                        true, // Ensure text wraps to the next line if it's too long
+                                    style: TextStyle(
+                                      decoration:
+                                          item.completed == true
+                                              ? TextDecoration.lineThrough
+                                              : null,
+                                    ),
+                                  ),
                                 ),
-                                child: Text(item.tag!, style: TextStyles.tagText),
-                              ),
-                            SizedBox(width: 8),
-                            Text(dateFormat.format(item.dateAdded), style: TextStyles.lightText),
-                          ],
-                        ),
-                        onTap: () => onItemTapped(item),
-                        onLongPress: () => _showEditDialog(item),
-                        trailing: ReorderableDragStartListener(
-                          index: index,
-                          child: const Icon(Icons.drag_indicator),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+                                SizedBox(width: 8),
+                                if (item.tag != null && item.tag!.isNotEmpty)
+                                  Container(
+                                    padding: EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: item.itemTagColor(_tagOrder),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(item.tag!, style: TextStyles.tagText),
+                                  ),
+                                SizedBox(width: 8),
+                                Text(
+                                  dateFormat.format(item.dateAdded),
+                                  style: TextStyles.lightText,
+                                ),
+                              ],
+                            ),
+                            onTap: () => onItemTapped(item),
+                            onLongPress: () => _showEditDialog(item),
+                            trailing: ReorderableDragStartListener(
+                              index: index,
+                              child: const Icon(Icons.drag_indicator),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
             );
           },
         ),

@@ -41,7 +41,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                 Box<TabConfiguration> tabBox = getTabConfigurationsBox();
                 Navigator.of(context).pop(true);
                 await tabBox.deleteAll(tabBox.keys);
-                await initializeTabConfigurations();
+                await initializeHiveBoxes();
                 widget.refreshNotifier.value++;
               },
             ),
@@ -61,9 +61,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
     final ValueNotifier<int> iconCodePointNotifier = ValueNotifier<int>(tab.iconCodePoint);
     final ValueNotifier<String?> moveToDropdownNotifier = ValueNotifier<String?>(null);
 
-    Map<String, String> boxNameToTitleMap = {
-      for (var config in tabBox.values) config.key: config.title,
-    };
+    Map<String, String> boxNameToTitleMap = getBoxNameToTitleMap();
     List<String?> moveToOptions = (boxNameToTitleMap.keys.cast<String?>().toList()..add(null));
     if (moveToOptions.contains(tab.moveTo)) {
       moveToDropdownNotifier.value = tab.moveTo;
@@ -280,11 +278,8 @@ class ManageListsDialogState extends State<ManageListsDialog> {
     final ValueNotifier<bool> hasCountNotifier = ValueNotifier(false);
     final ValueNotifier<int> iconCodePointNotifier = ValueNotifier<int>(defaultCodePoint);
     final ValueNotifier<String?> moveToDropdownNotifier = ValueNotifier<String?>(null);
-    final Box<TabConfiguration> tabBox = getTabConfigurationsBox();
 
-    Map<String, String> boxNameToTitleMap = {
-      for (var config in tabBox.values) config.key: config.title,
-    };
+    Map<String, String> boxNameToTitleMap = getBoxNameToTitleMap();
     List<String?> moveToOptions = (boxNameToTitleMap.keys.cast<String?>().toList()..add(null));
 
     void pickIcon() async {
@@ -327,7 +322,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                           maxLines: null,
                           decoration: InputDecoration(
                             isDense: true,
-                            hintText: 'Title for list',
+                            hintText: 'Unique title for list',
                             hintStyle: TextStyles.hintText,
                             border: InputBorder.none,
                             focusedBorder: OutlineInputBorder(
@@ -533,7 +528,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
       builder: (context) {
         return AlertDialog(
           contentPadding: alertPadding,
-          title: AlertTitle('Are you sure you want to delete $tabTitle?'),
+          title: AlertTitle('Are you sure you want to delete ${getBoxNameToTitleMap()[tabTitle]}?'),
           content: Text('This action cannot be undone.'),
           actions: [
             CancelButton(),

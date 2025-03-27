@@ -35,6 +35,11 @@ Future<void> initializeTabConfigurations() async {
   }
 }
 
+Map<String, String> getBoxNameToTitleMap() {
+  Box<TabConfiguration> tabBox = getTabConfigurationsBox();
+  return {for (var config in tabBox.values) config.key: config.title};
+}
+
 Box<BoxSettings> getBoxSettingsBox() {
   return Hive.box<BoxSettings>(HiveBoxNames.boxSettings);
 }
@@ -84,11 +89,11 @@ List<TabItem> generateTabItems(ValueNotifier<int> refreshNotifier) {
     final iconData = getMaterialIcon(config.iconCodePoint);
     final boxName = lowercaseAndRemoveSpaces(config.title);
     final screen = ListScreen(
-              itemType: config.itemType,
-              boxName: boxName,
-              title: config.title,
-              refreshNotifier: refreshNotifier,
-            );
+      itemType: config.itemType,
+      boxName: boxName,
+      title: config.title,
+      refreshNotifier: refreshNotifier,
+    );
 
     return TabItem(
       screen: screen,
