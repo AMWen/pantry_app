@@ -48,7 +48,7 @@ final defaultTabConfigurations = [
   ),
   TabConfiguration(
     title: 'Shopping',
-    itemType: 'shopping',
+    itemType: 'pantry',
     iconCodePoint: Icons.local_grocery_store.codePoint,
     hasCount: true,
     moveTo: 'pantry',
@@ -70,7 +70,7 @@ final defaultTabConfigurations = [
   ),
   TabConfiguration(
     title: 'To Do',
-    itemType: 'meals',
+    itemType: 'todo',
     iconCodePoint: Icons.list.codePoint,
     hasCount: false,
     sort: DefaultTabs.todo.index,
