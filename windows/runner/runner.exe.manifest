@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
   <application xmlns="urn:schemas-microsoft-com:asm.v3">
-    <windowsSettings>
-      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
-    </windowsSettings>
+    <windowsBoxSettings>
+      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsBoxSettings">PerMonitorV2</dpiAwareness>
+    </windowsBoxSettings>
   </application>
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>
