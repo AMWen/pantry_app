@@ -99,7 +99,9 @@ class MoveItemsDialogState extends State<MoveItemsDialog> {
                       builder: (context, newMoveTo, child) {
                         return DropdownButton<String>(
                           underline: Container(),
-                          style: TextStyles.normalText,
+                          style: TextStyles.normalText.copyWith(
+                            color: Theme.of(context).textTheme.bodyMedium!.color,
+                          ),
                           padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                           isDense: true,
                           value: newMoveTo,

@@ -140,7 +140,10 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                         child: ValueListenableBuilder<int>(
                           valueListenable: iconCodePointNotifier,
                           builder: (context, iconCodePoint, child) {
-                            return Icon(getMaterialIcon(iconCodePoint));
+                            return Icon(
+                              getMaterialIcon(iconCodePoint),
+                              color: Theme.of(context).textTheme.bodyMedium!.color,
+                            );
                           },
                         ),
                       ),
@@ -162,7 +165,9 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                           builder: (context, moveTo, child) {
                             return DropdownButton<String>(
                               underline: Container(),
-                              style: TextStyles.normalText,
+                              style: TextStyles.normalText.copyWith(
+                                color: Theme.of(context).textTheme.bodyMedium!.color,
+                              ),
                               padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                               isDense: true,
                               value: moveTo,
@@ -287,7 +292,10 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                         return ListTile(
                           key: ValueKey(tabItem.key),
                           minTileHeight: 10,
-                          leading: Icon(getMaterialIcon(tabItem.iconCodePoint)),
+                          leading: Icon(
+                            getMaterialIcon(tabItem.iconCodePoint),
+                            color: Theme.of(context).textTheme.bodyMedium!.color,
+                          ),
                           title: Text(tabItem.title, style: TextStyles.mediumText),
                           onTap: () {
                             _showEditListDialog(tabItem.key);
@@ -409,7 +417,10 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                         child: ValueListenableBuilder<int>(
                           valueListenable: iconCodePointNotifier,
                           builder: (context, iconCodePoint, child) {
-                            return Icon(getMaterialIcon(iconCodePoint));
+                            return Icon(
+                              getMaterialIcon(iconCodePoint),
+                              color: Theme.of(context).textTheme.bodyMedium!.color,
+                            );
                           },
                         ),
                       ),
@@ -431,7 +442,9 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                           builder: (context, moveTo, child) {
                             return DropdownButton<String>(
                               underline: Container(),
-                              style: TextStyles.normalText,
+                              style: TextStyles.normalText.copyWith(
+                                color: Theme.of(context).textTheme.bodyMedium!.color,
+                              ),
                               padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                               isDense: true,
                               value: moveTo,
@@ -470,7 +483,9 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                           builder: (context, selectedType, child) {
                             return DropdownButton<String>(
                               underline: Container(),
-                              style: TextStyles.normalText,
+                              style: TextStyles.normalText.copyWith(
+                                color: Theme.of(context).textTheme.bodyMedium!.color,
+                              ),
                               padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                               isDense: true,
                               value: selectedType, // Value from ValueNotifier
