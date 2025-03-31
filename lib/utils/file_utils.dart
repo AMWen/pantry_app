@@ -174,25 +174,25 @@ Future<String?> autoSave(String boxName) async {
 
 Future<String> saveAllToFile(String fileName) async {
   try {
-    List<Map<String, dynamic>> allData = [];
+    Map<String, dynamic> allData = {};
 
     // All lists (one for each boxName)
     for (var boxName in getBoxNames()) {
       Box<ListItem> box = Hive.box<ListItem>(boxName);
       List<Map<String, dynamic>> boxData = box.values.map((item) => item.toJson()).toList();
-      allData.add({'boxName': boxName, 'items': boxData});
+      allData[boxName] = boxData;
     }
 
     // Settings (single one containing each boxName as a key)
     Box<BoxSettings> settingsBox = getBoxSettingsBox();
     List<Map<String, dynamic>> settingsBoxData =
         settingsBox.values.map((item) => item.toJson()).toList();
-    allData.add({'boxName': HiveBoxNames.boxSettings, 'settings': settingsBoxData});
+    allData[HiveBoxNames.boxSettings] = settingsBoxData;
 
     // Tab Configs (single one containing each boxName as a key)
     Box<TabConfiguration> tabBox = getTabConfigurationsBox();
     List<Map<String, dynamic>> tabBoxData = tabBox.values.map((item) => item.toJson()).toList();
-    allData.add({'boxName': HiveBoxNames.tabConfigurations, 'configs': tabBoxData});
+    allData[HiveBoxNames.tabConfigurations] = tabBoxData;
 
     await FilePicker.platform.saveFile(
       dialogTitle: 'Please select an output file:',
@@ -213,44 +213,40 @@ Future<String> loadAllFromFile(String? filePath) async {
     if (filePath != null) {
       final file = File(filePath);
       final jsonString = await file.readAsString();
-      final List<dynamic> allData = json.decode(jsonString);
+      final Map<String, dynamic> allData = json.decode(jsonString);
+
+      // Get Settings and Tab Configurations first
+      Box<BoxSettings> settingsBox = getBoxSettingsBox();
+      await settingsBox.deleteAll(settingsBox.keys.toList());
+      final List<dynamic> settings = allData[HiveBoxNames.boxSettings];
+      for (var settingsData in settings) {
+        final currentBoxSettings = BoxSettings.fromJson(settingsData);
+        await settingsBox.put(currentBoxSettings.boxName, currentBoxSettings);
+      }
+
+      Box<TabConfiguration> tabBox = getTabConfigurationsBox();
+      await tabBox.deleteAll(tabBox.keys.toList());
+      final List<dynamic> configs = allData[HiveBoxNames.tabConfigurations];
+      for (var config in configs) {
+        final currentTab = TabConfiguration.fromJson(config);
+        await tabBox.put(lowercaseAndRemoveSpaces(currentTab.title), currentTab);
+      }
 
       // Process each box's data and load it into the corresponding box
-      for (var boxData in allData) {
-        final boxName = boxData['boxName'];
-
-        if (getBoxNames().contains(boxName)) {
+      for (String boxName in allData.keys) {
+        if (!{HiveBoxNames.tabConfigurations, HiveBoxNames.boxSettings}.contains(boxName)) {
+          await Hive.openBox<ListItem>(boxName);
           Box<ListItem> box = Hive.box<ListItem>(boxName);
-          final List<dynamic> items = boxData['items'];
-
-          final keys = box.keys.toList();
-          await box.deleteAll(keys);
-
+          await box.deleteAll(box.keys.toList());
+          final List<dynamic> items = allData[boxName];
           for (var itemData in items) {
             final listItem = ListItem.fromJson(itemData);
             await box.add(listItem);
           }
-        } else if (boxName == HiveBoxNames.boxSettings) {
-          Box<BoxSettings> settingsBox = getBoxSettingsBox();
-          final List<dynamic> settings = boxData['settings'];
-
-          for (var settingsData in settings) {
-            final currentBoxSettings = BoxSettings.fromJson(settingsData);
-            await settingsBox.put(boxName, currentBoxSettings);
-          }
-        } else if (boxName == HiveBoxNames.tabConfigurations) {
-          Box<TabConfiguration> tabBox = getTabConfigurationsBox();
-          final List<dynamic> configs = boxData['configs'];
-
-          final keys = tabBox.keys.toList();
-          await tabBox.deleteAll(keys);
-
-          for (var config in configs) {
-            final currentTab = TabConfiguration.fromJson(config);
-            await tabBox.put(boxName, currentTab);
-          }
         }
       }
+
+      await initializeHiveBoxes();
 
       return 'Data imported successfully';
     } else {

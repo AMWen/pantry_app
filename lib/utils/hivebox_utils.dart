@@ -25,9 +25,9 @@ Box<TabConfiguration> getTabConfigurationsBox() {
   return Hive.box<TabConfiguration>(HiveBoxNames.tabConfigurations);
 }
 
-Future<void> initializeTabConfigurations() async {
+Future<void> initializeTabConfigurations([force = false]) async {
   Box<TabConfiguration> tabBox = getTabConfigurationsBox();
-  if (tabBox.isEmpty) {
+  if (tabBox.isEmpty || force) {
     for (var config in defaultTabConfigurations) {
       // Use boxName as key
       await tabBox.put(lowercaseAndRemoveSpaces(config.title), config);

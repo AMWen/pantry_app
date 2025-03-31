@@ -64,11 +64,21 @@ class ListScreenState extends State<ListScreen> {
     // });
   }
 
-  void initialize() {
+  void initialize() async {
+    currentTab = TabConfiguration(title: widget.title, itemType: widget.itemType);
     _itemBox = Hive.box<ListItem>(widget.boxName);
+
     Box<BoxSettings> boxSettingsBox = getBoxSettingsBox();
+    if (!boxSettingsBox.keys.contains(widget.boxName)) {
+      await initializeBoxSettings([widget.boxName]);
+    }
     currentBoxSettings = boxSettingsBox.get(widget.boxName)!;
+
     Box<TabConfiguration> tabBox = getTabConfigurationsBox();
+    if (!tabBox.keys.contains(widget.boxName)) {
+      await initializeTabConfigurations(true);
+      await Hive.openBox<ListItem>(widget.boxName);
+    }
     currentTab = tabBox.get(widget.boxName)!;
     _tagOrder = currentBoxSettings.tags;
   }
@@ -363,6 +373,7 @@ class ListScreenState extends State<ListScreen> {
       context: context,
       builder: (BuildContext context) {
         return SaveLoadDialog(
+          refreshNotifier: widget.refreshNotifier,
           boxName: widget.boxName,
           itemBox: _itemBox,
           selectedItemIds: _selectedItemIds,

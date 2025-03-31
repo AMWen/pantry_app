@@ -8,12 +8,14 @@ import 'basic_widgets.dart';
 import '../../utils/widget_utils.dart';
 
 class SaveLoadDialog extends StatefulWidget {
+  final ValueNotifier<int> refreshNotifier;
   final String boxName;
   final Box<ListItem> itemBox;
   final Set<int> selectedItemIds;
 
   const SaveLoadDialog({
     super.key,
+    required this.refreshNotifier,
     required this.boxName,
     required this.itemBox,
     required this.selectedItemIds,
@@ -57,6 +59,7 @@ class SaveLoadDialogState extends State<SaveLoadDialog> {
   Future<void> _importAll() async {
     final filePath = await pickLocation();
     String message = await loadAllFromFile(filePath);
+    widget.refreshNotifier.value++;
 
     if (mounted) {
       showErrorSnackbar(context, message);
