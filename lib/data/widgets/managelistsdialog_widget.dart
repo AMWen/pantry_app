@@ -280,7 +280,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
               contentPadding: alertPadding,
               title: AlertTitle('Edit list(s)'),
               content: SizedBox(
-                width: double.maxFinite,
+                width: double.maxFinite > 400 ? 400 : double.maxFinite,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
