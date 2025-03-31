@@ -279,7 +279,8 @@ class ManageListsDialogState extends State<ManageListsDialog> {
             return AlertDialog(
               contentPadding: alertPadding,
               title: AlertTitle('Edit list(s)'),
-              content: SingleChildScrollView(
+              content: SizedBox(
+                width: double.maxFinite,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
