@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_iconpicker/Models/configuration.dart';
 import 'package:flutter_iconpicker/flutter_iconpicker.dart';
+// https://github.com/Ahmadre/FlutterIconPicker/blob/master/assets/generated_packs/FontAwesome.dart
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../utils/hivebox_utils.dart';
@@ -60,6 +61,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
     final ValueNotifier<bool> hasCountNotifier = ValueNotifier(tab.hasCount);
     final ValueNotifier<int> iconCodePointNotifier = ValueNotifier<int>(tab.iconCodePoint);
     final ValueNotifier<String?> moveToDropdownNotifier = ValueNotifier<String?>(null);
+    String fontFamily = tab.fontFamily;
 
     Map<String, String> boxNameToTitleMap = getBoxNameToTitleMap();
     List<String?> moveToOptions = (boxNameToTitleMap.keys.cast<String?>().toList()..add(null));
@@ -71,15 +73,38 @@ class ManageListsDialogState extends State<ManageListsDialog> {
       IconPickerIcon? icon = await showIconPicker(
         context,
         configuration: SinglePickerConfiguration(
-          searchHintText: 'eg. savings=pig',
-          title: Text('Pick an icon (material icons)', style: TextStyles.dialogTitle),
+          iconPackModes: [IconPack.fontAwesomeIcons],
+          title: Text('Pick an icon', style: TextStyles.dialogTitle),
         ),
       );
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Icon(
+              IconData(
+                icon!.data.codePoint,
+                fontFamily: icon.data.fontFamily,
+                fontPackage: icon.data.fontPackage,
+              ),
+              color: Colors.amber,
+            ),
+          );
+        },
+      );
+
+      print(icon?.data.codePoint);
+      print(icon?.data.fontFamily);
+      print(icon?.data.fontPackage);
+      print(icon?.data.fontFamily); // IconPack.fontAwesomeIcons
 
       if (icon != null) {
         setState(() {
           iconCodePointNotifier.value = icon.data.codePoint;
           tab.iconCodePoint = iconCodePointNotifier.value;
+          fontFamily = icon.data.fontFamily!;
+          tab.fontFamily = fontFamily;
         });
       }
     }
@@ -140,8 +165,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                         child: ValueListenableBuilder<int>(
                           valueListenable: iconCodePointNotifier,
                           builder: (context, iconCodePoint, child) {
-                            return Icon(
-                              getMaterialIcon(iconCodePoint),
+                            return Icon(getFaIcon(iconCodePoint, fontFamily),
                               color: Theme.of(context).textTheme.bodyMedium!.color,
                             );
                           },
@@ -294,7 +318,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                           key: ValueKey(tabItem.key),
                           minTileHeight: 10,
                           leading: Icon(
-                            getMaterialIcon(tabItem.iconCodePoint),
+                            getFaIcon(tabItem.iconCodePoint, tabItem.fontFamily),
                             color: Theme.of(context).textTheme.bodyMedium!.color,
                           ),
                           title: Text(tabItem.title, style: TextStyles.mediumText),
@@ -327,6 +351,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
     final ValueNotifier<bool> hasCountNotifier = ValueNotifier(false);
     final ValueNotifier<int> iconCodePointNotifier = ValueNotifier<int>(defaultCodePoint);
     final ValueNotifier<String?> moveToDropdownNotifier = ValueNotifier<String?>(null);
+    String fontFamily = defaultFontFamily;
 
     Map<String, String> boxNameToTitleMap = getBoxNameToTitleMap();
     List<String?> moveToOptions = (boxNameToTitleMap.keys.cast<String?>().toList()..add(null));
@@ -343,6 +368,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
       if (icon != null) {
         setState(() {
           iconCodePointNotifier.value = icon.data.codePoint;
+          fontFamily = icon.data.fontFamily!;
         });
       }
     }
@@ -419,7 +445,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                           valueListenable: iconCodePointNotifier,
                           builder: (context, iconCodePoint, child) {
                             return Icon(
-                              getMaterialIcon(iconCodePoint),
+                              getFaIcon(iconCodePoint, fontFamily),
                               color: Theme.of(context).textTheme.bodyMedium!.color,
                             );
                           },
@@ -560,6 +586,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                   iconCodePoint: iconCodePointNotifier.value,
                   hasCount: hasCountNotifier.value,
                   moveTo: moveToDropdownNotifier.value,
+                  fontFamily: fontFamily,
                 );
                 BoxSettings boxSettings = BoxSettings(boxName: boxName, tags: updatedTags);
                 Navigator.of(context).pop();

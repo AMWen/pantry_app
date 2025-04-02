@@ -69,8 +69,8 @@ List<String> getBoxNames() {
   }).toList();
 }
 
-IconData getMaterialIcon(int iconCodePoint) {
-  return IconData(iconCodePoint, fontFamily: 'MaterialIcons');
+IconData getFaIcon(int iconCodePoint, String fontFamily) {
+  return IconData(iconCodePoint, fontFamily: fontFamily, fontPackage: 'font_awesome_flutter');
 }
 
 List<TabConfiguration> generateTabConfigs() {
@@ -89,7 +89,7 @@ List<TabConfiguration> generateTabConfigs() {
 List<TabItem> generateTabItems(ValueNotifier<int> refreshNotifier) {
   List<TabConfiguration> tabConfigs = generateTabConfigs();
   return tabConfigs.map((config) {
-    final iconData = getMaterialIcon(config.iconCodePoint);
+    final iconData = getFaIcon(config.iconCodePoint, config.fontFamily);
     final boxName = lowercaseAndRemoveSpaces(config.title);
     final screen = ListScreen(
       itemType: config.itemType,

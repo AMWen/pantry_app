@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart'; // Import for date formatting
 import 'classes/tab_configuration.dart';
 
@@ -41,7 +42,8 @@ final defaultTabConfigurations = [
   TabConfiguration(
     title: 'Pantry',
     itemType: 'pantry',
-    iconCodePoint: Icons.kitchen_rounded.codePoint,
+    iconCodePoint: FontAwesomeIcons.jar.codePoint,
+    fontFamily: FontAwesomeIcons.jar.fontFamily,
     hasCount: true,
     moveTo: 'shopping',
     sort: DefaultTabs.pantry.index,
@@ -49,7 +51,8 @@ final defaultTabConfigurations = [
   TabConfiguration(
     title: 'Shopping',
     itemType: 'pantry',
-    iconCodePoint: Icons.local_grocery_store.codePoint,
+    iconCodePoint: FontAwesomeIcons.cartShopping.codePoint,
+    fontFamily: FontAwesomeIcons.cartShopping.fontFamily,
     hasCount: true,
     moveTo: 'pantry',
     sort: DefaultTabs.shopping.index,
@@ -57,28 +60,32 @@ final defaultTabConfigurations = [
   TabConfiguration(
     title: 'Meals',
     itemType: 'meals',
-    iconCodePoint: Icons.dinner_dining.codePoint,
+    iconCodePoint: FontAwesomeIcons.kitchenSet.codePoint,
+    fontFamily: FontAwesomeIcons.kitchenSet.fontFamily,
     hasCount: false,
     sort: DefaultTabs.meals.index,
   ),
   TabConfiguration(
     title: 'To Eat',
     itemType: 'meals',
-    iconCodePoint: Icons.local_dining.codePoint,
+    iconCodePoint: FontAwesomeIcons.utensils.codePoint,
+    fontFamily: FontAwesomeIcons.utensils.fontFamily,
     hasCount: false,
     sort: DefaultTabs.toeat.index,
   ),
   TabConfiguration(
     title: 'To Do',
     itemType: 'todo',
-    iconCodePoint: Icons.list.codePoint,
+    iconCodePoint: FontAwesomeIcons.list.codePoint,
+    fontFamily: FontAwesomeIcons.list.fontFamily,
     hasCount: false,
     sort: DefaultTabs.todo.index,
   ),
   TabConfiguration(
     title: 'Ideas',
     itemType: 'ideas',
-    iconCodePoint: Icons.lightbulb.codePoint,
+    iconCodePoint: FontAwesomeIcons.solidLightbulb.codePoint,
+    fontFamily: FontAwesomeIcons.solidLightbulb.fontFamily,
     hasCount: false,
     sort: DefaultTabs.ideas.index,
   ),
@@ -88,7 +95,8 @@ String lowercaseAndRemoveSpaces(String input) {
   return input.replaceAll(' ', '').toLowerCase();
 }
 
-final int defaultCodePoint = 58408;
+final int defaultCodePoint = 61546;
+final String defaultFontFamily = 'FontAwesomeSolid';
 
 final DateTime defaultDateTime = DateTime.utc(2000, 1, 1);
 

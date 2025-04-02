@@ -18,6 +18,8 @@ class TabConfiguration extends HiveObject {
   String? _moveTo;
   @HiveField(6)
   int? _sort;
+  @HiveField(7)
+  String? _fontFamily;
   
   TabConfiguration({
     required this.title,
@@ -26,7 +28,9 @@ class TabConfiguration extends HiveObject {
     bool hasCount = false,
     String? moveTo,
     int? sort,
+    String? fontFamily,
   }) : _iconCodePoint = iconCodePoint ?? defaultCodePoint,
+       _fontFamily = fontFamily ?? defaultFontFamily,
        _hasCount = hasCount,
        _moveTo = moveTo,
        _sort = sort ?? DateTime.now().toUtc().millisecondsSinceEpoch;
@@ -34,6 +38,12 @@ class TabConfiguration extends HiveObject {
   int get iconCodePoint => _iconCodePoint;
   set iconCodePoint(int value) {
     _iconCodePoint = value;
+    save();
+  }
+
+  String get fontFamily => _fontFamily ?? defaultFontFamily;
+  set fontFamily(String value) {
+    _fontFamily = value;
     save();
   }
 
