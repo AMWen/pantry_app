@@ -78,27 +78,6 @@ class ManageListsDialogState extends State<ManageListsDialog> {
         ),
       );
 
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: Icon(
-              IconData(
-                icon!.data.codePoint,
-                fontFamily: icon.data.fontFamily,
-                fontPackage: icon.data.fontPackage,
-              ),
-              color: Colors.amber,
-            ),
-          );
-        },
-      );
-
-      print(icon?.data.codePoint);
-      print(icon?.data.fontFamily);
-      print(icon?.data.fontPackage);
-      print(icon?.data.fontFamily); // IconPack.fontAwesomeIcons
-
       if (icon != null) {
         setState(() {
           iconCodePointNotifier.value = icon.data.codePoint;
