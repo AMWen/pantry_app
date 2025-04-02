@@ -134,7 +134,7 @@ class ListScreenState extends State<ListScreen> {
 
   void _showItemDetails(ListItem item) {
     String displayName =
-        item.name.endsWith('s')
+        item.name.endsWith('s') && !item.name.contains(' ')
             ? item.name.substring(0, item.name.length - 1) // Remove trailing 's'
             : item.name;
     showDialog(
@@ -579,7 +579,10 @@ class ListScreenState extends State<ListScreen> {
                         itemBuilder: (context, index) {
                           final item = listItems[index];
 
-                          if (currentTab.hasCount && item.name.endsWith('s') && item.count == 1) {
+                          if (currentTab.hasCount &&
+                              item.name.endsWith('s') &&
+                              !item.name.contains(' ') &&
+                              item.count == 1) {
                             item.name = item.name.substring(0, item.name.length - 1);
                             item.save();
                           }

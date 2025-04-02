@@ -84,6 +84,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
           tab.iconCodePoint = iconCodePointNotifier.value;
           fontFamily = icon.data.fontFamily!;
           tab.fontFamily = fontFamily;
+          showErrorSnackbar(context, 'Selected ${icon.name}!');
         });
       }
     }
