@@ -59,9 +59,9 @@ class ManageListsDialogState extends State<ManageListsDialog> {
     BoxSettings currentBoxSettings = boxSettingsBox.get(boxName)!;
     final tagsController = TextEditingController(text: currentBoxSettings.tags.join(', '));
     final ValueNotifier<bool> hasCountNotifier = ValueNotifier(tab.hasCount);
-    final ValueNotifier<int> iconCodePointNotifier = ValueNotifier<int>(tab.iconCodePoint);
+    final ValueNotifier<Map<String, dynamic>> iconDataNotifier =
+        ValueNotifier<Map<String, dynamic>>(tab.iconData);
     final ValueNotifier<String?> moveToDropdownNotifier = ValueNotifier<String?>(null);
-    String fontFamily = tab.fontFamily;
 
     Map<String, String> boxNameToTitleMap = getBoxNameToTitleMap();
     List<String?> moveToOptions = (boxNameToTitleMap.keys.cast<String?>().toList()..add(null));
@@ -80,10 +80,12 @@ class ManageListsDialogState extends State<ManageListsDialog> {
 
       if (icon != null) {
         setState(() {
-          iconCodePointNotifier.value = icon.data.codePoint;
-          tab.iconCodePoint = iconCodePointNotifier.value;
-          fontFamily = icon.data.fontFamily!;
-          tab.fontFamily = fontFamily;
+          iconDataNotifier.value = {
+            IconDataInfo.iconCodePoint: icon.data.codePoint,
+            IconDataInfo.fontFamily: icon.data.fontFamily,
+            IconDataInfo.fontPackage: icon.data.fontPackage,
+          };
+          tab.iconData = iconDataNotifier.value;
           showErrorSnackbar(context, 'Selected ${icon.name}!');
         });
       }
@@ -142,10 +144,15 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                       SizedBox(width: 6),
                       GestureDetector(
                         onTap: pickIcon,
-                        child: ValueListenableBuilder<int>(
-                          valueListenable: iconCodePointNotifier,
-                          builder: (context, iconCodePoint, child) {
-                            return Icon(getFaIcon(iconCodePoint, fontFamily),
+                        child: ValueListenableBuilder<Map>(
+                          valueListenable: iconDataNotifier,
+                          builder: (context, iconData, child) {
+                            return Icon(
+                              getIcon(
+                                iconData[IconDataInfo.iconCodePoint],
+                                iconData[IconDataInfo.fontFamily],
+                                iconData[IconDataInfo.fontPackage],
+                              ),
                               color: Theme.of(context).textTheme.bodyMedium!.color,
                             );
                           },
@@ -298,7 +305,11 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                           key: ValueKey(tabItem.key),
                           minTileHeight: 10,
                           leading: Icon(
-                            getFaIcon(tabItem.iconCodePoint, tabItem.fontFamily),
+                            getIcon(
+                              tabItem.iconData[IconDataInfo.iconCodePoint],
+                              tabItem.iconData[IconDataInfo.fontFamily],
+                              tabItem.iconData[IconDataInfo.fontPackage],
+                            ),
                             color: Theme.of(context).textTheme.bodyMedium!.color,
                           ),
                           title: Text(tabItem.title, style: TextStyles.mediumText),
@@ -329,9 +340,9 @@ class ManageListsDialogState extends State<ManageListsDialog> {
     final List<String> itemTypes = List.from(defaultTagMapping.keys)..add('');
     final ValueNotifier<String> selectedTypeNotifier = ValueNotifier<String>('');
     final ValueNotifier<bool> hasCountNotifier = ValueNotifier(false);
-    final ValueNotifier<int> iconCodePointNotifier = ValueNotifier<int>(defaultCodePoint);
+    final ValueNotifier<Map<String, dynamic>> iconDataNotifier =
+        ValueNotifier<Map<String, dynamic>>(defaultIconData);
     final ValueNotifier<String?> moveToDropdownNotifier = ValueNotifier<String?>(null);
-    String fontFamily = defaultFontFamily;
 
     Map<String, String> boxNameToTitleMap = getBoxNameToTitleMap();
     List<String?> moveToOptions = (boxNameToTitleMap.keys.cast<String?>().toList()..add(null));
@@ -347,8 +358,11 @@ class ManageListsDialogState extends State<ManageListsDialog> {
 
       if (icon != null) {
         setState(() {
-          iconCodePointNotifier.value = icon.data.codePoint;
-          fontFamily = icon.data.fontFamily!;
+          iconDataNotifier.value = {
+            IconDataInfo.iconCodePoint: icon.data.codePoint,
+            IconDataInfo.fontFamily: icon.data.fontFamily,
+            IconDataInfo.fontPackage: icon.data.fontPackage,
+          };
         });
       }
     }
@@ -421,11 +435,15 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                       SizedBox(width: 6),
                       GestureDetector(
                         onTap: pickIcon,
-                        child: ValueListenableBuilder<int>(
-                          valueListenable: iconCodePointNotifier,
-                          builder: (context, iconCodePoint, child) {
+                        child: ValueListenableBuilder<Map>(
+                          valueListenable: iconDataNotifier,
+                          builder: (context, iconData, child) {
                             return Icon(
-                              getFaIcon(iconCodePoint, fontFamily),
+                              getIcon(
+                                iconData[IconDataInfo.iconCodePoint],
+                                iconData[IconDataInfo.fontFamily],
+                                iconData[IconDataInfo.fontPackage],
+                              ),
                               color: Theme.of(context).textTheme.bodyMedium!.color,
                             );
                           },
@@ -563,10 +581,9 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                 TabConfiguration tabConfig = TabConfiguration(
                   title: title,
                   itemType: selectedTypeNotifier.value,
-                  iconCodePoint: iconCodePointNotifier.value,
+                  iconData: iconDataNotifier.value,
                   hasCount: hasCountNotifier.value,
                   moveTo: moveToDropdownNotifier.value,
-                  fontFamily: fontFamily,
                 );
                 BoxSettings boxSettings = BoxSettings(boxName: boxName, tags: updatedTags);
                 Navigator.of(context).pop();

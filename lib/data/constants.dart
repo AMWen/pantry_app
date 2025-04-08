@@ -8,6 +8,21 @@ class HiveBoxNames {
   static const String tabConfigurations = 'tabConfigurations';
 }
 
+class IconDataInfo {
+  static const String iconCodePoint = 'iconCodePoint';
+  static const String fontFamily = 'fontFamily';
+  static const String fontPackage = 'fontPackage';
+}
+
+final int defaultCodePoint = 61546;
+final String defaultFontFamily = 'FontAwesomeSolid';
+final String defaultFontPackage = 'font_awesome_flutter';
+final Map<String, dynamic> defaultIconData = {
+  IconDataInfo.iconCodePoint: defaultCodePoint,
+  IconDataInfo.fontFamily: defaultCodePoint,
+  IconDataInfo.fontPackage: defaultFontPackage,
+};
+
 Map<String, String> defaultItemTypesFromConfigurations() {
   return Map.fromEntries(
     defaultTabConfigurations.map(
@@ -94,9 +109,6 @@ final defaultTabConfigurations = [
 String lowercaseAndRemoveSpaces(String input) {
   return input.replaceAll(' ', '').toLowerCase();
 }
-
-final int defaultCodePoint = 61546;
-final String defaultFontFamily = 'FontAwesomeSolid';
 
 final DateTime defaultDateTime = DateTime.utc(2000, 1, 1);
 

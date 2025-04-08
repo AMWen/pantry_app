@@ -20,31 +20,28 @@ class TabConfigurationAdapter extends TypeAdapter<TabConfiguration> {
       title: fields[0] as String,
       itemType: fields[1] as String,
     )
-      .._iconCodePoint = fields[2] as int
       .._hasCount = fields[3] as bool
       .._moveTo = fields[4] as String?
       .._sort = fields[6] as int?
-      .._fontFamily = fields[7] as String?;
+      .._iconData = (fields[8] as Map?)?.cast<String, dynamic>();
   }
 
   @override
   void write(BinaryWriter writer, TabConfiguration obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
       ..write(obj.itemType)
-      ..writeByte(2)
-      ..write(obj._iconCodePoint)
       ..writeByte(3)
       ..write(obj._hasCount)
       ..writeByte(4)
       ..write(obj._moveTo)
       ..writeByte(6)
       ..write(obj._sort)
-      ..writeByte(7)
-      ..write(obj._fontFamily);
+      ..writeByte(8)
+      ..write(obj._iconData);
   }
 
   @override

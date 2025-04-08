@@ -10,17 +10,15 @@ class TabConfiguration extends HiveObject {
   final String title;
   @HiveField(1)
   final String itemType;
-  @HiveField(2)
-  int _iconCodePoint;
   @HiveField(3)
   bool _hasCount;
   @HiveField(4)
   String? _moveTo;
   @HiveField(6)
   int? _sort;
-  @HiveField(7)
-  String? _fontFamily;
-  
+  @HiveField(8)
+  Map<String, dynamic>? _iconData;
+
   TabConfiguration({
     required this.title,
     required this.itemType,
@@ -29,21 +27,21 @@ class TabConfiguration extends HiveObject {
     String? moveTo,
     int? sort,
     String? fontFamily,
-  }) : _iconCodePoint = iconCodePoint ?? defaultCodePoint,
-       _fontFamily = fontFamily ?? defaultFontFamily,
+    Map<String, dynamic>? iconData,
+  }) : _iconData =
+           iconData ??
+           {
+             IconDataInfo.iconCodePoint: iconCodePoint ?? defaultCodePoint,
+             IconDataInfo.fontFamily: fontFamily ?? defaultFontFamily,
+             IconDataInfo.fontPackage: defaultFontPackage,
+           },
        _hasCount = hasCount,
        _moveTo = moveTo,
        _sort = sort ?? DateTime.now().toUtc().millisecondsSinceEpoch;
 
-  int get iconCodePoint => _iconCodePoint;
-  set iconCodePoint(int value) {
-    _iconCodePoint = value;
-    save();
-  }
-
-  String get fontFamily => _fontFamily ?? defaultFontFamily;
-  set fontFamily(String value) {
-    _fontFamily = value;
+  Map<String, dynamic> get iconData => _iconData ?? defaultIconData;
+  set iconData(Map<String, dynamic> value) {
+    _iconData = value;
     save();
   }
 
@@ -69,7 +67,7 @@ class TabConfiguration extends HiveObject {
     return TabConfiguration(
       title: json['title'],
       itemType: json['itemType'],
-      iconCodePoint: json['iconCodePoint'] ?? defaultCodePoint,
+      iconData: json['iconData'] ?? defaultIconData,
       hasCount: json['hasCount'] ?? false,
       moveTo: json['moveTo'],
       sort: json['sort'],
@@ -81,7 +79,7 @@ class TabConfiguration extends HiveObject {
     return {
       'title': title,
       'itemType': itemType,
-      'iconCodePoint': _iconCodePoint,
+      'iconData': _iconData,
       'hasCount': _hasCount,
       'moveTo': _moveTo,
       'sort': _sort,
