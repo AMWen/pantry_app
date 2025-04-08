@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../data/classes/box_settings.dart';
 import '../data/classes/list_item.dart';
 import '../data/classes/tab_configuration.dart';
@@ -87,6 +88,21 @@ class ListScreenState extends State<ListScreen> {
   void dispose() {
     // _autoLoadService.stopAutoLoad();
     super.dispose();
+  }
+
+  Future<void> _launchUrl(String url) async {
+    // Prepend "http://" if no protocol is provided
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = 'http://$url';
+    }
+
+    final Uri parsedUrl = Uri.parse(url);
+
+    if (!await launchUrl(parsedUrl)) {
+      if (mounted) {
+        showErrorSnackbar(context, 'Could not launch $url');
+      }
+    }
   }
 
   void copySelectedItems() {
@@ -393,11 +409,23 @@ class ListScreenState extends State<ListScreen> {
       listItems = [...listItems, ...completedItems];
     }
 
+    List<int> selectedItemIndices = List<int>.from(
+      listItems
+          .asMap()
+          .entries
+          .where((entry) => _selectedItemIds.contains(entry.value.key))
+          .map((entry) => entry.key),
+    );
+    _selectedItemIds.clear();
     for (int i = 0; i < listItems.length; i++) {
       // Create a new instance of ListItem to avoid same instance error
-      // Note: putAt index different from key, but key in index gets reused, effectively replacing old object
-      final newItem = ListItem.fromJson(listItems[i].toJson());
+      // Note: putAt index different from key, but key (of that index) gets reused, effectively replacing old object
+      final currentItem = listItems[i];
+      final newItem = ListItem.fromJson(currentItem.toJson());
       _itemBox.putAt(i, newItem);
+      if (selectedItemIndices.contains(i)) {
+        _selectedItemIds.add(_itemBox.getAt(i)!.key); // new key
+      }
     }
 
     setState(() {
@@ -405,6 +433,21 @@ class ListScreenState extends State<ListScreen> {
       currentBoxSettings.save();
     });
     _setLastUpdatedAndSave(widget.boxName);
+  }
+
+  void toggleSelectAll() {
+    setState(() {
+      bool newValue = _itemBox.values.every((item) => _selectedItemIds.contains(item.key)) == false;
+
+      if (newValue) {
+        _selectedItemIds = _itemBox.values.fold<Set<int>>({}, (Set<int> selectedIds, item) {
+          selectedIds.add(item.key);
+          return selectedIds;
+        });
+      } else {
+        _selectedItemIds.clear();
+      }
+    });
   }
 
   @override
@@ -541,29 +584,27 @@ class ListScreenState extends State<ListScreen> {
                     ListTile(
                       key: ValueKey('selectAll'),
                       minTileHeight: 10,
+                      contentPadding: EdgeInsets.zero,
                       title: Row(
                         children: [
-                          SizedBox(
-                            height: 24, // Used to remove padding from Checkbox
-                            child: Checkbox(
-                              value: _itemBox.values.every(
-                                (item) => _selectedItemIds.contains(item.key),
-                              ), // Check if all items are selected
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  if (value == true) {
-                                    _selectedItemIds = _itemBox.values.fold<Set<int>>({}, (
-                                      Set<int> selectedIds,
-                                      item,
-                                    ) {
-                                      selectedIds.add(item.key);
-                                      return selectedIds;
-                                    });
-                                  } else {
-                                    _selectedItemIds.clear();
-                                  }
-                                });
-                              },
+                          GestureDetector(
+                            onTap: toggleSelectAll,
+                            child: SizedBox(
+                              height: 24,
+                              width: 50,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Checkbox(
+                                    value: _itemBox.values.every(
+                                      (item) => _selectedItemIds.contains(item.key),
+                                    ),
+                                    onChanged: (bool? value) {
+                                      toggleSelectAll();
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           Text('Select All', style: TextStyle(fontWeight: FontWeight.w600)),
@@ -590,25 +631,48 @@ class ListScreenState extends State<ListScreen> {
                           return ListTile(
                             key: ValueKey(item.key),
                             minTileHeight: 10,
+                            contentPadding: EdgeInsets.zero,
+                            minVerticalPadding: 3,
                             title: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                SizedBox(
-                                  height: 24, // Used to remove padding from Checkbox
-                                  child: Checkbox(
-                                    value: _selectedItemIds.contains(item.key),
-                                    onChanged: (bool? value) {
-                                      setState(() {
-                                        if (value == true) {
-                                          _selectedItemIds.add(item.key);
-                                        } else {
-                                          _selectedItemIds.remove(item.key);
-                                        }
-                                      });
-                                    },
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      if (_selectedItemIds.contains(item.key)) {
+                                        _selectedItemIds.remove(item.key);
+                                      } else {
+                                        _selectedItemIds.add(item.key);
+                                      }
+                                    });
+                                  },
+                                  child: SizedBox(
+                                    height: 24,
+                                    width: 50,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.end, // Align checkbox to the right
+                                      children: [
+                                        Checkbox(
+                                          value: _selectedItemIds.contains(
+                                            item.key,
+                                          ), // If item is selected
+                                          onChanged: (bool? value) {
+                                            setState(() {
+                                              if (value == true) {
+                                                _selectedItemIds.add(item.key);
+                                              } else {
+                                                _selectedItemIds.remove(item.key);
+                                              }
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
+                                // Expanded to make the text take the remaining space
                                 Expanded(
                                   child: Text(
                                     currentTab.hasCount ? '${item.count} ${item.name}' : item.name,
@@ -622,6 +686,7 @@ class ListScreenState extends State<ListScreen> {
                                     ),
                                   ),
                                 ),
+                                // Optional tag display
                                 SizedBox(width: 8),
                                 if (item.tag != null && item.tag!.isNotEmpty)
                                   Container(
@@ -633,6 +698,7 @@ class ListScreenState extends State<ListScreen> {
                                     child: Text(item.tag!, style: TextStyles.tagText),
                                   ),
                                 SizedBox(width: 8),
+                                // Date added
                                 Text(
                                   dateFormat.format(item.dateAdded),
                                   style: TextStyles.lightText,
@@ -641,9 +707,33 @@ class ListScreenState extends State<ListScreen> {
                             ),
                             onTap: () => onItemTapped(item),
                             onLongPress: () => _showEditDialog(item),
-                            trailing: ReorderableDragStartListener(
-                              index: index,
-                              child: const Icon(Icons.drag_indicator),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    if (item.url != null && item.url!.isNotEmpty) {
+                                      _launchUrl(item.url!);
+                                    } else {
+                                      showErrorSnackbar(
+                                        context,
+                                        "No URL set. Update by long pressing item.",
+                                      );
+                                    }
+                                  },
+                                  child:
+                                      item.url != null && item.url!.isNotEmpty
+                                          ? const Icon(Icons.link)
+                                          : Icon(Icons.link, color: dullColor),
+                                ),
+                                ReorderableDragStartListener(
+                                  index: index,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                                    child: const Icon(Icons.drag_indicator), // Drag icon
+                                  ),
+                                ),
+                              ],
                             ),
                           );
                         },
