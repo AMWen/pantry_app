@@ -689,13 +689,27 @@ class ListScreenState extends State<ListScreen> {
                                 // Optional tag display
                                 SizedBox(width: 8),
                                 if (item.tag != null && item.tag!.isNotEmpty)
-                                  Container(
-                                    padding: EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: item.itemTagColor(_tagOrder),
-                                      borderRadius: BorderRadius.circular(12),
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedItemIds.clear();
+                                        for (var listItem in listItems) {
+                                          if (listItem.tag == item.tag) {
+                                            _selectedItemIds.add(
+                                              listItem.key,
+                                            ); // Add all items with same tag
+                                          }
+                                        }
+                                      });
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        color: item.itemTagColor(_tagOrder),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(item.tag!, style: TextStyles.tagText),
                                     ),
-                                    child: Text(item.tag!, style: TextStyles.tagText),
                                   ),
                                 SizedBox(width: 8),
                                 // Date added
