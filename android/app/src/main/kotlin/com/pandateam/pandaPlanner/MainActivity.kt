@@ -1,4 +1,4 @@
-package com.pandateam.pantryOrganizer
+package com.pandateam.pandaPlanner
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,4 +1,4 @@
-# Pantry App
+# Panda Planner App
 
 A simple and intuitive mobile app built with Flutter that helps you keep track of all your lists. Meant to be a no-frills, offline app, not requiring creation or access to any accounts.
 

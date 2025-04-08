@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:pantry_app/utils/file_utils.dart';
+import '../../utils/file_utils.dart';
 
 class AutoLoadService {
   late Timer _autoLoadTimer;

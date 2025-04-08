@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:pantry_app/utils/file_utils.dart';
-import 'package:pantry_app/utils/hivebox_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../utils/file_utils.dart';
+import '../../utils/hivebox_utils.dart';
 import '../../utils/widget_utils.dart';
 import '../classes/list_item.dart';
 import '../constants.dart';

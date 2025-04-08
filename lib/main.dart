@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Pantry App',
+      title: 'Panda Planner',
       theme: ThemeData(
         colorSchemeSeed: primaryColor,
         appBarTheme: AppBarTheme(

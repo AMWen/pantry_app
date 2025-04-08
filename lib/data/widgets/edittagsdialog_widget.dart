@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pantry_app/data/widgets/basic_widgets.dart';
 
+import '../../data/widgets/basic_widgets.dart';
 import '../classes/box_settings.dart';
 import '../constants.dart';
 
