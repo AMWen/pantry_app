@@ -109,7 +109,7 @@ final List<Map<String, String>> sortOptions = [
 
 Color primaryColor = Color.fromARGB(255, 3, 78, 140);
 Color secondaryColor = Colors.grey[200]!;
-Color dullColor = Colors.grey[600]!;
+Color dullColor = Colors.grey[500]!;
 
 DateFormat dateFormat = DateFormat('M/d/yy');
 
