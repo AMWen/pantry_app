@@ -54,22 +54,24 @@ The app allows you to quickly add multiple items at once, modify quantities, del
     - **ℹ️ Info**: Short snippet about purpose of app.
 
 ## Screenshots
-<img src="assets/screenshots/1_primary_screen.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-<img src="assets/screenshots/2_add_items.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-<img src="assets/screenshots/3_multiple_items.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-<img src="assets/screenshots/4_edit_item.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-<img src="assets/screenshots/5_update_quantity.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-<img src="assets/screenshots/6_copy_to_clipboard.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-<img src="assets/screenshots/7_tag_items.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-<img src="assets/screenshots/8_edit_tags.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-<img src="assets/screenshots/9_sort_options.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-<img src="assets/screenshots/10_save_load.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-<img src="assets/screenshots/11_delete_items.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-<img src="assets/screenshots/12_additional_options.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-<img src="assets/screenshots/13_move_items.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-<img src="assets/screenshots/14_manage_lists.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-<img src="assets/screenshots/15_edit_list_order.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
-<img src="assets/screenshots/16_edit_specific_list.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+<div style="text-align: left;">
+  <img src="assets/screenshots/1_primary_screen.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/2_add_items.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/3_multiple_items.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/4_edit_item.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/5_update_quantity.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/6_copy_to_clipboard.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/7_tag_items.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/8_edit_tags.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/9_sort_options.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/10_save_load.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/11_delete_items.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/12_additional_options.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/13_move_items.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/14_manage_lists.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/15_edit_list_order.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+  <img src="assets/screenshots/16_edit_specific_list.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+</div>
 
 ## Getting Started
 
