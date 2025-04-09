@@ -91,9 +91,10 @@ List<TabItem> generateTabItems(ValueNotifier<int> refreshNotifier) {
   return tabConfigs.map((config) {
     final configData = config.iconData;
     IconData iconData;
-    int iconCodePoint = (configData[IconDataInfo.iconCodePoint] is String)
-      ? int.tryParse(configData[IconDataInfo.iconCodePoint]) ?? defaultCodePoint
-      : configData[IconDataInfo.iconCodePoint];
+    int iconCodePoint =
+        configData[IconDataInfo.iconCodePoint] is String
+            ? int.tryParse(configData[IconDataInfo.iconCodePoint]) ?? defaultCodePoint
+            : configData[IconDataInfo.iconCodePoint];
     try {
       iconData = getIcon(
         iconCodePoint,
@@ -101,11 +102,7 @@ List<TabItem> generateTabItems(ValueNotifier<int> refreshNotifier) {
         configData[IconDataInfo.fontPackage],
       );
     } catch (e) {
-      iconData = getIcon(
-        iconCodePoint,
-        defaultFontFamily,
-        defaultFontPackage,
-      );
+      iconData = getIcon(iconCodePoint, defaultFontFamily, defaultFontPackage);
     }
     final boxName = lowercaseAndRemoveSpaces(config.title);
     final screen = ListScreen(

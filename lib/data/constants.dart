@@ -19,7 +19,7 @@ final String defaultFontFamily = 'FontAwesomeSolid';
 final String defaultFontPackage = 'font_awesome_flutter';
 final Map<String, dynamic> defaultIconData = {
   IconDataInfo.iconCodePoint: defaultCodePoint,
-  IconDataInfo.fontFamily: defaultCodePoint,
+  IconDataInfo.fontFamily: defaultFontFamily,
   IconDataInfo.fontPackage: defaultFontPackage,
 };
 

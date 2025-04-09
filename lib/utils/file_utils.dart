@@ -297,14 +297,11 @@ Future<String> loadAllFromFile(String? filePath) async {
         final jsonString = await file.readAsString();
         final Map<String, dynamic> allData = json.decode(jsonString);
         await processJsonData(allData);
-        await initializeHiveBoxes();
       } else if (fileExtension == 'xlsx') {
         var file = File(filePath);
         var bytes = await file.readAsBytes();
         var excel = Excel.decodeBytes(bytes);
         await processXlsxData(excel);
-        print('load complete');
-        await initializeHiveBoxes();
       } else {
         return 'Unsupported file type. Please provide a JSON or CSV file.';
       }
@@ -438,11 +435,8 @@ List<dynamic> parseSheetToItems(Sheet sheet, Type type) {
       } else if (type == BoxSettings) {
         parsedItems.add(BoxSettings.parseCsvRowToItem(csvRow));
       } else if (type == TabConfiguration) {
-        print('adding');
         var currentItem = TabConfiguration.parseCsvRowToItem(csvRow);
         parsedItems.add(currentItem);
-        print(currentItem);
-        print(currentItem.title);
       }
     }
   }

@@ -351,8 +351,8 @@ class ManageListsDialogState extends State<ManageListsDialog> {
       IconPickerIcon? icon = await showIconPicker(
         context,
         configuration: SinglePickerConfiguration(
-          searchHintText: 'e.g. savings=pig',
-          title: Text('Pick an icon (material icons)', style: TextStyles.dialogTitle),
+          iconPackModes: [IconPack.fontAwesomeIcons],
+          title: Text('Pick an icon', style: TextStyles.dialogTitle),
         ),
       );
 
@@ -442,7 +442,8 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                               getIcon(
                                 iconData[IconDataInfo.iconCodePoint],
                                 iconData[IconDataInfo.fontFamily],
-                                iconData[IconDataInfo.fontPackage],
+                                defaultFontPackage
+                                //iconData[IconDataInfo.fontPackage],
                               ),
                               color: Theme.of(context).textTheme.bodyMedium!.color,
                             );
