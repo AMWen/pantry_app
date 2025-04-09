@@ -67,14 +67,19 @@ class TabConfiguration extends HiveObject {
     return TabConfiguration(
       title: json['title'],
       itemType: json['itemType'],
-      iconData: json['iconData'] ?? defaultIconData,
+      iconData:
+          json['iconData'] ??
+          {
+            IconDataInfo.iconCodePoint: json['iconCodePoint'] ?? defaultCodePoint,
+            IconDataInfo.fontFamily: json['fontFamily'] ?? defaultFontFamily,
+            IconDataInfo.fontPackage: defaultFontPackage,
+          },
       hasCount: json['hasCount'] ?? false,
       moveTo: json['moveTo'],
       sort: json['sort'],
     );
   }
 
-  // toJson to convert TabConfiguration object to a Map
   Map<String, dynamic> toJson() {
     return {
       'title': title,
@@ -84,5 +89,43 @@ class TabConfiguration extends HiveObject {
       'moveTo': _moveTo,
       'sort': _sort,
     };
+  }
+
+  static List<String> headers = ['Title', 'Item Type', 'Icon Data', 'Has Count', 'Move To', 'Sort'];
+
+  String toCsv() {
+    String iconDataString =
+        _iconData != null ? _iconData!.entries.map((e) => '${e.key}:${e.value}').join('|') : '';
+    return '$title,$itemType,$iconDataString,$_hasCount,${_moveTo ?? ''},${_sort ?? ''}';
+  }
+
+  factory TabConfiguration.parseCsvRowToItem(List<String> csvRow) {
+    Map<String, dynamic> iconDataMap = {};
+    if (csvRow[2].isNotEmpty) {
+      var iconDataEntries = csvRow[2].split('|');
+      for (var entry in iconDataEntries) {
+        var keyValue = entry.split(':');
+        if (keyValue.length == 2) {
+          var key = keyValue[0];
+          var value = keyValue[1];
+
+          if (key == IconDataInfo.iconCodePoint) {
+            iconDataMap[key] = int.tryParse(value) ?? defaultCodePoint;
+          } else {
+            iconDataMap[key] = value;
+          }
+        }
+      }
+    }
+    int sortValue = int.tryParse(csvRow[5]) ?? DateTime.now().toUtc().millisecondsSinceEpoch;
+
+    return TabConfiguration(
+      title: csvRow[0],
+      itemType: csvRow[1],
+      iconData: iconDataMap, // Assign the map
+      hasCount: csvRow[3].toLowerCase() == 'true',
+      moveTo: csvRow[4].isNotEmpty ? csvRow[4] : null,
+      sort: sortValue,
+    );
   }
 }

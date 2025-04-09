@@ -67,6 +67,34 @@ class ListItem<T> extends HiveObject {
     };
   }
 
+  static List<String> headers = [
+    'Name',
+    'Count',
+    'Date Added',
+    'Tag',
+    'Completed',
+    'Item Type',
+    'URL',
+    'Notes',
+  ];
+
+  String toCsv() {
+    return '$name,$count,${dateAdded.toIso8601String()},${tag ?? ''},${completed ?? ''},$itemType,${url ?? ''},${notes ?? ''}';
+  }
+
+  factory ListItem.parseCsvRowToItem(List<String> csvRow) {
+    return ListItem(
+      name: csvRow[0],
+      count: int.tryParse(csvRow[1]) ?? 1,
+      dateAdded: DateTime.tryParse(csvRow[2]) ?? DateTime.now(),
+      tag: csvRow[3].isNotEmpty ? csvRow[3] : null,
+      completed: csvRow[4].toLowerCase() == 'true',
+      itemType: csvRow[5],
+      url: csvRow[6].isNotEmpty ? csvRow[6] : null,
+      notes: csvRow[7].isNotEmpty ? csvRow[7] : null,
+    );
+  }
+
   int get count => _count ?? 1;
   set count(int value) {
     _count = value;

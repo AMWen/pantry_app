@@ -108,4 +108,30 @@ class BoxSettings extends HiveObject {
       'sortCriteria': _sortCriteria,
     };
   }
+
+  static List<String> headers = [
+    'Box Name',
+    'Sync Location',
+    'Last Updated',
+    'Show Completed',
+    'Select All Completed',
+    'Tags',
+    'Sort Criteria',
+  ];
+
+  String toCsv() {
+    return '$boxName,${_syncLocation ?? ''},${lastUpdated?.toIso8601String() ?? ''},$_showCompleted,$_selectAllCompleted,${_tags != null ? _tags!.join('|') : ''},${_sortCriteria ?? ''}';
+  }
+
+  factory BoxSettings.parseCsvRowToItem(List<String> csvRow) {
+    return BoxSettings(
+      boxName: csvRow[0],
+      syncLocation: csvRow[1].isNotEmpty ? csvRow[1] : null,
+      lastUpdated: csvRow[2].isNotEmpty ? DateTime.tryParse(csvRow[2]) : null,
+      showCompleted: csvRow[3].toLowerCase() == 'true',
+      selectAllCompleted: csvRow[4].toLowerCase() == 'true',
+      tags: csvRow[5].isNotEmpty ? csvRow[5].split('|') : null,
+      sortCriteria: csvRow[6].isNotEmpty ? csvRow[6] : null,
+    );
+  }
 }

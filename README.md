@@ -4,7 +4,7 @@ A simple and intuitive mobile app built with Flutter that helps you keep track o
 
 Originally created to help manage pantry items, its main features were to allow you to easily update quantities as you go through them and track when they were added, so you can use up anything that's been sitting around for a while.
 
-Beyond pantry management, the app has expanded and can handle applications including shopping, meal planning, to-do lists, and more, offering an all-in-one solution for managing your daily tasks, food-related needs, and other situations where lists are useful.
+Beyond pantry management, the app has expanded and can handle applications including shopping, meal planning, to-do lists, and more, offering an all-in-one solution for planning and managing your daily tasks, food-related needs, and other situations where lists are useful.
 
 The app allows you to quickly add multiple items at once, modify quantities, delete items, and organize them with customizable tags. It also includes features for managing lists, importing and exporting data, as well as sorting items based on different criteria.
 
@@ -17,8 +17,8 @@ The app allows you to quickly add multiple items at once, modify quantities, del
 - **Modify item quantities**: Quickly change the quantity of any item.
 - **Delete items**: Remove items from your list, including support for deleting multiple selected items at once.
 - **Copy items**: Copy items to clipboard for sharing.
-- **Tag items**: Assign customizable tags to items for better organization.
-- **Import/Export**: Import and export data using JSON files.
+- **Tag items**: Assign customizable tags to items for better organization. Select items by tag.
+- **Import/Export**: Import and export data using JSON, CSV, and XLSX files.
 - **Sorting**: Sort items by name, date added, or tag.
 - **Move items**: Move selected items between shopping list and pantry directly.
 - **Reordering items**: Rearrange the order of items in the list via drag and drop.
@@ -33,12 +33,14 @@ The app allows you to quickly add multiple items at once, modify quantities, del
   - **Update completion**: For non-countable items, tapping the item marks it as complete or incomplete.
   - **Reordering Items**: Users can reorder items with the drag-and-drop interface on the right side.
   - **Checkboxes**: Select items using the checkboxes for various interactions with the top toolbar.
+  - **Tags**: Tap on a tag to select all items with the same tag.
+  - **Links**: If a URL is specified for the item, tap on the link icon to directly access the website.
 
 - **Toolbar Features**
   - **👁️ Select and view completed items**: Select as well as toggle the visibility of completed items in the list.
   - **📋 Copy**: Copy selected items to clipboard.
   - **↕️ Sorting**: Sort items by `Name`, `Date Added`, `Tag`, or your own manual order (from using the drag-and-drop interface).
-  - **💾 Saving and loading**: Load from and save to a JSON file, useful for backup and sharing. When you load, you can choose to add to the list or to completely replace the current list. You can also save the whole list or selected items. In addition to individual lists, you can import and export all the data in the app at once.
+  - **💾 Saving and loading**: Load from and save to a JSON, CSV, or XLSX file, useful for backup and sharing. When you load, you can choose to add to the list or to completely replace the current list. You can also save the whole list or selected items. In addition to individual lists, you can import and export all the data in the app at once.
   - **🏷️ Multi-select tagging**: Categorize multiple selected items at once using tags. The labels can be edited to your preferences.
   - **🗑️ Multi-select deletion**: Delete multiple selected items at once.
   - ** Popup menu**:
@@ -52,20 +54,22 @@ The app allows you to quickly add multiple items at once, modify quantities, del
     - **ℹ️ Info**: Short snippet about purpose of app.
 
 ## Screenshots
-<img src="assets/screenshots/2_add_items.png" width="150px"/>
-<img src="assets/screenshots/3_multiple_items.png" width="150px"/>
-<img src="assets/screenshots/4_edit_item.png" width="150px"/>
-<img src="assets/screenshots/5_update_quantity.png" width="150px"/>
-<img src="assets/screenshots/6_copy_to_clipboard.png" width="150px"/>
-<img src="assets/screenshots/7_tag_items.png" width="150px"/>
-<img src="assets/screenshots/8_edit_tags.png" width="150px"/>
-<img src="assets/screenshots/9_sort_options.png" width="150px"/>
-<img src="assets/screenshots/10_delete_items.png" width="150px"/>
-<img src="assets/screenshots/11_additional_options.png" width="150px"/>
-<img src="assets/screenshots/12_move_items.png" width="150px"/>
-<img src="assets/screenshots/13_manage_lists.png" width="150px"/>
-<img src="assets/screenshots/14_edit_list_order.png" width="150px"/>
-<img src="assets/screenshots/15_edit_specific_list.png" width="150px"/>
+<img src="assets/screenshots/1_primary_screen.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+<img src="assets/screenshots/2_add_items.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+<img src="assets/screenshots/3_multiple_items.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+<img src="assets/screenshots/4_edit_item.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+<img src="assets/screenshots/5_update_quantity.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+<img src="assets/screenshots/6_copy_to_clipboard.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+<img src="assets/screenshots/7_tag_items.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+<img src="assets/screenshots/8_edit_tags.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+<img src="assets/screenshots/9_sort_options.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+<img src="assets/screenshots/10_save_load.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+<img src="assets/screenshots/11_delete_items.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+<img src="assets/screenshots/12_additional_options.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+<img src="assets/screenshots/13_move_items.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+<img src="assets/screenshots/14_manage_lists.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+<img src="assets/screenshots/15_edit_list_order.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
+<img src="assets/screenshots/16_edit_specific_list.png" width="150px" style="display: inline-block; margin-right: 4px;"/>
 
 ## Getting Started
 
