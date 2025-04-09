@@ -103,9 +103,9 @@ class SaveLoadDialogState extends State<SaveLoadDialog> {
           SizedBox(height: 10),
           Row( // only applies to save
             children: [
-              Text('JSON Format', style: TextStyles.mediumText,),
+              Text('JSON', style: TextStyles.mediumText,),
               Switch(value: _isCsvFormat, onChanged: _toggleFormat),
-              Text('CSV/XLSX Format', style: TextStyles.mediumText,),
+              Text('CSV/XLSX', style: TextStyles.mediumText,),
             ],
           ),
           ...generateListTiles(context, [

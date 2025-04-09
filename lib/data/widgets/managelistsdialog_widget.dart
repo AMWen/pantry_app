@@ -73,7 +73,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
       IconPickerIcon? icon = await showIconPicker(
         context,
         configuration: SinglePickerConfiguration(
-          iconPackModes: [IconPack.fontAwesomeIcons],
+          iconPackModes: [IconPack.fontAwesomeIcons, IconPack.material],
           title: Text('Pick an icon', style: TextStyles.dialogTitle),
         ),
       );
@@ -351,7 +351,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
       IconPickerIcon? icon = await showIconPicker(
         context,
         configuration: SinglePickerConfiguration(
-          iconPackModes: [IconPack.fontAwesomeIcons],
+          iconPackModes: [IconPack.fontAwesomeIcons, IconPack.material],
           title: Text('Pick an icon', style: TextStyles.dialogTitle),
         ),
       );
