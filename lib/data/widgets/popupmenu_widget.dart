@@ -136,9 +136,9 @@ class PopupMenuState extends State<PopupMenu> {
                       builder: (context) {
                         return AlertDialog(
                           contentPadding: alertPadding,
-                          title: AlertTitle('Pantry App'),
+                          title: AlertTitle('Panda Planner'),
                           content: Text(
-                            'A simple and intuitive mobile app built with Flutter that helps you keep '
+                            'A simple and intuitive mobile app that helps you keep '
                             'track of all your lists. Meant to be a no-frills, offline app, not '
                             'requiring creation or access to any accounts.',
                           ),
