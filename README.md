@@ -125,6 +125,11 @@ For android:
 flutter build apk --release --no-tree-shake-icons
 ```
 
+or 
+```bash
+flutter build appbundle --no-tree-shake-icons
+```
+
 For iOS (need to create an an iOS Development Certificate in Apple Developer account):
 ```bash
 flutter build ios --release
