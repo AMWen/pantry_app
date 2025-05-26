@@ -316,9 +316,25 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                           onTap: () {
                             _showEditListDialog(tabItem.key);
                           },
-                          trailing: ReorderableDragStartListener(
-                            index: index,
-                            child: const Icon(Icons.drag_indicator),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ReorderableDragStartListener(
+                                index: index,
+                                child: const Icon(Icons.drag_indicator),
+                              ),
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: () {
+                                  if (generateTabItems(widget.refreshNotifier).length > 1) {
+                                    _deleteList(tabItem.key);
+                                  } else {
+                                    showErrorSnackbar(context, 'Need to keep at least one list.');
+                                  }
+                                },
+                                child: const Icon(Icons.delete, color: Colors.red),
+                              ),
+                            ],
                           ),
                         );
                       },
@@ -442,7 +458,7 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                               getIcon(
                                 iconData[IconDataInfo.iconCodePoint],
                                 iconData[IconDataInfo.fontFamily],
-                                defaultFontPackage
+                                defaultFontPackage,
                                 //iconData[IconDataInfo.fontPackage],
                               ),
                               color: Theme.of(context).textTheme.bodyMedium!.color,
@@ -619,43 +635,11 @@ class ManageListsDialogState extends State<ManageListsDialog> {
                 tabBox.delete(tabTitle);
                 widget.refreshNotifier.value++;
                 Navigator.of(context).pop();
-                Navigator.of(context).pop(); // remove previous _showDeleteDialog
-                await _showDeleteDialog(); // re-render
+                Navigator.of(context).pop(); // remove previous _showEditDialog
+                await _showEditDialog(); // re-render
               },
             ),
           ],
-        );
-      },
-    );
-  }
-
-  Future<void> _showDeleteDialog() async {
-    await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          contentPadding: alertPadding,
-          title: AlertTitle('Delete list(s)'),
-          content: SingleChildScrollView(
-            child: Column(
-              children:
-                  generateTabItems(widget.refreshNotifier).map<Widget>((TabItem tabItem) {
-                    return ListTile(
-                      minTileHeight: 10,
-                      leading: tabItem.icon,
-                      title: Text(tabItem.label, style: TextStyles.mediumText),
-                      onTap: () {
-                        if (generateTabItems(widget.refreshNotifier).length > 1) {
-                          _deleteList(tabItem.boxName);
-                        } else {
-                          showErrorSnackbar(context, 'Need to keep at least one list.');
-                        }
-                      },
-                    );
-                  }).toList(),
-            ),
-          ),
-          actions: [OkButton()],
         );
       },
     );
@@ -673,11 +657,6 @@ class ManageListsDialogState extends State<ManageListsDialog> {
               'leading': Icon(Icons.add),
               'title': 'Add a list',
               'action': () async => await _showAddDialog(),
-            },
-            {
-              'leading': Icon(Icons.remove),
-              'title': 'Delete list(s)',
-              'action': () async => await _showDeleteDialog(),
             },
             {
               'leading': Icon(Icons.edit),
